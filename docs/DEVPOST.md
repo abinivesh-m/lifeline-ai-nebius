@@ -62,8 +62,9 @@ decision      ->  held at a human gate, never auto-executed
 ```
 
 Eight steps: perceive, listen, graph, route, allocate, budget, approve, replan. **Four of them — graph,
-route, budget, replan — need no model and no network.** That is deliberate: if the road is down, the
-cloud may be down too, and a survival tool that stops working in an outage is a demo.
+route, budget, replan — compute with no model and no network, and two more replay stored artefacts with
+no model call at all.** That is deliberate: if the road is down, the cloud may be down too, and a
+survival tool that stops working in an outage is a demo.
 
 ## Why it is an agent, not a wrapper
 

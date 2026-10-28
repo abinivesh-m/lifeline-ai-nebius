@@ -47,7 +47,7 @@ recorded from a real run and played back in the browser.
 | **What it is** | an agent that orders a town's survival dependencies, routes around a closure, and rations fuel |
 | **Models** | Nemotron 3 Nano 30B-A3B · Super 120B · Ultra 550B, all on Nebius Token Factory |
 | **Evidence** | Tavily search + extract + map + crawl, then a five-check verifier that rejects as often as it accepts |
-| **Determinism** | 4 of 8 steps need no model; the 70/30 result ships even when every API is down |
+| **Determinism** | 6 of 8 steps make no model call — four compute, two replay stored artefacts; the 70/30 result ships even when every API is down |
 | **Measured spend** | **$0.027049** inference across 18 calls · **$1.056** Tavily across 132 credits · **$1.083049** combined |
 | **Tests** | **78 passed**, standard library only, no network |
 | **License** | MIT |
@@ -65,7 +65,8 @@ recorded from a real run and played back in the browser.
 ## The problem
 
 The problem is ordering, not supply. A hospital generator with four hours left and a water pump on the
-same feeder compete for 100 litres. Split 50/50 and the feeder browns out; give the hospital 70 and the
+same feeder compete for 100 litres. Both draw from the one generator tank, so the pump's 30 L is a
+budget line, not a second tank. Split 50/50 and the feeder browns out; give the hospital 70 and the
 same pump runs three times longer on its 30. Same diesel, same town, three times the water.
 
 The hard part is not the arithmetic. It is that the arithmetic depends on facts the town does not own:
@@ -84,7 +85,7 @@ pump uptime   ->  30 min -> 90 min           water back in 2 h instead of 6 h
 decision      ->  held at a human gate, never auto-executed
 ```
 
-Eight steps. Four need no model at all, and one is a human.
+Eight steps. Six make no model call — four compute, two replay stored artefacts. One is a model proposal checked in code; the last is classified by a model, then held for a human.
 
 ## Screens
 

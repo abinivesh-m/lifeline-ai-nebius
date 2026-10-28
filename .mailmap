@@ -1,0 +1,5 @@
+# One author, one identity. The build used three email addresses on one machine;
+# collapse them so the commit graph and the contributors list show a solo entry.
+Abinivesh M <abinivesh.1203@gmail.com> <abinivesh.m@gmail.com>
+Abinivesh M <abinivesh.1203@gmail.com> <abinivesh@users.noreply.github.com>
+Abinivesh M <abinivesh.1203@gmail.com> abinivesh-m <abinivesh.1203@gmail.com>
