@@ -20,8 +20,8 @@ outside fact retrieved and checked through Tavily.**
   <img alt="Tavily" src="https://img.shields.io/badge/Tavily-search%20%2B%20extract-2dd4bf?style=flat-square">
 </p>
 
-Solo entry · **Nebius × NVIDIA Global AI Hackathon 2026** · **Best Apps and Agents**
-· **Best Use of Tavily** · [@abinivesh-m](https://github.com/abinivesh-m)
+Solo entry · **Nebius × NVIDIA Global AI Hackathon 2026** · entering **Best Apps and Agents**
+and **Best Use of Tavily** · [@abinivesh-m](https://github.com/abinivesh-m)
 
 **Demo:** <https://lifeline-ai-nebius.vercel.app> · **Workflow replay:**
 <https://lifeline-ai-nebius.vercel.app/live/> — the eight-step event stream, recorded from a real run.
