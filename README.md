@@ -30,7 +30,7 @@ and **Best Use of Tavily** · [@abinivesh-m](https://github.com/abinivesh-m)
 > 11.0168 N, 76.9558 E — sits at the foot of the Western Ghats, where the **Pollachi–Valparai ghat road**
 > closes under boulders every monsoon. The most recent real closure was **22 October 2026: reopened after
 > 15 hours**
-> ([New Indian Express](https://www.newindianexpress.com/states/tamil-nadu/2026/Oct/22/tamil-nadu-pollachi-valparai-ghat-road-reopens-after-15-hours-following-landslide)).
+> ([Times of India](https://timesofindia.indiatimes.com/city/chennai/heavy-rains-trigger-landslide-on-valparai-ghat-road/articleshow/135099368.cms)).
 > The 6-hour closure, the 100 L reserve and the 70/30 split are **town data**, not a claim that a specific
 > landslide happened on a specific date. [What is real](#what-is-real-and-what-is-simulated) draws that
 > line precisely.
