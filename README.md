@@ -148,6 +148,53 @@ verdict and the four evidence rows the model cited.
 Play the same eight steps back at <https://lifeline-ai-nebius.vercel.app/live/> — one event per step, held
 at the human gate, then the replan after the depot is damaged.
 
+## Architecture
+
+```mermaid
+flowchart TB
+    subgraph LOCAL["Laptop - no key, no network, $0.00"]
+        M["stored flood masks<br/>9 frames"]
+        T["stored ASR transcript<br/>10.78 s"]
+        W["town.json<br/>organs / reserve / roads"]
+        DG["dependency_graph.py<br/>Kahn order + cascade"]
+        AS["a_star.py<br/>7.8 km route"]
+        AL["allocator.py<br/>70/30 solver + validator"]
+        SG["seri_gate.py<br/>token + model + 0.80"]
+        LED["hash-chained ledger<br/>sha256 prev -> hash"]
+    end
+
+    subgraph CLOUD["Nebius Token Factory"]
+        NANO["Nano 30B-A3B<br/>triage"]
+        SUPER["Super 120B<br/>draft / review / gate"]
+        ULTRA["Ultra 550B<br/>the allocation"]
+    end
+
+    subgraph WEB["Tavily"]
+        SR["search"]
+        EX["extract"]
+        MP["map"]
+        CR["crawl"]
+        V["five-check verifier"]
+    end
+
+    W --> DG --> AS --> AL
+    M --> AL
+    AL -->|propose| ULTRA
+    ULTRA -->|JSON + usage| AL
+    AL -->|8 locales| SUPER
+    SUPER -->|drafts + reviews| AL
+    AL -->|triage| NANO
+    SR --> EX --> MP --> CR --> V
+    V -->|accepted quotes| AL
+    AL --> SG --> LED
+    T --> SG
+    LED --> STOP["human decides<br/>nothing is dispatched"]
+```
+
+`brain.py` is the only file that knows a provider exists. The engine exports no model name, so the
+deterministic path is identical whether the cloud answers or not. The Tavily path is the only way an
+outside fact reaches the allocator, and it reaches it only as a quote that passed all five checks.
+
 ## Why this is an agent, not a wrapper
 
 1. **The model proposes, code disposes.** Ultra returns `{"allocation": ..., "justification": ...}`. Every

@@ -77,16 +77,17 @@ Section 06, then the proof artefact.
 
 Section 04, then the JSON on screen.
 
-> "Every outside fact comes from **Tavily**, and none of it is trusted. A claim is accepted only if the
-> quote is a literal slice of the fetched page, the URL was actually extracted, the date is inside the
-> window, Tavily's own relevance clears 0.20, and the source is regional. This row is the real New Indian
-> Express story from 25 October 2026 — URL, quote, score, date, verdict."
+> "Every outside fact comes from **Tavily**, and none of it is trusted. Accepted only if the quote is a
+> literal slice of the fetched page, the URL was extracted, the date is inside the window, Tavily's
+> relevance clears 0.20, and the source is regional. This New Indian Express story from 26 October scores
+> 0.872 — and is rejected, because it is from Odisha. Same paper, wrong region."
 
 Cut to the M25 row.
 
 > "And this is the failure that created the rule: a BBC story about an M25 footbridge, score 0.014,
-> accepted for a Kottur claim because both sentences said 'closed'. It is in the artefact, rejected, next
-> to the nine that passed. Ten queries, 37 pages, 17 claims checked, 8 rejected, 132 credits."
+> accepted for a Kottur claim because both sentences said 'closed'. Both rows sit in the artefact,
+> rejected, beside the nine that passed. Ten queries, 37 pages, 17 claims checked, 8 rejected, 132
+> credits."
 
 ## 1:48 — the gate (22 s)
 

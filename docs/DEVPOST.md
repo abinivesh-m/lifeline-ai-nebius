@@ -133,6 +133,11 @@ kept in `artifacts/tavily_proof.json` under `modes.scenario.rejected_examples`, 
 totals, with its URL, quote and the cached response it came from. The artefact shows the false positive
 the verifier now catches — that is the point of publishing it.
 
+Check 5 catches the opposite failure. A **New Indian Express** story from 26 October 2026, freshly dated
+and scoring **0.872**, was rejected because it is from Odisha: a high score does not make a source
+regional. Both rows ship in the artefact, rejected, next to the nine that passed. The 132 credits split
+**60 search · 50 extract · 15 map · 7 crawl** across 47 calls, read from the API's own `usage` field.
+
 Scenario and live are stored and rendered separately, never blended, because blending is how a 2023
 figure gets quoted as current. Every response is cached by request hash, so the artefact rebuilds
 offline and replaying it costs zero credits; credits are read from the API's own `usage` field.
