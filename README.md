@@ -1,5 +1,5 @@
 <div align="center">
-  <strong>LIFELINE AI</strong> — a town's organs, its fuel reserve, and the order that keeps them alive
+  <img src="figma/lifegrid.png" alt="LIFELINE AI - a town's organs, its fuel reserve, and the order that keeps them alive" width="100%">
 </div>
 
 # LIFELINE AI
@@ -128,12 +128,14 @@ checked in code; the last is classified by a model, then held for a human.
 
 | Dependency order | Route | Allocation |
 | --- | --- | --- |
-| the town as a DAG | A* around the closure | 70/30 with the validator verdict |
+| ![the town as a DAG](figma/graph.png) | ![A* around the closure](figma/astar.png) | ![70/30 with the validator verdict](figma/allocator.png) |
 | Kahn order puts the heart before the lungs | 4.2 km blocked, 7.8 km found | the model's proposal, checked field by field |
 
-The workflow replay at **[/live/](https://lifeline-ai-nebius.vercel.app/live/)** plays the recorded event stream:
-press play, or click any step in the rail. Step 05 is the allocation, with the validator verdict and the
-four evidence rows the model cited.
+[![the workflow replay: eight steps, one approval, 70 L / 30 L on screen](figma/workflow.png)](https://lifeline-ai-nebius.vercel.app/live/)
+
+The replay at **[/live/](https://lifeline-ai-nebius.vercel.app/live/)** plays the recorded event stream:
+press play, or click any step in the rail. The frame above is step 05, the allocation, with the validator
+verdict and the four evidence rows the model cited.
 
 ## The eight steps
 
