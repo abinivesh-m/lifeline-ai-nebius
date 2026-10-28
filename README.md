@@ -285,6 +285,7 @@ Four endpoint types do real work, all at `advanced` depth:
 | Claims checked | **17** |
 | Claims accepted | **9** |
 | Credits consumed across the build | **132** (47 calls) |
+| Credit split | **60** search · **50** extract · **15** map · **7** crawl — 30 searches at advanced depth bill 2 each |
 
 Every accepted and rejected row is in
 [`artifacts/tavily_proof.json`](artifacts/tavily_proof.json), with its quote, URL, score, publication date
