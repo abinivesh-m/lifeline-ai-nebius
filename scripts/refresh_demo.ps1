@@ -23,8 +23,9 @@ python export_ui_data.py
 if ($LASTEXITCODE -ne 0) { throw "export_ui_data.py exited $LASTEXITCODE" }
 
 $data = Get-Content "ui\public\data\lifeline.json" -Raw | ConvertFrom-Json
-$proof = Get-Content "artifacts\openweight_proof.json" -Raw | ConvertFrom-Json
-$valid = @($proof.runs | Where-Object { $_.valid }).Count
+$proof = Get-Content "artifacts\nebius_proof.json" -Raw | ConvertFrom-Json
+$calls = @($proof.calls.PSObject.Properties)
+$answered = @($calls | Where-Object { $_.Value.status -eq "answered" }).Count
 $brain = $data.allocation.brain
 
 Write-Host ""
@@ -33,8 +34,11 @@ Write-Host ("  brain          {0} / {1} / {2} s" -f $brain.provider, $brain.mode
 Write-Host ("  brain status   {0}" -f $brain.status)
 Write-Host ("  hero chip      ledger `${0:F4}/`${1:F0} live" -f $data.credit.spent_usd, $data.credit.budget_usd)
 Write-Host ("  ledger rows    {0} rows, {1} models" -f $data.credit.ledger_rows, ($data.credit.by_model.PSObject.Properties | Measure-Object).Count)
-Write-Host ("  proof badge    {0}/{1} valid" -f $valid, $proof.runs.Count)
-Write-Host ("  proof latency  {0}" -f (($proof.runs | Where-Object { $_.valid } | ForEach-Object { "{0:F2} s" -f $_.latency_s }) -join " / "))
+Write-Host ("  proof          {0}/{1} answered - validator {2}, citations {3}" -f `
+    $answered, $calls.Count, $proof.totals.validator_ok, $proof.totals.citations_ok)
+Write-Host ("  proof latency  {0}" -f (($calls | ForEach-Object { "{0} {1:F2} s" -f $_.Name, $_.Value.latency_s }) -join " / "))
+Write-Host ("  proof cost     `${0:F8} - {1} tokens - {2:F2} s wall" -f `
+    $proof.totals.cost_usd, $proof.totals.tokens, $proof.totals.wall_s)
 Write-Host ("  towns          {0} towns, {1} regions" -f $data.world.towns.Count, ($data.world.towns.region | Sort-Object -Unique).Count)
 
 $ml = $data.multilingual

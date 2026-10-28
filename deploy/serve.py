@@ -94,8 +94,15 @@ class Handler(SimpleHTTPRequestHandler):
         if path in ("/", "/index.html"):
             self.path = f"/{INDEX}"
         elif not Path(path).suffix and not path.startswith("/_next"):
-            # a route without an extension is the app itself
-            self.path = f"/{INDEX}"
+            # A route without an extension is a directory export (`/live/`).
+            # Serve that directory's index when it exists, otherwise fall back
+            # to the single-page app.
+            route = path.strip("/").rstrip("/")
+            candidate = self.site() / route / INDEX
+            if route and candidate.exists():
+                self.path = f"/{route}/{INDEX}"
+            else:
+                self.path = f"/{INDEX}"
         if not (self.site() / self.path.lstrip("/")).exists() and Path(self.path).suffix:
             self._not_found()
             return

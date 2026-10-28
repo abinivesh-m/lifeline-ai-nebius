@@ -168,6 +168,12 @@ export default function Page() {
                   WHY THE HEART COMES FIRST
                 </a>
                 <a
+                  href="/live/"
+                  className="rounded-md border border-amber/50 bg-amber/10 px-4 py-2.5 text-[12.5px] font-semibold text-amber transition hover:bg-amber/20"
+                >
+                  WATCH THE 8-STEP WORKFLOW
+                </a>
+                <a
                   href="#contents"
                   className="rounded-md px-2 py-2.5 mono text-[10.5px] tracking-[0.12em] text-muted underline decoration-line underline-offset-4 transition hover:text-teal"
                 >

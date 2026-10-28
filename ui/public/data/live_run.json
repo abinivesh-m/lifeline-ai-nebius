@@ -1,0 +1,227 @@
+{
+  "schema": "lifeline.live_run/1.0",
+  "recorded_utc": "2026-10-28T06:48:39+00:00",
+  "source": "python live.py - real engine, stored artefacts, Nemotron call replayed from cache",
+  "note": "This is a recorded event stream, replayed in the browser. The runner itself is a local Python SSE server; this page exists so the same workflow is visible on a static host without claiming a live process.",
+  "events": [
+    {
+      "type": "start",
+      "run": "1b637e68"
+    },
+    {
+      "type": "step",
+      "step": 1,
+      "name": "PERCEIVE",
+      "status": "ok",
+      "model": "pre-migration segmentation (stored masks)",
+      "detail": "9 images segmented, prompt \"flood water\"",
+      "severity": [
+        0.3,
+        0.0,
+        34.1,
+        59.4,
+        35.3,
+        33.7,
+        51.1,
+        46.4,
+        51.4
+      ],
+      "worst": "Flood_affected_house__2_.jpg",
+      "worst_pct": 59.4,
+      "cost_usd": 0.0225
+    },
+    {
+      "type": "step",
+      "step": 2,
+      "name": "LISTEN",
+      "status": "ok",
+      "model": "pre-migration ASR (stored transcript)",
+      "detail": "1 Tamil report(s), 10.78s of audio",
+      "transcript": "ஏனைச் செய்த நான்கு நான்கு km 42 மைனஸ் நிலச்சரிவு. சாலை ஆறு ஆறு மணி நேரத்திற்கும் மூடப்பட்டுள்ளது. மருத்துவமனைக்கு diesel தேவை..",
+      "synthetic": true,
+      "cost_usd": 0.000539
+    },
+    {
+      "type": "step",
+      "step": 3,
+      "name": "GRAPH",
+      "status": "ok",
+      "order": [
+        "fuel_depot",
+        "hospital",
+        "water_pump",
+        "shelters"
+      ],
+      "downstream": [
+        "water_pump",
+        "shelters"
+      ],
+      "people": 200,
+      "detail": "Kahn topological sort - heartbeat first, lungs second"
+    },
+    {
+      "type": "step",
+      "step": 4,
+      "name": "ROUTE",
+      "status": "ok",
+      "path": [
+        "fuel_depot",
+        "village_jn",
+        "water_pump",
+        "hospital"
+      ],
+      "km": 7.8,
+      "saving": {
+        "km": 5.2,
+        "fuel_litres": 1.82,
+        "percent": 40.0,
+        "generator_minutes_bought": 6.2
+      },
+      "detail": "A* found 7.8 km vs the blocked 4.2 km corridor"
+    },
+    {
+      "type": "step",
+      "step": 5,
+      "name": "ALLOCATE",
+      "status": "ok",
+      "allocation": {
+        "hospital": 70,
+        "water_pump": 30
+      },
+      "total": 100,
+      "justification": "The depot's 100 L reserve exactly matches the combined capped needs of the hospital (70 L) and water pump (30 L), satisfying priority order and multiple‑of‑5 constraints.",
+      "source": "nemotron-ultra",
+      "cache": "cache",
+      "decision": {},
+      "evidence": [
+        {
+          "id": "E1",
+          "claim": "hospital generator has 4 h of runtime left",
+          "value": 4.0,
+          "unit": "h",
+          "source": "town.json#organs.hospital.runtime_hours_left"
+        },
+        {
+          "id": "E2",
+          "claim": "hospital needs 70 L of diesel to cover the 6 h road closure",
+          "value": 70,
+          "unit": "L",
+          "source": "town.json#organs.hospital.fuel_demand_litres"
+        },
+        {
+          "id": "E3",
+          "claim": "water pump needs 30 L to keep pumping through the closure",
+          "value": 30,
+          "unit": "L",
+          "source": "town.json#organs.water_pump.fuel_demand_litres"
+        },
+        {
+          "id": "E4",
+          "claim": "200 people depend on the hospital feeder",
+          "value": 200,
+          "unit": "people",
+          "source": "town.json#organs.hospital.serves_people"
+        }
+      ],
+      "inference": [
+        {
+          "claim": "fund the hospital first",
+          "litres": 70,
+          "because": [
+            "E1",
+            "E2",
+            "E4"
+          ],
+          "confidence": 0.99
+        },
+        {
+          "claim": "fund the pump second, inside the hospital feeder budget",
+          "litres": 30,
+          "because": [
+            "E3",
+            "E5",
+            "E6"
+          ],
+          "confidence": 0.95
+        },
+        {
+          "claim": "no diesel left over, no organ over-funded",
+          "litres": 0,
+          "because": [
+            "E7",
+            "E8"
+          ],
+          "confidence": 1.0
+        }
+      ],
+      "detail": "proposal source: nemotron-ultra"
+    },
+    {
+      "type": "step",
+      "step": 6,
+      "name": "BUDGET",
+      "status": "ok",
+      "spent": 0.027049,
+      "budget": 29.5,
+      "percent": 0.0917,
+      "level": "ok",
+      "by_model": {
+        "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B": {
+          "calls": 1,
+          "spent_usd": 0.00015168,
+          "budget_usd": 29.5
+        },
+        "nvidia/nemotron-3-super-120b-a12b": {
+          "calls": 16,
+          "spent_usd": 0.021929,
+          "budget_usd": 29.5
+        },
+        "nvidia/Nemotron-3-Ultra-550b-a55b": {
+          "calls": 1,
+          "spent_usd": 0.004968,
+          "budget_usd": 29.5
+        }
+      },
+      "tavily_usd": 1.056,
+      "tavily_credits": 132,
+      "combined_usd": 1.083049,
+      "detail": "$0.027049 inference on a $29.50 balance; Tavily $1.056 on its own account"
+    },
+    {
+      "type": "step",
+      "step": 7,
+      "name": "APPROVE",
+      "status": "waiting",
+      "allocation": {
+        "hospital": 70,
+        "water_pump": 30
+      },
+      "detail": "nothing is dispatched until you approve"
+    },
+    {
+      "type": "step",
+      "step": 7,
+      "name": "APPROVE",
+      "status": "approved",
+      "detail": "operator approved - dispatch released"
+    },
+    {
+      "type": "step",
+      "step": 8,
+      "name": "REPLAN",
+      "status": "replanned",
+      "trigger": "depot damaged - 80 L usable instead of 100 L",
+      "allocation": {
+        "hospital": 70,
+        "water_pump": 10
+      },
+      "pump_before": 6.0,
+      "pump_after": 2.0,
+      "hospital_protected": true,
+      "detail": "same solver, new constraint, heart still protected"
+    },
+    {
+      "type": "done"
+    }
+  ]
+}

@@ -9,6 +9,7 @@ credit_usage.tmp
 
 # --- Tavily response cache: reproducible from evidence.py, large, never shipped
 artifacts/tavily_cache/
+artifacts/nemotron_last.json
 
 # --- python ----------------------------------------------------------------
 __pycache__/

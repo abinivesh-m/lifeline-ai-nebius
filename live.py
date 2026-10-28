@@ -128,15 +128,42 @@ def pipeline(fresh: bool):
 
     time.sleep(STEP_DELAY)
 
-    tracker = credit_tracker.CreditTracker()
-    status = tracker.status()
-    yield {
-        "step": 6, "name": "BUDGET", "status": "ok",
-        "spent": status["spent_usd"], "budget": status["budget_usd"],
-        "percent": status["percent_used"], "level": status["level"],
-        "by_model": status["by_model"],
-        "detail": f'${status["spent_usd"]:.4f} of ${status["budget_usd"]:.0f} ceiling',
-    }
+    # The number on screen is the one the page and the CLI print: the priced
+    # calls in the artefacts, not just what happened to be logged on this
+    # machine. The local ledger is a subset and would under-report.
+    measured = None
+    try:
+        import export_ui_data
+
+        measured = export_ui_data._spend()
+    except Exception:
+        measured = None
+
+    if measured:
+        yield {
+            "step": 6, "name": "BUDGET", "status": "ok",
+            "spent": measured["spent_usd"], "budget": measured["budget_usd"],
+            "percent": measured["percent"], "level": measured["level"],
+            "by_model": measured["by_model"],
+            "tavily_usd": measured["tavily_usd"],
+            "tavily_credits": measured["tavily_credits"],
+            "combined_usd": measured["combined_usd"],
+            "detail": (
+                f'${measured["spent_usd"]:.6f} inference on a '
+                f'${measured["budget_usd"]:.2f} balance; Tavily '
+                f'${measured["tavily_usd"]:.3f} on its own account'
+            ),
+        }
+    else:
+        tracker = credit_tracker.CreditTracker()
+        status = tracker.status()
+        yield {
+            "step": 6, "name": "BUDGET", "status": "ok",
+            "spent": status["spent_usd"], "budget": status["budget_usd"],
+            "percent": status["percent_used"], "level": status["level"],
+            "by_model": status["by_model"],
+            "detail": f'${status["spent_usd"]:.4f} of ${status["budget_usd"]:.2f} local ledger',
+        }
 
     time.sleep(STEP_DELAY)
 

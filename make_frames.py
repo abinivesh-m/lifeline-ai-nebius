@@ -20,6 +20,7 @@ import a_star
 import allocator
 import credit_tracker
 import dependency_graph
+import export_ui_data
 
 ROOT = Path(__file__).parent
 OUT = ROOT / "figma"
@@ -383,7 +384,6 @@ def frame_astar(town: dict, route: dict) -> None:
 
 def frame_allocator(town: dict, alloc: dict) -> None:
     f = Frame(4, "FRAME 04  /  STEP 5 + 6", "EVIDENCE IN, ALLOCATION OUT", AMBER)
-    tracker = credit_tracker.CreditTracker()
 
     f.text((M, 232), "Nemotron may propose. Code validates. A human approves. Nothing executes itself.", font(F_REG, 26), MUTED)
 
@@ -428,26 +428,36 @@ def frame_allocator(town: dict, alloc: dict) -> None:
     f.text((852, 540), "70 L heart  +  30 L lungs  =  100 L", font(F_SEMI, 26), TEXT)
     f.text((852, 582), "no over-allocation  ·  no surplus  ·  multiple of 5 L", font(F_REG, 18), MUTED)
 
-    # credit plan
+    # reconciled spend - the same numbers the page, the CLI and the README print
+    spend = export_ui_data._spend()
+    combined = spend["combined_usd"] or 1.0
     f.panel([820, 664, W - M, 900], accent=BORDER)
-    f.text((852, 682), f"BUDGET PLAN  /  SPENT ${tracker.status()['spent_usd']:.4f} OF $150", font(F_BOLD, 19), MUTED)
-    buckets = [
-        ("decision", 70.0, TEAL),
-        ("sam", 30.0, BLUE),
-        ("voice", 30.0, AMBER),
-        ("fast", 20.0, GREEN),
+    f.text((852, 682), f"BUDGET  /  ${spend['spent_usd']:.6f} OF ${spend['budget_usd']:.2f}", font(F_BOLD, 19), MUTED)
+
+    def tier(fragment: str) -> dict:
+        for model, bucket in spend["by_model"].items():
+            if fragment.lower() in model.lower():
+                return bucket
+        return {"calls": 0, "spent_usd": 0.0}
+
+    rows = [
+        ("Ultra 550B", tier("Ultra"), TEAL),
+        ("Super 120B", tier("Super"), BLUE),
+        ("Nano 30B", tier("Nano"), AMBER),
+        ("Tavily", {"calls": spend["tavily_credits"], "spent_usd": spend["tavily_usd"]}, GREEN),
     ]
     y = 722
-    for name, budget, color in buckets:
+    for name, bucket, color in rows:
+        cost = float(bucket["spent_usd"])
         f.text((852, y), name, font(F_MONO, 16), MUTED)
-        f.bar(950, y + 4, 500, 14, 1.0, color)
-        f.text((1470, y), f"${budget:.0f}", font(F_MONO_B, 16), TEXT)
-        if tracker.spend(name):
-            f.text((1540, y), f"spent ${tracker.spend(name):.2f}", font(F_MONO, 14), color)
-        else:
-            f.text((1540, y), "unspent", font(F_MONO, 14), MUTED)
+        f.bar(1030, y + 4, 420, 14, max(cost / combined, 0.004), color)
+        f.text((1780, y), f"${cost:.6f}" if name != "Tavily" else f"${cost:.3f}",
+               font(F_MONO_B, 15), TEXT, anchor="ra")
+        f.text((1560, y), f"{int(bucket['calls'])} call" + ("" if int(bucket["calls"]) == 1 else "s")
+               if name != "Tavily" else f"{int(bucket['calls'])} credits",
+               font(F_MONO, 14), color)
         y += 32
-    f.text((852, 862), f"alerts $120 / $142.50  ·  reserve $20  ·  ledger {tracker.path.name}",
+    f.text((852, 862), f"combined ${combined:.6f}  ·  {spend['percent']:.4f}% of balance  ·  Tavily on its own account",
            font(F_MONO, 14), MUTED)
 
     f.save("allocator.png")

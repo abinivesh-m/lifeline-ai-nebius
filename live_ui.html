@@ -146,8 +146,9 @@
       </div>
 
       <div class="card">
-        <h2>CREDIT LEDGER / CEILING $150</h2>
-        <div class="row"><span>spent</span><b id="c-spent">$0.0000</b></div>
+        <h2>CREDIT LEDGER / NEBIUS BALANCE</h2>
+        <div class="row"><span>inference</span><b id="c-spent">$0.000000</b></div>
+        <div class="row"><span>Tavily (separate)</span><b id="c-tavily">&mdash;</b></div>
         <div class="meter"><i id="c-bar"></i></div>
         <div class="row"><span>alerts 80% / 95%</span><b id="c-level">OK</b></div>
         <div id="c-models" style="margin-top:8px;font:10.5px/1.7 Consolas,monospace;color:var(--muted)"></div>
@@ -159,7 +160,7 @@
 <script>
 const NAMES = {
   1:["PERCEIVE","stored masks"],2:["LISTEN","stored transcript"],3:["GRAPH","Kahn sort"],
-  4:["ROUTE","A* heapq"],5:["ALLOCATE","Wonder + validator"],6:["BUDGET","$150 ledger"],
+  4:["ROUTE","A* heapq"],5:["ALLOCATE","Nemotron 3 Ultra + validator"],6:["BUDGET","reconciled artefacts"],
   7:["APPROVE","human gate"],8:["REPLAN","new constraint"]
 };
 const stepsEl = document.getElementById("steps");
@@ -255,15 +256,23 @@ es.onmessage = (e)=>{
     ev.evidence.forEach(x => log(`  [${x.id}] ${x.claim}`));
   }
   if (n === 6){
-    setDetail(6, "$" + ev.spent.toFixed(4) + " of $" + ev.budget);
-    document.getElementById("c-spent").textContent = "$" + ev.spent.toFixed(4);
+    setDetail(6, "$" + ev.spent.toFixed(6) + " of $" + ev.budget.toFixed(2));
+    document.getElementById("c-spent").textContent = "$" + ev.spent.toFixed(6);
+    if (ev.tavily_usd !== undefined) {
+      document.getElementById("c-tavily").textContent =
+        "$" + ev.tavily_usd.toFixed(3) + " / " + ev.tavily_credits + " credits";
+    }
     document.getElementById("c-bar").style.width = Math.max(ev.percent, 0.7) + "%";
     document.getElementById("c-level").textContent = ev.level.toUpperCase();
     document.getElementById("c-models").innerHTML = Object.entries(ev.by_model)
       .filter(([k,v]) => v.calls > 0)
-      .map(([k,v]) => `${k.padEnd(10)} ${String(v.calls).padStart(3)} calls  $${v.spent_usd.toFixed(4)}`)
+      .map(([k,v]) => `${k.padEnd(10)} ${String(v.calls).padStart(3)} calls  $${v.spent_usd.toFixed(6)}`)
       .join("<br>") || "no calls yet";
-    log(`<b>LEDGER</b> $${ev.spent.toFixed(4)} against a $${ev.budget} ceiling`);
+    log(`<b>LEDGER</b> $${ev.spent.toFixed(6)} inference against a $${ev.budget.toFixed(2)} balance`);
+    if (ev.combined_usd !== undefined) {
+      log(`<b>TAVILY</b> $${ev.tavily_usd.toFixed(3)} (${ev.tavily_credits} credits) - separate account`);
+      log(`<b>COMBINED</b> $${ev.combined_usd.toFixed(6)} cash-equivalent for the build`);
+    }
   }
   if (n === 7 && ev.status === "waiting"){
     setDetail(7, "waiting for you");
