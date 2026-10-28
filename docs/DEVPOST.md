@@ -6,6 +6,18 @@
 > it returns 200 in a private window. Do not name an event that is not linked. Do not quote a source
 > count the artefact does not contain. No API key or account id belongs in any field.
 
+## Form fields at a glance
+
+| Devpost field | What to paste |
+| --- | --- |
+| Project name | `Lifeline AI` |
+| Elevator pitch | the 140-character line below |
+| Video | public YouTube URL, **≤ 3:00**, and the audio must say *Nebius Token Factory*, *NVIDIA Nemotron 3* and *Tavily* |
+| Thumbnail | `figma/lifegrid.png` |
+| GitHub repo | `https://github.com/abinivesh-m/lifeline-ai-nebius` |
+| Demo URL | paste only after it returns **200 in a private window**; until then leave it blank |
+| Feedback | paste [`FEEDBACK.md`](../FEEDBACK.md) — eight findings from this build |
+
 ---
 
 ## Project name
@@ -17,7 +29,7 @@ Lifeline AI
 ## Elevator pitch (150 char limit)
 
 ```
-When roads and power die, Lifeline AI schedules the last 100 L of diesel — offline, deterministic, evidence-checked with Tavily, reasoned by Nemotron 3.
+When roads die, Lifeline AI rations the last 100 L of diesel — offline, deterministic, evidence-checked with Tavily, reasoned by Nemotron 3.
 ```
 
 (140 characters.)
