@@ -1,10 +1,10 @@
 {
   "schema": "lifeline.seri_gate/1.1",
-  "generated_utc": "2026-10-27T15:16:58+00:00",
+  "generated_utc": "2026-10-28T05:31:46+00:00",
   "engine": {
     "tts": "MMS-TTS (open weight, local CPU, $0.00)",
-    "asr": "muse-voice-transcribe-1.0",
-    "intent": "muse-wonder-1.0",
+    "asr": "pre-migration ASR (stored transcript)",
+    "intent": "nvidia/nemotron-3-super-120b-a12b",
     "threshold": 0.8
   },
   "summary": {
@@ -14,7 +14,8 @@
     "withheld": 0,
     "text_only": {
       "zh": "no released MMS-TTS checkpoint - text-only, not spoken"
-    }
+    },
+    "cost_usd": 0.000864
   },
   "locales": [
     {
@@ -28,20 +29,21 @@
         "seconds": 2.34
       },
       "asr": {
-        "status": "answered",
-        "model": "muse-voice-transcribe-1.0",
-        "latency_s": 2.44,
+        "status": "stored",
+        "model": "pre-migration ASR (stored transcript)",
+        "latency_s": 0.03,
         "language_bias": [
           "English"
-        ]
+        ],
+        "detail": "stored capture, replayed: the clip was transcribed before the Nebius migration, and Token Factory has no speech-to-text endpoint"
       },
       "transcript": "yes I prove",
       "model": {
         "status": "answered",
         "intent": "APPROVE",
-        "confidence": 0.95,
-        "reason": "Contains 'yes' indicating approval",
-        "latency_s": 3.53
+        "confidence": 0.96,
+        "reason": "Transcript contains \"yes\" indicating approval.",
+        "latency_s": 1.64
       },
       "gate": {
         "decision": "APPROVED",
@@ -49,14 +51,14 @@
         "locale": "en",
         "token_intent": "APPROVE",
         "model_intent": "APPROVE",
-        "confidence": 0.95,
+        "confidence": 0.96,
         "threshold": 0.8,
         "reasons": [],
         "rule": "approval needs an approval token, an agreeing model and confidence >= 0.80"
       },
       "ledger": {
-        "seq": 12,
-        "ts": "2026-10-27T15:16:01+00:00",
+        "seq": 1,
+        "ts": "2026-10-28T05:31:36+00:00",
         "tier": 1,
         "action": "VOICE_APPROVAL",
         "detail": {
@@ -64,14 +66,14 @@
           "transcript": "yes I prove",
           "audio_sha256": "c993885d128c4da3430814741ac05339b8e0ecab3bd5e4c6dfa06a4db913180c",
           "intent": "APPROVE",
-          "confidence": 0.95,
-          "model": "muse-wonder-1.0",
-          "asr_model": "muse-voice-transcribe-1.0"
+          "confidence": 0.96,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "asr_model": "pre-migration ASR (stored transcript)"
         },
-        "prev": "9affb0a6ee63d4fed42a797c49d570ace6950c89c782f6474b6f7a6d121782dd",
-        "hash": "a05db4165743680ec25adac6bd6630c11c84ed8ac38a48202e9c486a800bd9f8"
+        "prev": "0000000000000000000000000000000000000000000000000000000000000000",
+        "hash": "195bf21ef420b8cd17febd97776b496cf053af581cba2298bfce8089ea497a61"
       },
-      "cost_usd": 0.411882
+      "cost_usd": 0.000114
     },
     {
       "locale": "es",
@@ -84,20 +86,21 @@
         "seconds": 2.62
       },
       "asr": {
-        "status": "answered",
-        "model": "muse-voice-transcribe-1.0",
-        "latency_s": 2.24,
+        "status": "stored",
+        "model": "pre-migration ASR (stored transcript)",
+        "latency_s": 0.0,
         "language_bias": [
           "Español"
-        ]
+        ],
+        "detail": "stored capture, replayed: the clip was transcribed before the Nebius migration, and Token Factory has no speech-to-text endpoint"
       },
       "transcript": "Sí apruebo.",
       "model": {
         "status": "answered",
         "intent": "APPROVE",
-        "confidence": 1,
-        "reason": "Contains 'sí' and 'apruebo', both APPROVE words",
-        "latency_s": 4.11
+        "confidence": 0.96,
+        "reason": "Transcript contains \"Sí\" (yes) and \"apruebo\" which means I approve",
+        "latency_s": 1.51
       },
       "gate": {
         "decision": "APPROVED",
@@ -105,14 +108,14 @@
         "locale": "es",
         "token_intent": "APPROVE",
         "model_intent": "APPROVE",
-        "confidence": 1.0,
+        "confidence": 0.96,
         "threshold": 0.8,
         "reasons": [],
         "rule": "approval needs an approval token, an agreeing model and confidence >= 0.80"
       },
       "ledger": {
-        "seq": 13,
-        "ts": "2026-10-27T15:16:27+00:00",
+        "seq": 2,
+        "ts": "2026-10-28T05:31:37+00:00",
         "tier": 1,
         "action": "VOICE_APPROVAL",
         "detail": {
@@ -120,14 +123,14 @@
           "transcript": "Sí apruebo.",
           "audio_sha256": "8f1b64d0c544efb4e463a7ed57e08828a142e6cb97ef90b8f281e5d0352a6c4e",
           "intent": "APPROVE",
-          "confidence": 1.0,
-          "model": "muse-wonder-1.0",
-          "asr_model": "muse-voice-transcribe-1.0"
+          "confidence": 0.96,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "asr_model": "pre-migration ASR (stored transcript)"
         },
-        "prev": "a05db4165743680ec25adac6bd6630c11c84ed8ac38a48202e9c486a800bd9f8",
-        "hash": "b7d5ecf73dca8b0210b2ca4ed9c1dc76b9bfed887066391c48a6f9bb43a31103"
+        "prev": "195bf21ef420b8cd17febd97776b496cf053af581cba2298bfce8089ea497a61",
+        "hash": "520c0ceaabea7c1277442291c82f9cc2461e1899f35e24cd86dfeb22929f6de2"
       },
-      "cost_usd": 0.411896
+      "cost_usd": 0.000121
     },
     {
       "locale": "fr",
@@ -140,20 +143,21 @@
         "seconds": 2.18
       },
       "asr": {
-        "status": "answered",
-        "model": "muse-voice-transcribe-1.0",
-        "latency_s": 1.98,
+        "status": "stored",
+        "model": "pre-migration ASR (stored transcript)",
+        "latency_s": 0.0,
         "language_bias": [
           "Français"
-        ]
+        ],
+        "detail": "stored capture, replayed: the clip was transcribed before the Nebius migration, and Token Factory has no speech-to-text endpoint"
       },
       "transcript": "Oui j'approuve.",
       "model": {
         "status": "answered",
         "intent": "APPROVE",
-        "confidence": 1.0,
-        "reason": "Contains 'oui' and 'approuve', both approve words",
-        "latency_s": 3.94
+        "confidence": 0.96,
+        "reason": "Transcript contains 'oui' and 'approuve', both indicating approval in French",
+        "latency_s": 2.17
       },
       "gate": {
         "decision": "APPROVED",
@@ -161,14 +165,14 @@
         "locale": "fr",
         "token_intent": "APPROVE",
         "model_intent": "APPROVE",
-        "confidence": 1.0,
+        "confidence": 0.96,
         "threshold": 0.8,
         "reasons": [],
         "rule": "approval needs an approval token, an agreeing model and confidence >= 0.80"
       },
       "ledger": {
-        "seq": 14,
-        "ts": "2026-10-27T15:16:33+00:00",
+        "seq": 3,
+        "ts": "2026-10-28T05:31:39+00:00",
         "tier": 1,
         "action": "VOICE_APPROVAL",
         "detail": {
@@ -176,14 +180,14 @@
           "transcript": "Oui j'approuve.",
           "audio_sha256": "2fd567e0a32dc60a3b8f75da4377a883a6803b6808d93ef38cc7c2001951d90c",
           "intent": "APPROVE",
-          "confidence": 1.0,
-          "model": "muse-wonder-1.0",
-          "asr_model": "muse-voice-transcribe-1.0"
+          "confidence": 0.96,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "asr_model": "pre-migration ASR (stored transcript)"
         },
-        "prev": "b7d5ecf73dca8b0210b2ca4ed9c1dc76b9bfed887066391c48a6f9bb43a31103",
-        "hash": "a52f9664156f3112416fbf0afc706caff4459a95167e8f6b08a18a5eff0e86f1"
+        "prev": "520c0ceaabea7c1277442291c82f9cc2461e1899f35e24cd86dfeb22929f6de2",
+        "hash": "15037301c72f6a64c28b62bf55dcb307691dca44d1a3e4d4962e060fe5087383"
       },
-      "cost_usd": 0.411874
+      "cost_usd": 0.000116
     },
     {
       "locale": "ar",
@@ -196,20 +200,21 @@
         "seconds": 3.06
       },
       "asr": {
-        "status": "answered",
-        "model": "muse-voice-transcribe-1.0",
-        "latency_s": 2.8,
+        "status": "stored",
+        "model": "pre-migration ASR (stored transcript)",
+        "latency_s": 0.0,
         "language_bias": [
           "العربية"
-        ]
+        ],
+        "detail": "stored capture, replayed: the clip was transcribed before the Nebius migration, and Token Factory has no speech-to-text endpoint"
       },
       "transcript": "Nam أوفقوا",
       "model": {
         "status": "answered",
         "intent": "APPROVE",
         "confidence": 0.95,
-        "reason": "Contains أوفقوا, an approve word",
-        "latency_s": 3.69
+        "reason": "Transcript contains 'أوافقوا' which matches approved term",
+        "latency_s": 1.88
       },
       "gate": {
         "decision": "APPROVED",
@@ -223,8 +228,8 @@
         "rule": "approval needs an approval token, an agreeing model and confidence >= 0.80"
       },
       "ledger": {
-        "seq": 15,
-        "ts": "2026-10-27T15:16:39+00:00",
+        "seq": 4,
+        "ts": "2026-10-28T05:31:41+00:00",
         "tier": 1,
         "action": "VOICE_APPROVAL",
         "detail": {
@@ -233,13 +238,13 @@
           "audio_sha256": "f976c046c685c581fcb38a6bc345e94c874e46916f132a0101c4f12941377ea6",
           "intent": "APPROVE",
           "confidence": 0.95,
-          "model": "muse-wonder-1.0",
-          "asr_model": "muse-voice-transcribe-1.0"
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "asr_model": "pre-migration ASR (stored transcript)"
         },
-        "prev": "a52f9664156f3112416fbf0afc706caff4459a95167e8f6b08a18a5eff0e86f1",
-        "hash": "ab294ff7e1190134ea318da26be4509f7cb1bd51785f2d219703a626b3fa8ada"
+        "prev": "15037301c72f6a64c28b62bf55dcb307691dca44d1a3e4d4962e060fe5087383",
+        "hash": "99a0d192faabe4c37aa8a3c16f89ede6596b60d2427b300e9f50ad6ced6df2c7"
       },
-      "cost_usd": 0.411918
+      "cost_usd": 0.00014
     },
     {
       "locale": "pt",
@@ -252,20 +257,21 @@
         "seconds": 2.25
       },
       "asr": {
-        "status": "answered",
-        "model": "muse-voice-transcribe-1.0",
-        "latency_s": 2.43,
+        "status": "stored",
+        "model": "pre-migration ASR (stored transcript)",
+        "latency_s": 0.0,
         "language_bias": [
           "Português"
-        ]
+        ],
+        "detail": "stored capture, replayed: the clip was transcribed before the Nebius migration, and Token Factory has no speech-to-text endpoint"
       },
       "transcript": "sim",
       "model": {
         "status": "answered",
         "intent": "APPROVE",
-        "confidence": 1,
-        "reason": "sim is listed as APPROVE",
-        "latency_s": 3.23
+        "confidence": 0.95,
+        "reason": "Transcript contains 'sim' which means approve in Portuguese.",
+        "latency_s": 1.42
       },
       "gate": {
         "decision": "APPROVED",
@@ -273,14 +279,14 @@
         "locale": "pt",
         "token_intent": "APPROVE",
         "model_intent": "APPROVE",
-        "confidence": 1.0,
+        "confidence": 0.95,
         "threshold": 0.8,
         "reasons": [],
         "rule": "approval needs an approval token, an agreeing model and confidence >= 0.80"
       },
       "ledger": {
-        "seq": 16,
-        "ts": "2026-10-27T15:16:45+00:00",
+        "seq": 5,
+        "ts": "2026-10-28T05:31:43+00:00",
         "tier": 1,
         "action": "VOICE_APPROVAL",
         "detail": {
@@ -288,14 +294,14 @@
           "transcript": "sim",
           "audio_sha256": "bffee94fedfac1199188380858a53db4bad440e5d3a5e0c86325e157a448c011",
           "intent": "APPROVE",
-          "confidence": 1.0,
-          "model": "muse-wonder-1.0",
-          "asr_model": "muse-voice-transcribe-1.0"
+          "confidence": 0.95,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "asr_model": "pre-migration ASR (stored transcript)"
         },
-        "prev": "ab294ff7e1190134ea318da26be4509f7cb1bd51785f2d219703a626b3fa8ada",
-        "hash": "73172cc5b23b21ea76e6069063a6ad2ff923824f9c572130946bb21205385406"
+        "prev": "99a0d192faabe4c37aa8a3c16f89ede6596b60d2427b300e9f50ad6ced6df2c7",
+        "hash": "54e5b1bc68ba721872733d0412386c35c6684658e0900f6dc91dbcc5d2eff529"
       },
-      "cost_usd": 0.411877
+      "cost_usd": 0.000106
     },
     {
       "locale": "sw",
@@ -308,20 +314,21 @@
         "seconds": 2.79
       },
       "asr": {
-        "status": "answered",
-        "model": "muse-voice-transcribe-1.0",
-        "latency_s": 2.61,
+        "status": "stored",
+        "model": "pre-migration ASR (stored transcript)",
+        "latency_s": 0.0,
         "language_bias": [
           "Kiswahili"
-        ]
+        ],
+        "detail": "stored capture, replayed: the clip was transcribed before the Nebius migration, and Token Factory has no speech-to-text endpoint"
       },
       "transcript": "Ndio na kubali.",
       "model": {
         "status": "answered",
         "intent": "APPROVE",
-        "confidence": 0.99,
-        "reason": "Contains 'ndio' and 'kubali', both APPROVE words",
-        "latency_s": 3.45
+        "confidence": 0.96,
+        "reason": "Contains \"ndio\" (yes) and \"kubali\" (accept), indicating approval",
+        "latency_s": 1.52
       },
       "gate": {
         "decision": "APPROVED",
@@ -329,14 +336,14 @@
         "locale": "sw",
         "token_intent": "APPROVE",
         "model_intent": "APPROVE",
-        "confidence": 0.99,
+        "confidence": 0.96,
         "threshold": 0.8,
         "reasons": [],
         "rule": "approval needs an approval token, an agreeing model and confidence >= 0.80"
       },
       "ledger": {
-        "seq": 17,
-        "ts": "2026-10-27T15:16:51+00:00",
+        "seq": 6,
+        "ts": "2026-10-28T05:31:44+00:00",
         "tier": 1,
         "action": "VOICE_APPROVAL",
         "detail": {
@@ -344,14 +351,14 @@
           "transcript": "Ndio na kubali.",
           "audio_sha256": "77797052f9466b82df78f7f41087700d8ba195043d218c39abe3b5fdf4dd77eb",
           "intent": "APPROVE",
-          "confidence": 0.99,
-          "model": "muse-wonder-1.0",
-          "asr_model": "muse-voice-transcribe-1.0"
+          "confidence": 0.96,
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "asr_model": "pre-migration ASR (stored transcript)"
         },
-        "prev": "73172cc5b23b21ea76e6069063a6ad2ff923824f9c572130946bb21205385406",
-        "hash": "ee7650f64c0845c485aa7b4b76c7de73d11b54885502496b2bf84b339eceef7a"
+        "prev": "54e5b1bc68ba721872733d0412386c35c6684658e0900f6dc91dbcc5d2eff529",
+        "hash": "2b9906039d1f566004a29cbf81578e5d05a17701400081647890a5d4f693b0d1"
       },
-      "cost_usd": 0.411905
+      "cost_usd": 0.000129
     },
     {
       "locale": "ta",
@@ -364,21 +371,22 @@
         "seconds": 2.86
       },
       "asr": {
-        "status": "answered",
-        "model": "muse-voice-transcribe-1.0",
-        "latency_s": 2.61,
+        "status": "stored",
+        "model": "pre-migration ASR (stored transcript)",
+        "latency_s": 0.0,
         "language_bias": [
           "Tamil",
           "English"
-        ]
+        ],
+        "detail": "stored capture, replayed: the clip was transcribed before the Nebius migration, and Token Factory has no speech-to-text endpoint"
       },
       "transcript": "சரி அனுமதிக்கிறேன்.",
       "model": {
         "status": "answered",
         "intent": "APPROVE",
         "confidence": 0.98,
-        "reason": "Contains சரி, a listed approve word",
-        "latency_s": 4.01
+        "reason": "Transcript contains 'சரி' (okay) and 'அனுமதிக்கிறேன்' (I approve), indicating approval.",
+        "latency_s": 1.9
       },
       "gate": {
         "decision": "APPROVED",
@@ -392,8 +400,8 @@
         "rule": "approval needs an approval token, an agreeing model and confidence >= 0.80"
       },
       "ledger": {
-        "seq": 18,
-        "ts": "2026-10-27T15:16:58+00:00",
+        "seq": 7,
+        "ts": "2026-10-28T05:31:46+00:00",
         "tier": 1,
         "action": "VOICE_APPROVAL",
         "detail": {
@@ -402,14 +410,14 @@
           "audio_sha256": "702acc257528f26a54d0a05bb6d8efa3cfb9e079ef4a94c55da0a83b3a32c74b",
           "intent": "APPROVE",
           "confidence": 0.98,
-          "model": "muse-wonder-1.0",
-          "asr_model": "muse-voice-transcribe-1.0"
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "asr_model": "pre-migration ASR (stored transcript)"
         },
-        "prev": "ee7650f64c0845c485aa7b4b76c7de73d11b54885502496b2bf84b339eceef7a",
-        "hash": "e052803bb953c6a5a62ece811e349ee07db03b8775febb1e372fc82cba202424"
+        "prev": "2b9906039d1f566004a29cbf81578e5d05a17701400081647890a5d4f693b0d1",
+        "hash": "a86fe0130aca2fbc2da98962d60dc3ab5a6b6451d254d0c784cc035b0a9e8450"
       },
-      "cost_usd": 0.411908
+      "cost_usd": 0.000138
     }
   ],
-  "note": "Voice approval, not delivery. Each clip is rendered locally by MMS-TTS, transcribed by Muse Voice Transcribe, classified by Muse Wonder, and decided in code. Nothing is dispatched - there is no gateway on this machine. A locale that cannot be heard is text-only rather than spoken in the wrong language."
+  "note": "Voice approval, not delivery. Each clip is rendered locally by MMS-TTS, classified by Nemotron 3 Super 120b on Nebius Token Factory, and decided in code. The transcript in this artefact was captured before the migration, so no ASR call is claimed here. Nothing is dispatched - there is no gateway on this machine. A locale that cannot be heard is text-only rather than spoken in the wrong language."
 }

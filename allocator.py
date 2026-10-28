@@ -10,19 +10,16 @@ The rule is not "ask a model what to do".  It is:
                  constraints: 100 L total, 70 L hospital cap, 30 L pump cap,
                  and no funding a low-priority organ while a higher one starves.
 
-If Wonder is configured it proposes the allocation and the validator either
-accepts it or rejects it with reasons and the deterministic solver takes over.
-The Open Weight path does the same with Meta open weights on Baseten
-(`meta-models/muse-spark-open-1026`): live when credentials exist, otherwise the
-latest stored validated run - always re-checked by the same validator.
+If Token Factory is configured, Nemotron 3 Ultra proposes the allocation and the
+validator either accepts it or rejects it with reasons and the deterministic
+solver takes over. Offline, the solver is the only path and the trace says so.
 The model never executes anything: a human approval gate sits after this step.
 
 Result for the Kottur crisis: 70 L hospital + 30 L pump = exactly 100 L.
 
 Run:  python allocator.py
       python allocator.py --mode policy --json
-      python allocator.py --mode openweight
-      python allocator.py --mode wonder --log-credit
+      python allocator.py --mode nebius --log-credit
 """
 
 from __future__ import annotations
@@ -41,8 +38,6 @@ from typing import Any
 
 TOWN_PATH = Path(__file__).with_name("town.json")
 ENV_PATH = Path(__file__).with_name(".env")
-OPENWEIGHT_PROOF = Path(__file__).with_name("artifacts") / "openweight_proof.json"
-OPENWEIGHT_MODEL = "meta-models/muse-spark-open-1026"
 
 
 class AllocationError(ValueError):
@@ -136,7 +131,7 @@ def build_evidence(town: dict) -> list[dict[str, Any]]:
         },
         {
             "id": "E8",
-            "claim": "NH-544 km 42 is blocked for ~6 h",
+            "claim": "The ghat road, km 42, is blocked for ~6 h",
             "value": town["crisis"]["expected_clear_hours"],
             "unit": "h",
             "source": "town.json#crisis.expected_clear_hours",
@@ -228,10 +223,10 @@ def validate_proposal(allocation: dict[str, Any], town: dict) -> list[str]:
 
 
 # --------------------------------------------------------------------------- #
-# step 3 - optional Wonder proposal
+# step 3 - optional Nemotron proposal
 # --------------------------------------------------------------------------- #
 
-def wonder_configured() -> bool:
+def brain_configured() -> bool:
     import brain
 
     return brain.configured()
@@ -255,7 +250,7 @@ def _prompt(town: dict, evidence: list[dict], constraints: dict) -> str:
     )
 
 
-def wonder_allocate(town: dict, evidence: list[dict], timeout: float = 60.0) -> tuple[dict | None, dict]:
+def brain_allocate(town: dict, evidence: list[dict], timeout: float = 60.0) -> tuple[dict | None, dict]:
     """Ask the active brain for a proposal. Returns (proposal, trace); None on failure."""
     import brain
 
@@ -263,22 +258,19 @@ def wonder_allocate(town: dict, evidence: list[dict], timeout: float = 60.0) -> 
         "provider": brain.label(),
         "model": brain.model("decision"),
         "endpoint": brain.endpoint(),
-        "reasoning_effort": os.environ.get("META_REASONING_EFFORT", ""),
+        "reasoning_effort": os.environ.get("NEBIUS_REASONING_EFFORT", ""),
         "status": "skipped",
         "latency_s": None,
         "raw_preview": None,
         "tier": "decision",
+        "cost_usd": 0.0,
     }
-    if not wonder_configured():
+    if not brain_configured():
         meta["status"] = "unconfigured"
         if os.environ.get("LIFELINE_OFFLINE", "0") == "1":
             meta["detail"] = "LIFELINE_OFFLINE=1 - no network calls, deterministic solver only"
         else:
-            meta["detail"] = (
-                "set NEBIUS_BASE_URL and NEBIUS_API_KEY in .env to enable live calls"
-                if brain.provider() == "nebius"
-                else "set META_API_BASE and META_API_KEY in .env to enable live calls"
-            )
+            meta["detail"] = "set NEBIUS_BASE_URL and NEBIUS_API_KEY in .env to enable live calls"
         return None, meta
 
     constraints = hard_constraints(town)
@@ -292,10 +284,10 @@ def wonder_allocate(town: dict, evidence: list[dict], timeout: float = 60.0) -> 
         "response_format": {"type": "json_object"},
     }
     if meta["reasoning_effort"]:
-        # Top-level on Chat Completions; Muse Wonder: minimal|low|medium|high|xhigh|max
+        # Top-level on Chat Completions: minimal|low|medium|high|xhigh|max
         payload["reasoning_effort"] = meta["reasoning_effort"]
-    if os.environ.get("META_MAX_TOKENS"):
-        payload["max_tokens"] = int(os.environ["META_MAX_TOKENS"])
+    if os.environ.get("NEBIUS_MAX_TOKENS"):
+        payload["max_tokens"] = int(os.environ["NEBIUS_MAX_TOKENS"])
     request = urllib.request.Request(
         meta["endpoint"].rstrip("/") + "/chat/completions",
         data=json.dumps(payload).encode("utf-8"),
@@ -316,6 +308,8 @@ def wonder_allocate(town: dict, evidence: list[dict], timeout: float = 60.0) -> 
         return None, meta
 
     meta["latency_s"] = round(time.time() - started, 2)
+    meta["usage"] = body.get("usage")
+    meta["cost_usd"] = brain.price_usd(meta["usage"], meta["model"])
     try:
         content = body["choices"][0]["message"]["content"]
     except (KeyError, IndexError, TypeError):
@@ -337,86 +331,6 @@ def wonder_allocate(town: dict, evidence: list[dict], timeout: float = 60.0) -> 
 
 
 # --------------------------------------------------------------------------- #
-# step 3b - Open Weight proposal (Meta open weights, partner-hosted)
-# --------------------------------------------------------------------------- #
-
-def openweight_configured() -> bool:
-    if os.environ.get("LIFELINE_OFFLINE", "0") == "1":
-        return False
-    return bool(os.environ.get("BASETEN_BASE_URL") and os.environ.get("BASETEN_API_KEY"))
-
-
-def _latest_openweight_run() -> dict | None:
-    if not OPENWEIGHT_PROOF.exists():
-        return None
-    try:
-        proof = json.loads(OPENWEIGHT_PROOF.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return None
-    valid = [
-        run
-        for run in proof.get("runs", [])
-        if run.get("valid") and isinstance(run.get("allocation"), dict)
-    ]
-    return valid[-1] if valid else None
-
-
-def openweight_propose(town: dict, timeout: float = 90.0) -> tuple[dict | None, dict]:
-    """Muse Spark Open proposes the allocation; the validator still decides.
-
-    Live partner inference when Baseten credentials are present. Otherwise the
-    latest stored, validated run is replayed with its provenance attached, so a
-    demo can show the model's real answer without pretending the wire is up.
-    """
-    meta: dict[str, Any] = {
-        "provider": "Baseten",
-        "model": OPENWEIGHT_MODEL,
-        "status": "unavailable",
-        "latency_s": None,
-        "at": None,
-    }
-
-    if openweight_configured():
-        try:
-            import openweight  # local module; imported here so the CLI stays light
-
-            result = openweight.call(openweight._prompt(town), timeout=timeout)
-            parsed = openweight.parse(result["response_text"]) or {}
-            if isinstance(parsed.get("allocation"), dict):
-                meta.update(
-                    {
-                        "status": "live",
-                        "latency_s": result["latency_s"],
-                        "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                    }
-                )
-                return parsed, meta
-            meta["detail"] = "live response did not contain an allocation object"
-        except Exception as exc:  # network, auth, parse - fall back, never crash
-            meta["detail"] = f"live call failed: {type(exc).__name__}: {exc}"
-
-    run = _latest_openweight_run()
-    if run is None:
-        return None, meta
-
-    meta.update(
-        {
-            "status": "stored",
-            "provider": run.get("provider", "Baseten"),
-            "model": run.get("model", OPENWEIGHT_MODEL),
-            "latency_s": run.get("latency_s"),
-            "at": run.get("at"),
-            "stored_at": run.get("at"),
-        }
-    )
-    return {
-        "allocation": run.get("allocation"),
-        "justification": run.get("justification"),
-        "confidence": run.get("confidence"),
-    }, meta
-
-
-# --------------------------------------------------------------------------- #
 # step 4 - assemble + validate
 # --------------------------------------------------------------------------- #
 
@@ -427,38 +341,14 @@ def allocate(town: dict, mode: str = "auto", log_credit: bool = False) -> dict:
     proposal: dict | None = None
     source = "policy"
 
-    # Open Weight is the default brain when the wire is up: live Baseten when
-    # configured, otherwise the latest stored run, always re-validated below.
-    # With LIFELINE_OFFLINE=1 auto stays deterministic; --mode openweight can
-    # still replay the stored proposal and label it as stored.
-    if mode == "openweight" or (
-        mode == "auto" and os.environ.get("LIFELINE_OFFLINE", "0") != "1"
-    ):
-        candidate, openweight_meta = openweight_propose(town)
-        trace["openweight"] = openweight_meta
-        if candidate is not None:
-            problems = validate_proposal(candidate.get("allocation", {}), town)
-            if problems:
-                trace["rejected"] = {
-                    "source": "openweight",
-                    "allocation": candidate.get("allocation"),
-                    "reasons": problems,
-                }
-                source = "policy-fallback"
-            else:
-                proposal = candidate
-                source = (
-                    "openweight-live"
-                    if openweight_meta["status"] == "live"
-                    else "openweight-stored"
-                )
-
-    if proposal is None and mode in ("auto", "wonder"):
-        candidate, wonder_meta = wonder_allocate(town, evidence)
-        trace["wonder"] = wonder_meta
+    # One brain, one path. Nemotron 3 Ultra proposes when Token Factory is
+    # configured; with LIFELINE_OFFLINE=1 or no key, auto stays deterministic
+    # and the trace says "unconfigured" rather than pretending a call happened.
+    if mode in ("auto", "nebius"):
+        candidate, brain_meta = brain_allocate(town, evidence)
+        trace["nebius"] = brain_meta
         if candidate is None:
-            if "rejected" not in trace:
-                source = "policy"
+            source = "policy"
         else:
             problems = validate_proposal(candidate.get("allocation", {}), town)
             if problems:
@@ -469,14 +359,15 @@ def allocate(town: dict, mode: str = "auto", log_credit: bool = False) -> dict:
                 source = "policy-fallback"
             else:
                 proposal = candidate
-                source = "wonder-high"
+                source = "nemotron-ultra"
                 if log_credit:
                     try:
                         import credit_tracker
 
                         credit_tracker.CreditTracker().log(
-                            "wonder",
+                            "decision",
                             calls=1,
+                            cost=brain_meta.get("cost_usd") or 0.0,
                             note="allocator allocation proposal (accepted by validator)",
                         )
                     except Exception as exc:  # never let accounting break the response
@@ -591,7 +482,7 @@ def main(argv: list[str] | None = None) -> int:
 
     load_env()
     parser = argparse.ArgumentParser(description="LIFELINE AI allocator")
-    parser.add_argument("--mode", choices=["auto", "policy", "wonder", "openweight"], default="auto")
+    parser.add_argument("--mode", choices=["auto", "policy", "nebius"], default="auto")
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--log-credit", action="store_true")
     parser.add_argument("--town", default=str(TOWN_PATH))

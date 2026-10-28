@@ -4,9 +4,9 @@
     python make_video.py --flood
     python make_video.py --fuel
 
-flood.mp4  is built from artifacts/photos/overlays/ - the real SAM 3.1 masks
-           decoded from the model, composited over the source photos. Not stock
-           footage, not a stock gradient: what the model actually saw.
+flood.mp4  is built from artifacts/photos/overlays/ - the stored segmentation
+           masks composited over the source photos. Not stock footage, not a
+           stock gradient: the masks the model actually produced, replayed.
 fuel_flow.mp4  is the 70 L / 30 L split animated along the dependency chain.
 
 No third-party video, no licence question, no download. Frames are rendered
@@ -91,7 +91,7 @@ def _ffmpeg(out_path: Path, frames: int) -> subprocess.Popen:
 
 
 # --------------------------------------------------------------------------- #
-# flood.mp4 - real SAM masks over real flood photographs
+# flood.mp4 - stored segmentation masks over real flood photographs
 # --------------------------------------------------------------------------- #
 
 def build_flood(frames_per_image: int = 26) -> Path:
@@ -136,7 +136,7 @@ def build_flood(frames_per_image: int = 26) -> Path:
 
             draw = ImageDraw.Draw(frame_image)
             draw.text((80, 56), "LIFELINE AI", font=small, fill=TEAL)
-            draw.text((80, 92), "SAM 3.1  ·  prompt \"flood water\"", font=mid, fill=INK)
+            draw.text((80, 92), "stored masks  ·  replayed, not re-inferred", font=mid, fill=INK)
             draw.text((W - 80, 62), f'{data["model"]}', font=tiny, fill=MUTED, anchor="ra")
             draw.text((W - 80, 92), f"{len(data['frames'])} frames segmented",
                       font=tiny, fill=MUTED, anchor="ra")
@@ -256,7 +256,7 @@ def build_fuel(seconds: float = 12.0) -> Path:
         draw.text((80, H - 86), "30", font=big, fill=BLUE)
         draw.text((196, H - 52), "L  water pump second", font=small, fill=MUTED)
 
-        draw.text((W - 80, H - 150), "NH-544 km 42 · 4.2 km blocked",
+        draw.text((W - 80, H - 150), "GHAT ROAD  ·  KM 42  ·  4.2 km BLOCKED",
                   font=small, fill=MUTED, anchor="ra")
         draw.text((W - 80, H - 116), "A* bypass 7.8 km · 40% fuel saved",
                   font=small, fill=TEAL, anchor="ra")

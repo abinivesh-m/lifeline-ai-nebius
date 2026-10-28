@@ -52,7 +52,7 @@ except Exception as exc:  # noqa: BLE001
 print("\n== Tavily /search (1 credit) ==")
 try:
     body = json.dumps({
-        "query": "NH-544 Kottur Pollachi landslide road status",
+        "query": "the ghat road Kottur Pollachi landslide road status",
         "search_depth": "basic",
         "max_results": 5,
     }).encode()

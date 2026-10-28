@@ -150,7 +150,7 @@ export default function SeriGate() {
             {playing ? "■ STOP" : `▶ HEAR · ${active.native}`}
           </button>
           <span className="mono text-[8.5px] text-muted">
-            {asr?.model ?? "muse-voice-transcribe-1.0"} · {asr?.latency_s ?? "—"} s
+            {asr?.model ?? "pre-migration ASR (stored transcript)"} · {asr?.latency_s ?? "—"} s
           </span>
         </div>
 

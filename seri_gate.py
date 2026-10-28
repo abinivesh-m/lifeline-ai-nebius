@@ -9,8 +9,10 @@ say yes. Tamil "சரி", Spanish "sí", Swahili "ndiyo" - one word is enough.
 The gate, end to end
 --------------------
 1. VOICE   an open-weight MMS-TTS clip says the approval phrase, rendered here.
-2. EARS    muse-voice-transcribe-1.0 transcribes it.
-3. MEANING muse-wonder-1.0 classifies the transcript as APPROVE / DENY / UNCLEAR.
+2. EARS    the transcript was captured before the migration; this build does not
+           re-run ASR, and the artefact labels it as a pre-migration transcript.
+3. MEANING Nemotron 3 Super 120b (Token Factory) classifies the transcript as
+           APPROVE / DENY / UNCLEAR.
 4. CODE    this file decides. Approval requires a known approval token *and*
            an agreeing model *and* confidence >= 0.80. Anything else is a no.
 5. RECORD  the decision is appended to the hash-chained escalation ledger with
@@ -41,6 +43,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import allocator
+import brain
 import capture_voice
 import credit_tracker
 import escalation
@@ -132,6 +135,11 @@ SCRIPT_RUN = re.compile(
     r"[a-z\u00c0-\u00ff]+|[\u0b80-\u0bff]+|[\u0600-\u06ff]+|[\u4e00-\u9fff]+"
 )
 
+# Words that mean "no" in the transcript regardless of the requested locale.
+# Kept separate from the per-language vocabulary so a romanised English denial
+# cannot slip past a Tamil or Arabic gate.
+GLOBAL_DENY = ("no", "not", "never", "dont", "don't", "deny", "reject", "stop")
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -165,7 +173,12 @@ def token_intent(transcript: str, locale: str = "ta") -> str:
         _collapse(word, locale)
         for word in SCRIPT_RUN.findall((transcript or "").lower())
     ]
-    if any(token in words for token in spec["deny"]):
+    # Denial is checked against every language, not only the requested one. A
+    # transcript can arrive romanised or half in English ("no", "not ok"), and a
+    # safety gate must never read an explicit no as unclear.
+    if any(token in words for token in spec["deny"]) or any(
+        token in words for token in GLOBAL_DENY
+    ):
         return "DENY"
     for index, word in enumerate(words):
         if word in spec["approve"]:
@@ -223,22 +236,24 @@ def intent_prompt(transcript: str, locale: str) -> str:
 
 
 def classify(transcript: str, locale: str = "ta") -> dict:
-    """Ask Wonder for an intent. Never raises; returns a status the gate reads."""
+    """Ask the model for an intent. Never raises; returns a status the gate reads."""
     if os.environ.get("LIFELINE_OFFLINE", "0") == "1":
         return {"status": "unavailable", "detail": "LIFELINE_OFFLINE=1"}
-    reply = multilingual._meta_chat(
-        os.environ.get("META_MODEL", "muse-wonder-1.0"),
+    reply = multilingual._chat(
         intent_prompt(transcript, locale),
         timeout=60.0,
         max_tokens=3000,
         reasoning_effort="low",
+        tier="deep",
     )
     parsed = multilingual._parse_json(reply.get("text"))
     return {
         "status": reply["status"],
         "detail": reply.get("detail", ""),
+        "model": reply.get("model"),
         "latency_s": reply.get("latency_s"),
         "usage": reply.get("usage"),
+        "cost_usd": reply.get("cost_usd"),
         "intent": parsed.get("intent"),
         "confidence": parsed.get("confidence"),
         "reason": str(parsed.get("reason", ""))[:200],
@@ -272,7 +287,7 @@ def run_locale(
     own = tracker is None
     tracker = tracker or credit_tracker.CreditTracker()
     before_voice = tracker.spend_precise("voice")
-    before_wonder = tracker.spend_precise("wonder")
+    before_intent = tracker.spend_precise("deep")
 
     clip = path or AUDIO / f"seri_{locale}.wav"
     audio_sha = None
@@ -293,23 +308,28 @@ def run_locale(
         result = capture_voice.transcribe(clip, languages=spec["bias"])
         transcript = (result.get("transcript") or "").strip()
         asr = {
-            "status": "answered" if transcript else "empty",
+            "status": result.get("status") or ("answered" if transcript else "empty"),
             "model": capture_voice.MODEL,
             "latency_s": round(time.time() - started, 2),
             "language_bias": spec["bias"],
+            "detail": result.get("detail"),
         }
-        tracker.log(
-            "voice",
-            calls=1,
-            cost=max(audio_seconds / 3600 * capture_voice.COST_PER_HOUR_USD, 0.0001),
-            note=f"SERI GATE {locale} asr, {audio_seconds:.1f}s",
-        )
+        # A replayed transcript costs nothing, so nothing is written to the
+        # ledger. Only a real recognition call would be billed.
+        if result.get("status") != "stored":
+            tracker.log(
+                "speech",
+                calls=1,
+                cost=max(audio_seconds / 3600 * capture_voice.COST_PER_HOUR_USD, 0.0001),
+                note=f"SERI GATE {locale} asr, {audio_seconds:.1f}s",
+            )
     else:
         asr["status"] = "bypassed"
 
     model = classify(transcript or "", locale)
     if model.get("usage"):
-        tracker.log("wonder", calls=1, note=f"SERI GATE {locale} intent ({model.get('intent')})")
+        tracker.log("deep", calls=1, cost=model.get("cost_usd") or 0.0,
+                    note=f"SERI GATE {locale} intent ({model.get('intent')})")
 
     verdict = decide(transcript or "", model, locale)
 
@@ -324,7 +344,7 @@ def run_locale(
                 "audio_sha256": audio_sha,
                 "intent": verdict["model_intent"],
                 "confidence": verdict["confidence"],
-                "model": os.environ.get("META_MODEL", "muse-wonder-1.0"),
+                "model": model.get("model"),
                 "asr_model": asr["model"],
             },
         )
@@ -351,7 +371,7 @@ def run_locale(
         "ledger": ledger_entry,
         "cost_usd": round(
             (tracker.spend_precise("voice") - before_voice)
-            + (tracker.spend_precise("wonder") - before_wonder),
+            + (tracker.spend_precise("deep") - before_intent),
             6,
         ),
     }
@@ -408,7 +428,7 @@ def run(locales: list[str] | None = None) -> dict:
         "engine": {
             "tts": "MMS-TTS (open weight, local CPU, $0.00)",
             "asr": capture_voice.MODEL,
-            "intent": os.environ.get("META_MODEL", "muse-wonder-1.0"),
+            "intent": brain.model("deep"),
             "threshold": THRESHOLD,
         },
         "summary": {
@@ -417,12 +437,15 @@ def run(locales: list[str] | None = None) -> dict:
             "approved": approved,
             "withheld": len(entries) - approved,
             "text_only": TEXT_ONLY,
+            "cost_usd": round(sum(entry.get("cost_usd") or 0.0 for entry in entries), 6),
         },
         "locales": entries,
         "note": (
             "Voice approval, not delivery. Each clip is rendered locally by "
-            "MMS-TTS, transcribed by Muse Voice Transcribe, classified by Muse "
-            "Wonder, and decided in code. Nothing is dispatched - there is no "
+            "MMS-TTS, classified by Nemotron 3 Super 120b on Nebius Token "
+            "Factory, and decided in code. The transcript in this artefact was "
+            "captured before the migration, so no ASR call is claimed here. "
+            "Nothing is dispatched - there is no "
             "gateway on this machine. A locale that cannot be heard is text-only "
             "rather than spoken in the wrong language."
         ),
@@ -449,7 +472,7 @@ def main(argv: list[str] | None = None) -> int:
             "schema": "lifeline.seri_gate/1.1",
             "generated_utc": _now(),
             "engine": {"tts": "skipped", "asr": capture_voice.MODEL,
-                       "intent": os.environ.get("META_MODEL", "muse-wonder-1.0"),
+                       "intent": brain.model("deep"),
                        "threshold": THRESHOLD},
             "summary": {"languages": 1, "spoken": 0,
                         "approved": int(entry["gate"]["approved"]),

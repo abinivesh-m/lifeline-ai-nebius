@@ -13,7 +13,7 @@
   "lifegrid.runtime": "{hours} h de autonomía restante",
   "lifegrid.feeder": "alimentado por el corazón",
   "lifegrid.nowater": "sin agua, {hours} h",
-  "route.blocked": "NH-544 km 42 bloqueado",
+  "route.blocked": "Estrada de montanha km 42 bloqueada",
   "route.alt": "Ruta A* {km} km",
   "route.saved": "{percent}% de combustible ahorrado",
   "alloc.title": "ASIGNACIÓN DE DIÉSEL",
@@ -35,7 +35,7 @@
   "esc.tier3": "Sin decisión humana. Piloto automático degradado: {hospital} L hospital, {pump} L bomba, {reserve} L de reserva.",
   "esc.tier4": "Se requiere decisión comunitaria: 3 líderes de refugios, 2 de 3 deben aceptar. {people} personas esperan.",
   "esc.vote": "Voto sobre el envío de diésel: hospital {hospital} L, bomba de agua {pump} L.",
-  "evidence.landslide": "NH-544 km 42 deslizamiento, carretera cerrada unas 6 h",
+  "evidence.landslide": "Deslizamiento en la carretera de montaña km 42, vía cerrada unas 6 h",
   "evidence.people": "{people} personas en refugios no tienen agua",
   "world.scope": "3.500 millones de personas viven en ciudades con esta misma cascada"
 }

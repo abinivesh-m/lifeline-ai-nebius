@@ -7,19 +7,20 @@ hand-written templates, translated once by a person. That is safe, but it is
 not the product claim "a model writes the eight languages". This module closes
 that gap with real calls, and keeps the templates as the fallback.
 
-The Meta API has no speech-synthesis endpoint - its model list is Wonder, Spark,
-SAM, Voice Transcribe and Image. So the model drafts the *spoken script*, and
-``voice_alert.py`` renders it to audio with an offline-capable neural voice.
-The intelligence is the model's; the vocal cords are a delivery detail, and the
-README says exactly that.
+Token Factory serves text models only - there is no speech-synthesis endpoint.
+So the model drafts the *spoken script*, and ``voice_synth.py`` renders it to
+audio with MMS-TTS, an open-weight model on this laptop's CPU. The intelligence
+is the model's; the vocal cords are a delivery detail, and the README says
+exactly that.
 
 Pipeline per locale
 -------------------
-1. DRAFT  - muse-spark-1.3 (Meta Model API) writes two bodies in one call:
-            a <=160 char SMS and a <=300 char spoken script for the same alert.
+1. DRAFT  - Nemotron 3 Nano 30B-A3B (fast tier, Nebius Token Factory) writes
+            two bodies in one call: a <=160 char SMS and a <=300 char spoken
+            script for the same alert.
 2. CHECK  - this file's ``validate_body`` rejects unknown numbers, medical
             advice, links, over-length text and missing reply codes.
-3. REVIEW - muse-wonder-1.0 (Meta Model API) audits each draft for invented
+3. REVIEW - Nemotron 3 Super 120b (deep tier) audits each draft for invented
             figures, clinical advice, wrong language, or a false claim that
             fuel already moved. It returns a verdict per payload.
 4. KEEP   - a payload ships only if both the code check and the review pass.
@@ -44,6 +45,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -54,30 +56,46 @@ import i18n
 
 ROOT = Path(__file__).parent
 ARTIFACT = ROOT / "artifacts" / "multilingual_payloads.json"
-DRAFT_MODEL = os.environ.get("MULTILINGUAL_DRAFT_MODEL", "muse-spark-1.3")
-REVIEWER_MODEL = os.environ.get("META_MODEL", "muse-wonder-1.0")
+# The tier, not the model id, is what this module asks for: brain.py resolves it
+# to a real Token Factory model, so no stale experiment name can leak into the
+# artefact. The ids that were actually used are recorded from each response.
+#
+# Measured on this repo, same prompt, 8 languages (2026-10-28):
+#   Nano 30B-A3B  6,000 cap -> finish_reason=length, empty content, 59 s
+#   Nano 30B-A3B 16,000 cap -> answered, 3,449 completion tokens, 38 s
+#   Super 120b    6,000 cap -> answered,   966 completion tokens,  6.7 s
+# "reasoning_effort=low" does not bound Nano's thinking, so the draft runs on
+# Super: 5.6x faster wall time and a third of the tokens. Nano stays the volume
+# tier for short calls, and scripts/nebius_proof.py exercises all three.
+DRAFT_TIER = "deep"
+REVIEW_TIER = "deep"
 
 MAX_SMS_CHARS = 160
-MAX_VOICE_CHARS = 300
-MAX_ALLOCATION_CHARS = 300
+# 360 characters is about 26 s of speech at a normal reading pace: long enough
+# for a full sentence in Arabic or German, short enough for one voice call.
+MAX_VOICE_CHARS = 360
+MAX_ALLOCATION_CHARS = 360
 
 # The three payloads one locale must produce. ``allocation`` is the sentence a
 # caller hears when they ask "what happened?" - same numbers as the plan, in
 # the reader's language.
 KINDS = ("sms", "voice", "allocation")
-REQUIRED_CODES = {"sms": ("1", "2"), "voice": ("1", "2"), "allocation": ("70", "30", "100")}
+# The reply code belongs in the SMS: that is the channel with a keypad. A spoken
+# alert reaches someone who may not be able to type, so requiring a literal "1"
+# in every language was rejecting good scripts in Arabic, French and Chinese.
+REQUIRED_CODES = {"sms": ("1", "2"), "voice": (), "allocation": ("70", "30", "100")}
 
 REPAIR_HINT = (
-    "A spoken payload used an abbreviated unit. Never abbreviate in the voice or "
-    "allocation fields: write kilometre, litre and hour as full words."
+    "Never abbreviate in the voice or allocation fields: write kilometre, litre "
+    "and hour as full words, and stay inside the character limit."
 )
 
 
-# Every number an honest Kottur alert may contain. 544 and 42 are the road,
+# Every number an honest Kottur alert may contain. 42 is the kilometre marker,
 # 7.8 the bypass, 4 the hospital runtime, 70/30/100 the allocation, 1/2 the
 # reply codes, 200 the sheltered people, 6 the depot reserve. Anything else is
 # a fabricated figure.
-ALLOWED_NUMBERS = {"1", "2", "4", "6", "7.8", "30", "42", "70", "100", "200", "544"}
+ALLOWED_NUMBERS = {"1", "2", "4", "6", "7.8", "30", "42", "70", "100", "200"}
 
 BANNED = (
     "http",
@@ -150,21 +168,32 @@ def _language(code: str) -> str:
 def draft_prompt(code: str, town: dict, hint: str = "") -> str:
     language = _language(code)
     repair = f"\nThe previous attempt was rejected. {hint}\n" if hint else ""
+    # Tamil has its own units and the reviewer rejects a Tamil SMS containing
+    # Latin words, so the only Latin string allowed in that payload is the road.
+    script_note = (
+        "Write the Tamil SMS entirely in Tamil script: கி.மீ. for kilometre, "
+        "மணி for hours, and no Latin words except the ghat road.\n"
+        if code == "ta"
+        else ""
+    )
     return (
         "Draft three payloads for a town diesel crisis. Facts, all true:\n"
-        "- Kottur, Tamil Nadu. NH-544 km 42 is blocked; the surveyed bypass is 7.8 km.\n"
+        "- Kottur, Tamil Nadu. The ghat road, km 42, is blocked; the surveyed bypass is 7.8 km.\n"
         "- The hospital generator has 4 hours of diesel left.\n"
         "- The validated split is 70 L hospital, 30 L water pump, 100 L total.\n"
         "- The reader replies 1 to approve dispatch, 2 to deny.\n\n"
         f"Write all three in {language} ({code}).\n"
-        "sms: at most 160 characters, for a feature phone.\n"
-        "voice: at most 300 characters, written to be SPOKEN aloud by a phone\n"
-        "       call or a temple loudspeaker. Say that the reader can press 1 to\n"
-        "       approve or 2 to deny. Write units as a voice would say them.\n"
-        "allocation: at most 300 characters, SPOKEN to a caller who asks what\n"
-        "       was decided. It must state the split: seventy litres to the\n"
-        "       hospital, thirty to the water pump, one hundred in total. Say the\n"
-        "       numbers as digits so the phone system can read them.\n\n"
+        f"{script_note}"
+        "sms: at most 160 characters, for a feature phone. It must contain the\n"
+        "     digits 1 and 2 so the reader can reply.\n"
+        "voice: at most 360 characters, written to be SPOKEN aloud by a phone\n"
+        "       call or a temple loudspeaker. The listener answers by voice, so do\n"
+        "       not ask them to press a key. Write units as a voice would say them.\n"
+        "allocation: at most 360 characters, SPOKEN to a caller who asks what\n"
+        "       was decided. It MUST contain the digits 70, 30 and 100, each\n"
+        "       exactly once: seventy litres to the hospital, thirty to the water\n"
+        "       pump, one hundred in total. Write those three numbers as digits,\n"
+        "       not as words, so the phone system can read them.\n\n"
         "Rules for all three: no medical advice, no diagnosis, no dosing, no new\n"
         "numbers, and never claim fuel has already been dispatched. Use only\n"
         "these numbers if you use any: "
@@ -182,7 +211,9 @@ def review_prompt(code: str, sms: str, voice: str, allocation: str) -> str:
         f'SMS: """{sms}"""\n'
         f'VOICE ALERT: """{voice}"""\n'
         f'ALLOCATION: """{allocation}"""\n'
-        f"ALLOWED NUMBERS: {', '.join(sorted(ALLOWED_NUMBERS, key=float))}\n\n"
+        f"ALLOWED NUMBERS: {', '.join(sorted(ALLOWED_NUMBERS, key=float))}\n"
+        "The digits 1 and 2 are the required reply codes in the SMS and are\n"
+        "always allowed; never reject a payload for containing them.\n\n"
         "For each payload, reject it if any other number appears, if it gives\n"
         "medical advice (diagnosis, dose, medicine, treatment), if it is not\n"
         "written in the requested language, or if it claims fuel was already\n"
@@ -194,19 +225,17 @@ def review_prompt(code: str, sms: str, voice: str, allocation: str) -> str:
     )
 
 
-def _meta_chat(
-    model: str,
+def _chat(
     prompt: str,
     timeout: float = 60.0,
     max_tokens: int = 800,
     reasoning_effort: str | None = None,
-    tier: str = "deep",
+    tier: str = REVIEW_TIER,
 ) -> dict:
     """One completion through the active provider seam (brain.py).
 
-    ``model`` is kept for call-site compatibility. When the provider is Nebius,
-    the *tier* picks the real model ID, so a Meta model name can never leak into
-    a Nebius artefact.
+    The *tier* picks the real model id, and the response reports which one
+    answered, so the artefact can never claim a model that did not run.
     """
     import brain
 
@@ -274,22 +303,23 @@ def generate_locale(
             "problems": [],
         }
 
-    # Muse Spark is a reasoning model: on a 900 token cap it spent every token
-    # thinking and returned empty content. Give it room and ask for low effort.
-    draft = _meta_chat(
-        DRAFT_MODEL,
+    # Nemotron is a reasoning model: on a small token cap it can spend every
+    # token thinking and return empty content. Give it room and ask for low
+    # effort on the draft, which is a formatting task, not a reasoning one.
+    draft = _chat(
         draft_prompt(code, town, hint),
         timeout=120.0,
         max_tokens=6000,
         reasoning_effort="low",
-        tier="fast",
+        tier=DRAFT_TIER,
     )
     # A reasoning model that burns its budget still spent tokens. Log the call
     # whenever the server billed it, even if the content came back empty.
     if draft.get("usage"):
         tracker.log(
-            "spark",
+            DRAFT_TIER,
             calls=1,
+            cost=draft.get("cost_usd") or 0.0,
             note=f"multilingual draft {code} (sms + voice + allocation, {draft['status']})",
         )
     if draft["status"] != "answered":
@@ -299,8 +329,8 @@ def generate_locale(
         return record
 
     record["draft"] = {
-        "model": DRAFT_MODEL,
-        "provider": "Meta Model API",
+        "model": draft["model"],
+        "provider": draft["provider"],
         "latency_s": draft["latency_s"],
         "usage": draft["usage"],
     }
@@ -317,8 +347,7 @@ def generate_locale(
     if not any(check["ok"] for _, check in checks.values()):
         return record
 
-    review = _meta_chat(
-        REVIEWER_MODEL,
+    review = _chat(
         review_prompt(
             code,
             (parsed.get("sms") or "").strip(),
@@ -328,7 +357,7 @@ def generate_locale(
         timeout=90.0,
         max_tokens=3000,
         reasoning_effort="low",
-        tier="deep",
+        tier=REVIEW_TIER,
     )
     verdict = _parse_json(review["text"])
     record["review"] = {
@@ -342,8 +371,9 @@ def generate_locale(
     }
     if review.get("usage"):
         tracker.log(
-            "wonder",
+            REVIEW_TIER,
             calls=1,
+            cost=review.get("cost_usd") or 0.0,
             note=(
                 f"multilingual review {code} ("
                 + " / ".join(f"{kind} {record['review'][f'{kind}_ok']}" for kind in KINDS)
@@ -375,7 +405,14 @@ def _has_key(code: str, key: str) -> bool:
     return True
 
 
-def run(locales: list[str] | None = None) -> dict:
+def _model_id(tier: str) -> str:
+    """The model id a tier resolves to right now, without spending a call."""
+    import brain
+
+    return brain.model(tier)
+
+
+def run(locales: list[str] | None = None, workers: int = 4) -> dict:
     allocator.load_env()
     town = allocator.load_town()
     order = [entry["code"] for entry in i18n.available()]
@@ -384,20 +421,66 @@ def run(locales: list[str] | None = None) -> dict:
     tracker = credit_tracker.CreditTracker()
     before = tracker.spend_precise()
 
-    records = []
-    for code in codes:
+    # Eight languages, two model calls each, one 90-120 s ceiling each: run
+    # sequentially this is 10-15 minutes of silence, which reads as a hang.
+    # Four workers cut the wall time and each finish prints immediately.
+    def one(code: str) -> dict:
+        print(f"  {code}: drafting", flush=True)
         record = generate_locale(code, town, tracker)
         missing = [kind for kind in KINDS if not record[kind]["valid"]]
         if missing:
-            # One bounded repair per locale: a reviewer often rejects a single
-            # speakability detail, and re-drafting with that detail named is
-            # cheaper than shipping a silent language. Never loops.
-            print(f"  {code}: repairing {', '.join(missing)}")
-            second = generate_locale(code, town, tracker, hint=REPAIR_HINT)
+            # One bounded repair per locale, and the hint carries the actual
+            # rejection. A generic hint made the model repeat the same mistake;
+            # naming "161 chars exceeds 160" or "review rejected: not Swahili"
+            # is what turns a second attempt into a pass.
+            reasons = [
+                f"{kind}: {problem}"
+                for kind in KINDS
+                for problem in (record[kind].get("problems") or [])
+            ]
+            hint = REPAIR_HINT + " Fix these exact rejections: " + "; ".join(reasons[:6])
+            print(f"  {code}: repairing {', '.join(missing)}", flush=True)
+            second = generate_locale(code, town, tracker, hint=hint)
             if sum(second[k]["valid"] for k in KINDS) > sum(record[k]["valid"] for k in KINDS):
                 second["repaired"] = True
                 record = second
-        records.append(record)
+            still = [kind for kind in KINDS if not record[kind]["valid"]]
+            if still:
+                # Second and last attempt. The remaining failures are almost all
+                # "too long" or "drifted into another language", so the hint asks
+                # for a shorter text in the target script and repeats the exact
+                # rejection. This never runs a third time.
+                reasons = [
+                    f"{kind}: {problem}"
+                    for kind in still
+                    for problem in (record[kind].get("problems") or [])
+                ]
+                shorter = (
+                    "Write SHORTER: aim for 120 characters for the SMS and 220 for each "
+                    "spoken field, and write only in the requested language and script - "
+                    "no Latin words unless they are the place name or the ghat road. "
+                    + "Fix these exact rejections: " + "; ".join(reasons[:4])
+                )
+                print(f"  {code}: second repair {', '.join(still)}", flush=True)
+                third = generate_locale(code, town, tracker, hint=shorter)
+                if sum(third[k]["valid"] for k in KINDS) > sum(record[k]["valid"] for k in KINDS):
+                    third["repaired"] = True
+                    third["repair_attempts"] = 2
+                    record = third
+        marks = " ".join(f"{kind[:5]} {'PASS' if record[kind]['valid'] else '----'}" for kind in KINDS)
+        print(f"  {code}: done  {marks}", flush=True)
+        return record
+
+    by_code: dict[str, dict] = {}
+    with ThreadPoolExecutor(max_workers=max(1, min(workers, len(codes)))) as pool:
+        futures = {pool.submit(one, code): code for code in codes}
+        for future in as_completed(futures):
+            code = futures[future]
+            try:
+                by_code[code] = future.result()
+            except Exception as exc:  # noqa: BLE001 - one locale must not sink the rest
+                print(f"  {code}: worker failed: {type(exc).__name__}: {exc}", flush=True)
+    records = [by_code[code] for code in codes if code in by_code]
 
     if locales and ARTIFACT.exists():
         # A partial run must never delete the languages it did not touch.
@@ -424,8 +507,8 @@ def run(locales: list[str] | None = None) -> dict:
         "schema": "lifeline.multilingual/1.2",
         "generated_utc": _now(),
         "batches": batches,
-        "generator": {"provider": "Meta Model API", "model": DRAFT_MODEL},
-        "reviewer": {"provider": "Meta Model API", "model": REVIEWER_MODEL},
+        "generator": {"provider": "Nebius Token Factory", "tier": DRAFT_TIER, "model": _model_id(DRAFT_TIER)},
+        "reviewer": {"provider": "Nebius Token Factory", "tier": REVIEW_TIER, "model": _model_id(REVIEW_TIER)},
         "rules": {
             "max_chars": {
                 "sms": MAX_SMS_CHARS,
@@ -436,7 +519,7 @@ def run(locales: list[str] | None = None) -> dict:
             "require_reply_codes": ["1", "2"],
             "fallback": "locales/*.json templates",
             "speech": (
-                "the meta api exposes no text-to-speech endpoint; "
+                "Token Factory serves text models only, so nothing is billed for speech; "
                 "voice_synth.py renders these scripts with MMS-TTS, an open-weight "
                 "model, on this laptop's CPU"
             ),

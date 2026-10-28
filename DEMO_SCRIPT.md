@@ -9,8 +9,10 @@ and every claim is one the page can prove.
 powershell -ExecutionPolicy Bypass -File scripts\refresh_demo.ps1
 ```
 
-- Delete `credit_usage.json` only if you want the badge to start at $0 — otherwise leave the real ledger.
-- Do **not** run `python openweight.py` after the badge is on screen: it appends a run and changes `x/y`.
+- The badge reads the reconciled artefacts, not the local ledger: deleting `credit_usage.json` does **not**
+  change it. The page and the CLI both report the same measured total.
+- Do **not** run `python scripts/nebius_proof.py` after the badge is on screen: it appends a priced run and
+  changes the call count.
 - Do **not** re-run `python seri_gate.py` before filming: it appends fresh approvals and changes the
   ledger seq shown on screen. Record the take with the sealed artefact that is already in the repo.
 - Close Chrome tabs, YouTube and Slack. The offline clip must show a quiet machine.
@@ -41,15 +43,15 @@ Point at BLOOD → HEART → LUNGS → ORGANS.
 
 Click the flood frame.
 
-> "SAM 3.1 measured 35.3% flood water in this frame. That is one input to the plan, not the product."
+> "The stored segmentation measured 35.3% flood water in this frame. That is one input to the plan, not the product."
 
 ## 0:55 — the brain (25 s)
 
-Section 04. Toggle **OPEN WEIGHT** ↔ **OFFLINE POLICY**.
+Section 04. Toggle **NEMOTRON 3** ↔ **OFFLINE POLICY**.
 
-> "The allocation comes from muse-spark-open-1026 on Baseten - live, 4.44 seconds, and re-validated here
-> before anyone sees it. This laptop has a 6 GB GPU, so the open-weight model is partner-hosted; the page
-> says so instead of pretending it runs locally."
+> "The allocation comes from Nemotron 3 Ultra on Nebius Token Factory - live, 3.37 seconds in the proof run,
+> and re-validated here before anyone sees it. The model proposes; the validator, the hash chain and a human
+> still decide. If the call fails, the page falls back to the deterministic solver and says so."
 
 > "The model proposes. Code disposes: 70 litres to the hospital, 30 to the pump, 100 total, or the
 > validator rejects it and the deterministic solver takes over."
@@ -63,7 +65,7 @@ Section 05.
 
 Click **தமிழ்**, then **▶ ALERT**.
 
-> "This is the real payload, drafted by Spark, reviewed by Wonder, checked in code, then spoken by an
+> "This is the real payload, drafted by Nemotron 3 Super, reviewed by the same model, checked in code, then spoken by an
 > open-weight voice model running on this laptop. A reader who cannot read still hears it."
 
 Click **▶ 70/30 DECISION** in section 04.
@@ -74,7 +76,7 @@ Click **▶ 70/30 DECISION** in section 04.
 
 Click through two chips (**Español**, **Kiswahili**), then **▶ HEAR · தமிழ்**.
 
-> "Muse Voice Transcribe hears 'சரி'. Muse Wonder says approve. Code checks both, requires 80%
+> "The stored transcript says 'சரி'. Nemotron 3 Super classifies it as approve. Code checks both, requires 80%
 > confidence, and only then seals it in the hash chain. A misheard no must never dispatch fuel — so a
 > question, a cough or a maybe is a no. Seven languages are gated and sealed separately; Mandarin has
 > no released voice checkpoint, so it is labelled text-only."
@@ -95,7 +97,8 @@ Section 07.
 
 ## 2:45 — close (15 s)
 
-> "Seventy-eight tests, one command to reproduce, and a ledger that shows every dollar: $14.77 of $150.
+> "Seventy-eight tests, one command to reproduce, and a ledger that shows every dollar: two point seven
+> cents on inference and one dollar six on Tavily, against a thirty dollar balance.
 > No gateway is configured, so nothing here claims a message was sent. That is the product: a decision
 > that survives the wire going down, and a town that can still say yes."
 
@@ -103,7 +106,7 @@ Section 07.
 
 ## What NOT to say
 
-- Do not say the model runs on the laptop. Spark Open is Baseten-hosted; MMS-TTS is the local model.
+- Do not say the model runs on the laptop. Nemotron 3 runs on Nebius Token Factory; MMS-TTS is the local model.
 - Do not say a message was sent. Every payload is `PENDING_CREDENTIALS`.
 - Do not claim 8 spoken languages. Seven have clips; Mandarin has no released MMS-TTS checkpoint and
   ships text-only, on screen.
@@ -114,4 +117,4 @@ Section 07.
 
 1. Upload unlisted to YouTube, paste the link into the submission form.
 2. `git status` must be clean; push the commit that produced the take.
-3. Attach `artifacts/benchmark.json`, `artifacts/openweight_proof.json`, `artifacts/seri_gate.json`.
+3. Attach `artifacts/benchmark.json`, `artifacts/nebius_proof.json`, `artifacts/seri_gate.json`.

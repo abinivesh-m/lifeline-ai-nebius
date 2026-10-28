@@ -198,18 +198,63 @@ export type LifeLineData = {
     remaining_usd: number;
     reserve_usd: number;
     ledger_rows: number;
+    inference_usd: number;
+    inference_calls: number;
+    tavily_usd: number;
+    tavily_calls: number;
+    tavily_credits: number;
+    combined_usd: number;
+    note: string;
     by_model: Record<string, { calls: number; spent_usd: number; budget_usd: number }>;
   };
-  openweight: {
+  nebius: {
     available: boolean;
     provider: string | null;
+    endpoint: string | null;
+    tiers: Record<string, string>;
     model: string | null;
     runs: number;
     valid_runs: number;
     allocation: Record<string, number> | null;
+    justification: string | null;
+    confidence: number | null;
     latencies_s: number[];
+    latency_by_tier: Record<string, number | null>;
     latest_at: string | null;
+    cost_usd: number | null;
+    tokens: number | null;
+    validator_ok: boolean;
+    citations_ok: boolean;
+    sources: {
+      id: string;
+      title: string | null;
+      url: string;
+      published: string | null;
+      mode: string;
+      relevance: number | null;
+      quote: string | null;
+    }[];
     note: string | null;
+  };
+  tavily: {
+    available: boolean;
+    totals: Record<string, number>;
+    usage: Record<string, number>;
+    region: string[];
+    window: Record<string, { start?: string; end?: string; fresh_days?: number }>;
+    claims: {
+      mode: string;
+      topic: string | null;
+      quote: string | null;
+      url: string;
+      title: string | null;
+      published: string | null;
+      score: number | null;
+      accepted: boolean;
+      verdict: string;
+    }[];
+    accepted: number;
+    checked: number;
   };
   escalation: {
     tiers: { tier: number; window: string; action: string; detail: string }[];
@@ -359,8 +404,8 @@ export const COLORS = {
 
 /** The eight steps the agent actually runs, in the order it runs them. */
 export const STEPS = [
-  { n: 1, key: "PERCEIVE", tool: "SAM 3.1", detail: "noun-phrase segmentation, real pixel masks" },
-  { n: 2, key: "LISTEN", tool: "Voice Transcribe", detail: "Tamil report, language bias, keywords" },
+  { n: 1, key: "PERCEIVE", tool: "stored masks", detail: "pre-migration masks, replayed and re-checked" },
+  { n: 2, key: "LISTEN", tool: "stored transcript", detail: "stored Tamil report, replayed verbatim" },
   { n: 3, key: "GRAPH", tool: "Kahn sort", detail: "heartbeat before lungs, always" },
   { n: 4, key: "ROUTE", tool: "A* heapq", detail: "4.2 km blocked, 7.8 km found" },
   { n: 5, key: "ALLOCATE", tool: "Open weight + validator", detail: "70 L / 30 L, then checked in code" },

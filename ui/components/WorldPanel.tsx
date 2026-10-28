@@ -204,14 +204,14 @@ export default function WorldPanel() {
               <div className="mono text-[8px] text-muted">surveyed</div>
             </div>
             <div className="rounded border border-line bg-black/30 p-2">
-              <div className="text-lg font-bold text-lung">3.5B</div>
-              <div className="mono text-[8px] text-muted">people in this pattern</div>
+              <div className="text-lg font-bold text-lung">8</div>
+              <div className="mono text-[8px] text-muted">alert locales</div>
             </div>
           </div>
           <div className="mt-2 space-y-1 border-t border-line/60 pt-2 mono text-[8.5px] leading-relaxed text-muted/80">
-            <div>World Bank · 2,564 cities · 177 countries · 14M km roads</div>
-            <div>Global Flood Database · 913 flood events</div>
-            <div>GDIS · 39,953 locations = 3.5B people in this pattern</div>
+            <div>The graph, road network and reserve are data, not code.</div>
+            <div>Point the loader at another town and the same A*, Kahn sort and validator run.</div>
+            <div>Only Kottur carries a surveyed fuel scenario; every other pin is labelled generic.</div>
           </div>
         </div>
       </div>

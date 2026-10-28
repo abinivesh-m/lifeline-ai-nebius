@@ -301,7 +301,7 @@ def test_offline_mode_makes_no_call() -> None:
     try:
         result = allocator.allocate(TOWN, mode="auto")
         eq(result["source"], "policy")
-        eq(result["trace"]["wonder"]["status"], "unconfigured")
+        eq(result["trace"]["nebius"]["status"], "unconfigured")
     finally:
         os.environ.pop("LIFELINE_OFFLINE", None)
 
@@ -322,37 +322,35 @@ def _tracker() -> credit_tracker.CreditTracker:
     return credit_tracker.CreditTracker(ledger_path=Path(directory) / "credit_usage.json")
 
 
-def test_plan_totals_150() -> None:
-    eq(round(credit_tracker.PLANNED_TOTAL, 2), 150.0)
+def test_plan_totals_30() -> None:
+    eq(round(credit_tracker.PLANNED_TOTAL, 2), 30.0)
 
 
-def test_warn_threshold_at_120() -> None:
+def test_warn_threshold_at_24() -> None:
     t = _tracker()
-    t.log("sam", calls=20)  # 30
-    t.log("voice", calls=50)  # 60 -> 90
-    t.log("spark", calls=40)  # 80 -> 110
-    eq(t.level(), "ok")
-    t.log("wonder", calls=100)  # ~41.2 -> ~121.2, past the 80% alert
+    t.log("decision", calls=100)  # 10
+    t.log("deep", calls=100)  # 20
+    t.log("fast", calls=80)  # 24, exactly the 80% alert
     eq(t.level(), "warn")
     if not any("WARN" in a for a in t.alerts()):
         raise AssertionError(t.alerts())
 
 
-def test_critical_threshold_at_142_5() -> None:
+def test_critical_threshold_at_28_50() -> None:
     t = _tracker()
-    t.log("wonder", calls=170)  # 70
-    t.log("sam", calls=20)  # 100
-    t.log("voice", calls=50)  # 130
-    t.log("spark", calls=25)  # 142.5
-    approx(t.spend(), 142.5, 1e-9, "spend at threshold")
+    t.log("decision", calls=100)  # 10
+    t.log("deep", calls=100)  # 20
+    t.log("fast", calls=80)  # 24
+    t.log("tavily", calls=90)  # 28.5, the 95% threshold
+    approx(t.spend(), 28.5, 1e-9, "spend at threshold")
     eq(t.level(), "critical")
 
 
 def test_bucket_overflow_is_refused() -> None:
     t = _tracker()
-    t.log("sam", calls=20)
+    t.log("decision", calls=100)  # the whole $10 bucket
     try:
-        t.log("sam", calls=1)
+        t.log("decision", calls=1)
     except credit_tracker.BudgetError:
         return
     raise AssertionError("bucket overflow was allowed")
@@ -361,7 +359,7 @@ def test_bucket_overflow_is_refused() -> None:
 def test_overspend_is_refused() -> None:
     t = _tracker()
     try:
-        t.log("wonder", calls=171)
+        t.log("decision", calls=101)
     except credit_tracker.BudgetError:
         return
     raise AssertionError("over-budget call was allowed")
@@ -369,14 +367,14 @@ def test_overspend_is_refused() -> None:
 
 def test_full_plan_verifies_and_persists() -> None:
     t = _tracker()
-    for model, calls in [("wonder", 170), ("sam", 20), ("voice", 50), ("spark", 40)]:
+    for model, calls in [("decision", 100), ("deep", 100), ("fast", 100), ("tavily", 100)]:
         t.log(model, calls=calls, note="test")
     eq(t.verify(), [])
-    approx(t.spend(), 150.0, 1e-9, "total spend")
+    approx(t.spend(), 30.0, 1e-9, "total spend")
 
     reloaded = credit_tracker.CreditTracker(ledger_path=t.path)
     eq(len(reloaded.entries), 4)
-    approx(reloaded.spend(), 150.0, 1e-9, "reloaded spend")
+    approx(reloaded.spend(), 30.0, 1e-9, "reloaded spend")
     Path(t.path).unlink(missing_ok=True)
 
 
@@ -494,19 +492,18 @@ def test_end_to_end_story() -> None:
                 "trace": {},
             }],
         }), encoding="utf-8")
-        (root / "artifacts" / "openweight_proof.json").write_text(json.dumps({
-            "provider": "Baseten",
-            "model": "meta-models/muse-spark-open-1026",
-            "runs": [{
-                "valid": True,
-                "latency_s": 4.44,
-                "at": "2026-10-27T00:00:00+00:00",
+        (root / "artifacts" / "nebius_proof.json").write_text(json.dumps({
+            "provider": "nebius",
+            "endpoint": "https://api.studio.nebius.com/v1",
+            "tiers": {"decision": "nvidia/Nemotron-3-Ultra-550b-a55b"},
+            "generated_at": "2026-10-27T00:00:00+00:00",
+            "totals": {"validator_ok": True, "citations_ok": True,
+                       "latency_s": {"decision": 3.37}},
+            "decision": {
                 "allocation": {"hospital": 70, "water_pump": 30},
                 "justification": "stored run",
                 "confidence": 0.99,
-                "model": "meta-models/muse-spark-open-1026",
-                "provider": "Baseten",
-            }],
+            },
         }), encoding="utf-8")
         original_root = export_ui_data.ROOT
         export_ui_data.ROOT = root
@@ -514,7 +511,7 @@ def test_end_to_end_story() -> None:
             brain = export_ui_data._latest_run_brain()
         finally:
             export_ui_data.ROOT = original_root
-        eq(brain["source"], "openweight-stored")
+        eq(brain["source"], "nebius-stored")
         eq(brain["status"], "stored")
         eq(brain["valid"], True)
 

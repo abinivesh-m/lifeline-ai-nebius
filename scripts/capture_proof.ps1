@@ -125,10 +125,11 @@ Pop-Location
 Remove-Item Env:\LIFELINE_OFFLINE -ErrorAction SilentlyContinue
 
 Write-Host ""
-Write-Host "Done. Now record baseten_proof.mp4 separately:" -ForegroundColor Cyan
-Write-Host "  python openweight.py"
-Write-Host "  (2/3 runs valid, 5.41 s and 6.73 s, 70 L / 30 L)"
+Write-Host "Done. The Nebius proof is a JSON trace, not a video:" -ForegroundColor Cyan
+Write-Host "  python scripts/nebius_proof.py"
+Write-Host "  (three real calls: fast 7.08 s, deep 4.88 s, decision 3.37 s; 70/30 validator PASS)"
+Write-Host "  -> artifacts/nebius_proof.json"
 Write-Host ""
 Write-Host "Then commit:" -ForegroundColor Cyan
-Write-Host "  git add artifacts/proof"
-Write-Host "  git commit -m 'Add real GPU, offline and Baseten proof captures'"
+Write-Host "  git add artifacts/proof artifacts/nebius_proof.json"
+Write-Host "  git commit -m 'Add offline, GPU and Nebius proof captures'"

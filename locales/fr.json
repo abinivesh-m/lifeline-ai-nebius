@@ -13,7 +13,7 @@
   "lifegrid.runtime": "{hours} h d'autonomie restante",
   "lifegrid.feeder": "alimenté par le cœur",
   "lifegrid.nowater": "sans eau, {hours} h",
-  "route.blocked": "NH-544 km 42 bloqué",
+  "route.blocked": "Route de montagne km 42 bloquée",
   "route.alt": "Itinéraire A* {km} km",
   "route.saved": "{percent}% de carburant économisé",
   "alloc.title": "RÉPARTITION DU GAZOLE",
@@ -35,7 +35,7 @@
   "esc.tier3": "Aucune décision humaine. Pilote automatique dégradé : {hospital} L hôpital, {pump} L pompe, {reserve} L de réserve.",
   "esc.tier4": "Décision communautaire requise : 3 responsables d'abris, 2 sur 3 doivent accepter. {people} personnes attendent.",
   "esc.vote": "Vote sur l'envoi de gazole : hôpital {hospital} L, pompe à eau {pump} L.",
-  "evidence.landslide": "NH-544 km 42 glissement de terrain, route fermée environ 6 h",
+  "evidence.landslide": "Glissement de terrain sur la route de montagne km 42, route fermée environ 6 h",
   "evidence.people": "{people} personnes dans les abris sont sans eau",
   "world.scope": "3,5 milliards de personnes vivent dans des villes connaissant cette même cascade"
 }

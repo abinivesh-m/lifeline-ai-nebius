@@ -46,9 +46,9 @@ export default function AllocatorDashboard() {
   // The qualifying brain and the offline fallback, side by side. Both are
   // re-validated by the same code; this switch changes the proposal, not the rules.
   const brain = lifeline.allocation.brain;
-  const hasBrain = Boolean(brain?.source?.startsWith("openweight"));
-  const [brainView, setBrainView] = useState<"openweight" | "policy">(
-    hasBrain ? "openweight" : "policy",
+  const hasBrain = Boolean(brain && (brain.source?.startsWith("nebius") || brain.source?.startsWith("nebius")));
+  const [brainView, setBrainView] = useState<"nebius" | "policy">(
+    hasBrain ? "nebius" : "policy",
   );
   const policyJustification = lifeline.allocation.justification;
   const typedOpenweight = useTypewriter(brain?.justification ?? policyJustification);
@@ -80,7 +80,7 @@ export default function AllocatorDashboard() {
   };
 
   const allocation =
-    brainView === "openweight" && brain?.allocation
+    brainView === "nebius" && brain?.allocation
       ? brain.allocation
       : lifeline.allocation.policy;
   const hospital = allocation.hospital ?? 0;
@@ -122,7 +122,7 @@ export default function AllocatorDashboard() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-3">
-      {/* ---------------- SAM evidence ---------------- */}
+      {/* ---------------- stored mask evidence ---------------- */}
       <div className="glass rounded-xl p-4">
         <div className="flex items-baseline justify-between">
           <div className="mono text-[10px] tracking-[0.18em] text-muted">01 · PERCEIVE</div>
@@ -133,7 +133,7 @@ export default function AllocatorDashboard() {
           <img
             key={frame?.stem}
             src={frame?.overlay ?? frame?.photo ?? ""}
-            alt={`SAM mask over ${frame?.file}`}
+            alt={`stored mask over ${frame?.file}`}
             className="h-[190px] w-full object-cover"
             draggable={false}
           />
@@ -166,7 +166,7 @@ export default function AllocatorDashboard() {
         </p>
       </div>
 
-      {/* ---------------- Voice + Wonder ---------------- */}
+      {/* ---------------- Voice + Nemotron ---------------- */}
       <div className="glass rounded-xl p-4">
         <div className="flex items-baseline justify-between">
           <div className="mono text-[10px] tracking-[0.18em] text-muted">02 · LISTEN</div>
@@ -201,8 +201,8 @@ export default function AllocatorDashboard() {
           </div>
           <p className="ta mt-1.5 text-[12.5px] leading-relaxed text-ink">{lifeline.voice.transcript}</p>
           <p className="mono mt-1.5 text-[9px] leading-relaxed text-muted">
-            real pipeline · {lifeline.voice.model} · Tamil bias + keywords · stored run
-            artifacts/audio/report_01.wav
+            stored transcript, captured before the Nebius migration and replayed verbatim ·
+            no ASR call is claimed or billed · artifacts/voice_reports.json
           </p>
         </div>
 
@@ -210,16 +210,16 @@ export default function AllocatorDashboard() {
           <div className="mono text-[10px] tracking-[0.18em] text-muted">05 · ALLOCATE</div>
           <div className="flex gap-1">
             <button
-              onClick={() => setBrainView("openweight")}
+              onClick={() => setBrainView("nebius")}
               disabled={!hasBrain}
-              aria-pressed={brainView === "openweight"}
+              aria-pressed={brainView === "nebius"}
               className={`rounded border px-1.5 py-0.5 mono text-[8px] tracking-[0.1em] transition ${
-                brainView === "openweight"
+                brainView === "nebius"
                   ? "border-teal/60 bg-teal/10 text-teal"
                   : "border-line/70 bg-black/20 text-muted hover:border-muted/50"
               } ${hasBrain ? "" : "opacity-40"}`}
             >
-              OPEN WEIGHT
+              NEMOTRON 3
             </button>
             <button
               onClick={() => setBrainView("policy")}
@@ -237,23 +237,23 @@ export default function AllocatorDashboard() {
         <div className="mt-1.5 rounded-lg border border-line bg-[#08141a] p-2.5">
           <div className="flex items-baseline justify-between gap-2">
             <div className="mono text-[9px] text-muted">
-              {brainView === "openweight" && brain
-                ? `${brain.provider ?? "Baseten"} · ${brain.model ?? "meta-models/muse-spark-open-1026"}`
+              {brainView === "nebius" && brain
+                ? `${brain.provider ?? "Nebius Token Factory"} · ${brain.model ?? "nvidia/Nemotron-3-Ultra-550b-a55b"}`
                 : "deterministic policy · no network"}
             </div>
-            {brainView === "openweight" && brain && (
+            {brainView === "nebius" && brain && (
               <span className="mono shrink-0 text-[8px] text-teal">
                 {brain.status === "live" ? "LIVE CALL" : "STORED RUN"} · {brain.latency_s}s
               </span>
             )}
           </div>
           <p className="mono mt-1 text-[8px] leading-relaxed text-muted/60">
-            {brainView === "openweight" && brain
-              ? `${brain.valid ? "re-validated locally ✓" : "validator rejected ✗"} · run ${brain.at?.slice(0, 19).replace("T", " ") ?? "?"} UTC · proof ${lifeline.openweight.latencies_s.map((value) => `${value.toFixed(2)} s`).join(" / ")} stored`
+            {brainView === "nebius" && brain
+              ? `${brain.valid ? "validator + citations ✓" : "validator rejected ✗"} · run ${brain.at?.slice(0, 19).replace("T", " ") ?? "?"} UTC · ${lifeline.nebius.latencies_s.map((value) => `${value.toFixed(2)} s`).join(" / ")} this run`
               : "policy · same validator · $0 spent on model calls"}
           </p>
           <p className="mt-1 min-h-[54px] text-[11.5px] leading-relaxed text-teal/90">
-            {brainView === "openweight" ? typedOpenweight : typedPolicy}
+            {brainView === "nebius" ? typedOpenweight : typedPolicy}
             <span className="ml-0.5 inline-block h-3 w-1 animate-pulse bg-teal align-middle" />
           </p>
           <div className="mt-1.5 flex flex-wrap gap-1">
@@ -300,7 +300,7 @@ export default function AllocatorDashboard() {
             preload="none"
           />
           <p className="mt-1.5 mono text-[8px] leading-relaxed text-muted/70">
-            {brainView === "openweight"
+            {brainView === "nebius"
               ? "The model proposes; the validator re-checks every hard constraint in code. Nothing is trusted from the model."
               : "LIFELINE_OFFLINE=1 fallback: same validator, no model call, no API key."}
           </p>
@@ -346,7 +346,7 @@ export default function AllocatorDashboard() {
           <div className="flex items-baseline justify-between">
             <span className="mono text-[10px] tracking-[0.16em] text-muted">{t("credit.title")}</span>
             <span className="mono text-[10px] text-ink">
-              ${spend.toFixed(4)} <span className="text-muted">/ ${budget.toFixed(0)}</span>
+              ${spend.toFixed(4)} <span className="text-muted">/ ${budget.toFixed(2)}</span>
             </span>
           </div>
           <div className="relative mt-1.5 h-2 overflow-hidden rounded-full bg-[#16262f]">
@@ -362,7 +362,7 @@ export default function AllocatorDashboard() {
           <div className="mt-1 flex justify-between mono text-[8.5px] text-muted">
             <span>alerts 80% / 95%</span>
             <span>
-              ${lifeline.credit.remaining_usd.toFixed(2)} left of ${budget.toFixed(0)}
+              ${lifeline.credit.remaining_usd.toFixed(2)} left of ${budget.toFixed(2)}
             </span>
           </div>
           <div className="mt-1.5 space-y-0.5">
@@ -374,12 +374,18 @@ export default function AllocatorDashboard() {
                 </span>
               </div>
             ))}
+            <div className="flex justify-between mono text-[9px] text-muted">
+              <span>tavily · {lifeline.credit.tavily_credits} credits</span>
+              <span>
+                {lifeline.credit.tavily_calls} calls · ${lifeline.credit.tavily_usd.toFixed(3)}
+              </span>
+            </div>
             <div className="mt-1 flex justify-between border-t border-line/60 pt-1 mono text-[9px] text-ink">
               <span>
-                {modelRows.reduce((sum, [, bucket]) => sum + bucket.calls, 0)} priced calls ·{" "}
-                {lifeline.credit.ledger_rows} ledger rows
+                {lifeline.credit.inference_calls} inference calls · $
+                {lifeline.credit.combined_usd.toFixed(4)} combined
               </span>
-              <span>${spend.toFixed(4)} total</span>
+              <span>${lifeline.credit.inference_usd.toFixed(4)} nebius</span>
             </div>
           </div>
         </div>

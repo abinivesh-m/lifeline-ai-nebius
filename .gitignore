@@ -4,9 +4,11 @@
 !.env.example
 
 # --- credit ledger: generated at runtime, never committed ------------------
-credit_usage.json
+credit_usage*.json
 credit_usage.tmp
-credit_usage.archive.json
+
+# --- Tavily response cache: reproducible from evidence.py, large, never shipped
+artifacts/tavily_cache/
 
 # --- python ----------------------------------------------------------------
 __pycache__/
@@ -51,3 +53,4 @@ Thumbs.db
 .vscode/
 .idea/
 *.log
+artifacts/escalation_ledger_premigration.archived.json

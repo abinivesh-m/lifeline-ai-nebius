@@ -6,14 +6,14 @@ import { lifeline, STEPS } from "@/lib/lifeline";
 
 const DETAIL: Record<number, string[]> = {
   1: [
-    `${lifeline.sam.frames.length} flood photographs sent to SAM 3.1`,
-    `prompt: "${lifeline.sam.prompt}" — a bare noun phrase, no instructions`,
-    `masks decoded and measured: ${lifeline.sam.worst}% worst frame`,
+    `${lifeline.sam.frames.length} flood photographs, masks stored as artefacts`,
+    `prompt kept with the masks: "${lifeline.sam.prompt}" — a bare noun phrase`,
+    `masks replayed and re-checked: ${lifeline.sam.worst}% worst frame`,
   ],
   2: [
-    "Tamil voice note, 24 kHz mono",
+    "stored field-report transcript, replayed verbatim",
     `transcript: ${lifeline.voice.transcript?.slice(0, 64)}…`,
-    "language bias Tamil + English, domain keywords in the request",
+    "no ASR call is made or billed in this build; the audio hash is kept",
   ],
   3: [
     "Kahn topological sort over town.json",

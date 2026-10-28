@@ -99,7 +99,7 @@ class Frame:
         self.d.line([(M, y - 18), (W - M, y - 18)], fill=BORDER, width=2)
         self.text(
             (M, y),
-            "BUILT IN KOTTUR  /  WORKS ANYWHERE  /  META GLOBAL AI DEVELOPER HACKATHON 2026",
+            "BUILT IN KOTTUR  /  WORKS ANYWHERE  /  NEBIUS x NVIDIA GLOBAL AI HACKATHON 2026",
             font(F_SEMI, 17),
             MUTED,
         )
@@ -199,7 +199,7 @@ def frame_lifegrid(town: dict, alloc: dict, route: dict) -> None:
            font(F_REG, 26), MUTED)
 
     organs = [
-        ("BLOOD", "fuel_depot", o["fuel_depot"]["fuel_litres"], "L in reserve", "at NH-544 km 42", TEAL),
+        ("BLOOD", "fuel_depot", o["fuel_depot"]["fuel_litres"], "L in reserve", "at km 42 on the ghat road", TEAL),
         ("HEART", "hospital", o["hospital"]["fuel_demand_litres"], "L demand", "4 h runtime left", RED),
         ("LUNGS", "water_pump", o["water_pump"]["fuel_demand_litres"], "L demand", "fed by the heart", BLUE),
         ("ORGANS", "shelters", o["shelters"]["people"], "people", "no water, 6 h", AMBER),
@@ -220,7 +220,7 @@ def frame_lifegrid(town: dict, alloc: dict, route: dict) -> None:
 
     # artery strip
     f.panel([M, 630, W - M, 812], accent=BORDER)
-    f.text((M + 32, 656), "THE ARTERY  /  NH-544 km 42", font(F_BOLD, 20), MUTED)
+    f.text((M + 32, 656), "THE ARTERY  /  GHAT ROAD  /  KM 42", font(F_BOLD, 20), MUTED)
 
     x0 = M + 32
     f.text((x0, 706), "4.2 km", font(F_BOLD, 46), RED)
@@ -334,7 +334,7 @@ def frame_astar(town: dict, route: dict) -> None:
     f.d.line([depot, (520, 640), (720, 500), hospital], fill=(120, 60, 60), width=5)
     f.d.line([(596, 596), (660, 548)], fill=RED, width=8)
     f.d.line([(660, 596), (596, 548)], fill=RED, width=8)
-    f.text((470, 664), "NH-544  4.2 km  BLOCKED", font(F_MONO, 18), RED)
+    f.text((470, 664), "GHAT ROAD  /  4.2 km BLOCKED", font(F_MONO, 18), RED)
 
     # A* route
     astar_path = [(200, 790), (330, 830), (560, 780), (760, 700), (860, 560), (960, 400)]
@@ -385,7 +385,7 @@ def frame_allocator(town: dict, alloc: dict) -> None:
     f = Frame(4, "FRAME 04  /  STEP 5 + 6", "EVIDENCE IN, ALLOCATION OUT", AMBER)
     tracker = credit_tracker.CreditTracker()
 
-    f.text((M, 232), "Wonder may propose. Code validates. A human approves. Nothing executes itself.", font(F_REG, 26), MUTED)
+    f.text((M, 232), "Nemotron may propose. Code validates. A human approves. Nothing executes itself.", font(F_REG, 26), MUTED)
 
     # evidence
     f.panel([M, 288, 780, 700], accent=BLUE)
@@ -432,10 +432,10 @@ def frame_allocator(town: dict, alloc: dict) -> None:
     f.panel([820, 664, W - M, 900], accent=BORDER)
     f.text((852, 682), f"BUDGET PLAN  /  SPENT ${tracker.status()['spent_usd']:.4f} OF $150", font(F_BOLD, 19), MUTED)
     buckets = [
-        ("wonder", 70.0, TEAL),
+        ("decision", 70.0, TEAL),
         ("sam", 30.0, BLUE),
         ("voice", 30.0, AMBER),
-        ("spark", 20.0, GREEN),
+        ("fast", 20.0, GREEN),
     ]
     y = 722
     for name, budget, color in buckets:
@@ -481,26 +481,26 @@ def frame_offline(town: dict) -> None:
         f.text((M + 400, y + 16), note, font(F_REG, 17), MUTED)
         y += 56
 
-    # partner
+    # token factory
     f.panel([940, 288, W - M, 470], accent=BLUE)
-    f.text((972, 310), "PARTNER INFERENCE  /  BEST OPEN WEIGHT", font(F_BOLD, 19), BLUE)
-    f.text((972, 352), "Muse Spark Open", font(F_BOLD, 34), TEXT)
-    f.text((972, 398), "meta-models/muse-spark-open-1026", font(F_MONO, 17), MUTED)
-    f.pill((972, 420), "BASETEN  ·  2M TPM", BLUE, (20, 38, 56))
+    f.text((972, 310), "NEBIUS  /  TOKEN FACTORY", font(F_BOLD, 19), BLUE)
+    f.text((972, 352), "Nemotron 3 Ultra", font(F_BOLD, 34), TEXT)
+    f.text((972, 398), "nvidia/Nemotron-3-Ultra-550b-a55b", font(F_MONO, 17), MUTED)
+    f.pill((972, 420), "TOKEN FACTORY  ·  3 TIERS", BLUE, (20, 38, 56))
 
     f.panel([940, 494, W - M, 700], accent=AMBER)
-    f.text((972, 516), "PARTNER GPU", font(F_BOLD, 19), AMBER)
-    f.text((972, 556), "Muse Glimmer 30B", font(F_BOLD, 32), TEXT)
-    f.text((972, 600), "Modal  ·  not deployed in this build", font(F_MONO, 17), MUTED)
-    f.text((972, 630), "18 GB weights vs 6 GB VRAM", font(F_REG, 18), AMBER)
+    f.text((972, 516), "REVIEW TIER", font(F_BOLD, 19), AMBER)
+    f.text((972, 556), "Nemotron 3 Super 120b", font(F_BOLD, 32), TEXT)
+    f.text((972, 600), "nvidia/nemotron-3-super-120b-a12b", font(F_MONO, 16), MUTED)
+    f.text((972, 630), "0.30 / 0.90 per M tokens", font(F_REG, 18), AMBER)
 
     # honest fit table
     f.panel([M, 724, W - M, 900], accent=BORDER)
     f.text((M + 28, 744), "WHAT ACTUALLY RUNS WHERE", font(F_BOLD, 19), MUTED)
     cols = [
         ("LOCAL, FLIGHT MODE", "deterministic core", "no model call", TEAL),
-        ("BASETEN", "Spark Open reasoner", "qualifying path", BLUE),
-        ("MODAL", "Glimmer 30B GPU", "18 GB > 6 GB VRAM", AMBER),
+        ("TOKEN FACTORY", "Nemotron 3 Ultra reasoner", "allocation decision", BLUE),
+        ("LOCAL CPU", "MMS-TTS voice", "not an NVIDIA model", AMBER),
         ("NO LOCAL CLAIM", "prize entry is partner-hosted", "stated on screen", MUTED),
     ]
     x = M + 28
@@ -524,12 +524,12 @@ def frame_agentic(town: dict) -> None:
            font(F_REG, 26), MUTED)
 
     steps = [
-        ("1", "PERCEIVE", "SAM 3.1", "model", BLUE),
-        ("2", "LISTEN", "Voice Transcribe", "model", BLUE),
+        ("1", "PERCEIVE", "stored masks", "artefact", BLUE),
+        ("2", "LISTEN", "stored transcript", "artefact", BLUE),
         ("3", "GRAPH", "Kahn topological sort", "deterministic", TEAL),
         ("4", "ROUTE", "A* + heapq", "deterministic", TEAL),
-        ("5", "ALLOCATE", "Wonder + validator", "model + code", AMBER),
-        ("6", "BUDGET", "$150 ledger", "deterministic", TEAL),
+        ("5", "ALLOCATE", "Nemotron + validator", "model + code", AMBER),
+        ("6", "BUDGET", "$29.50 ledger", "deterministic", TEAL),
         ("7", "APPROVE", "human gate", "human", RED),
         ("8", "REPLAN", "new constraint", "deterministic", TEAL),
     ]

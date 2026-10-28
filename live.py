@@ -1,14 +1,14 @@
 """LIFELINE AI - live runner. Watch the 8-step agent work in a browser.
 
     python live.py                # http://127.0.0.1:8765
-    python live.py --fresh        # force a new Wonder call instead of the cache
+    python live.py --fresh        # force a new Nemotron call instead of the cache
     python live.py --port 8765
 
 No web framework, no build step: http.server + server-sent events. The page
 streams one event per step so you can see the agent think, hold at the human
 gate, and replan after your decision.
 
-Wonder is cached in artifacts/wonder_last.json so a demo rehearsal does not
+Nemotron is cached in artifacts/nemotron_last.json so a demo rehearsal does not
 burn credit re-asking the same question. Use --fresh to spend one call.
 """
 
@@ -29,7 +29,7 @@ import dependency_graph
 
 ROOT = Path(__file__).parent
 UI = ROOT / "live_ui.html"
-WONDER_CACHE = ROOT / "artifacts" / "wonder_last.json"
+NEMOTRON_CACHE = ROOT / "artifacts" / "nemotron_last.json"
 
 STATE = {"approval": None, "scenario": "reserve-loss"}
 APPROVAL_EVENT = threading.Event()
@@ -47,12 +47,12 @@ def _voice():
 
 
 def _allocate(town: dict, fresh: bool) -> tuple[dict, str]:
-    if not fresh and WONDER_CACHE.exists():
-        cached = json.loads(WONDER_CACHE.read_text(encoding="utf-8"))
+    if not fresh and NEMOTRON_CACHE.exists():
+        cached = json.loads(NEMOTRON_CACHE.read_text(encoding="utf-8"))
         return cached, "cache"
     result = allocator.allocate(town, mode="auto", log_credit=True)
-    WONDER_CACHE.parent.mkdir(exist_ok=True)
-    WONDER_CACHE.write_text(json.dumps(result, indent=2), encoding="utf-8")
+    NEMOTRON_CACHE.parent.mkdir(exist_ok=True)
+    NEMOTRON_CACHE.write_text(json.dumps(result, indent=2), encoding="utf-8")
     return result, "live"
 
 
@@ -120,7 +120,7 @@ def pipeline(fresh: bool):
         "allocation": allocation["allocation"], "total": allocation["total"],
         "justification": allocation["justification"],
         "source": allocation["source"], "cache": source,
-        "wonder": allocation["trace"].get("wonder", {}),
+        "decision": allocation["trace"].get("decision", {}),
         "evidence": allocation["evidence"][:4],
         "inference": allocation["inference"],
         "detail": f'proposal source: {allocation["source"]}',
@@ -253,7 +253,7 @@ class Handler(BaseHTTPRequestHandler):
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="LIFELINE AI live runner")
     parser.add_argument("--port", type=int, default=8765)
-    parser.add_argument("--fresh", action="store_true", help="force a new Wonder call")
+    parser.add_argument("--fresh", action="store_true", help="force a new Nemotron call")
     args = parser.parse_args(argv)
 
     Handler.fresh = args.fresh

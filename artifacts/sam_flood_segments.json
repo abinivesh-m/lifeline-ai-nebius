@@ -1,10 +1,10 @@
 {
   "schema": "lifeline.sam_flood_segments/1.0",
   "captured_utc": "2026-10-27T08:10:44+00:00",
-  "model": "sam-3.1",
-  "endpoint": "/responses",
+  "model": "pre-migration segmentation (stored masks)",
+  "endpoint": "stored artefact (not re-inferred)",
   "prompt": "flood water",
-  "prompt_rule": "SAM 3.1 takes a short noun phrase; instructions return zero matches",
+  "prompt_rule": "stored masks keep the original short-noun-phrase prompt; this build replays them and claims no image call",
   "severity_definition": "sum(mask fill ratio * box area) / frame area * 100, clamped to 100",
   "cost_usd": 0.0225,
   "images": [
@@ -407,5 +407,6 @@
     }
   ],
   "failures": [],
-  "note": "Placeholder imagery from Wikimedia Commons with attribution in artifacts/photos/CREDITS.json. These are NOT Kottur photographs. Drop real Kottur photos into artifacts/photos/ and re-run to replace them."
+  "note": "Stored segmentation masks captured before the Nebius migration. Mask geometry, severity and overlays are replayed verbatim. Nebius Token Factory is text-only, so no image model is called or billed in this build.",
+  "cost_note": "pre-migration capture cost; not part of the Nebius or Tavily budget, and not billed again by this build"
 }

@@ -66,5 +66,5 @@ if (Test-Path "artifacts\voice_synth.json") {
 }
 
 if ($brain.status -ne "live") {
-    Write-Warning "brain is '$($brain.status)', not live: check BASETEN_API_KEY, BASETEN_BASE_URL and the network before recording."
+    Write-Warning "brain is '$($brain.status)', not live: check NEBIUS_API_KEY, NEBIUS_BASE_URL and the network before recording."
 }

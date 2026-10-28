@@ -28,7 +28,7 @@ costs in time and money, so the decision is explicit rather than accidental.
 
 | Route | Setup time | Real cost | Works for Tamil Nadu numbers | Notes |
 | --- | --- | --- | --- | --- |
-| **Meta WhatsApp Cloud API** | ~1 hour to a working test number | Free sandbox; per-message pricing once live | Yes, no DLT needed | Closest fit: Meta-owned, already a `whatsapp` channel in the ladder, template messages are pre-approved by Meta rather than TRAI. Sandbox sends only to numbers you verify. |
+| **WhatsApp Cloud API** | ~1 hour to a working test number | Free sandbox; per-message pricing once live | Yes, no DLT needed | Closest fit: the provider owns thelready a `whatsapp` channel in the ladder, template messages are pre-approved by Meta rather than TRAI. Sandbox sends only to numbers you verify. |
 | **Twilio (SMS)** | ~1 hour to trial | Trial credit, then per-segment | Yes, **but** India needs DLT | Best-documented API, worst India paperwork. Trial messages are prefixed "Sent from your Twilio trial account". |
 | **Vonage / Infobip / Karix** | 1-3 days (KYC) | Per-message + monthly | Yes, with DLT | Enterprise route. Karix and Gupshup handle DLT on your behalf; that is what the fee buys. |
 | **Fast2SMS / MSG91** | Hours, if DLT entity already exists | Cheapest per SMS in India | Yes, DLT required | Indian aggregators. They will reject traffic without an approved template. |
@@ -48,7 +48,7 @@ does - must be reduced to a fixed template with variables. That is a
 one-to-three-day loop on a good day. It cannot be done during a hackathon
 weekend, and it cannot be faked.
 
-WhatsApp Cloud API sidesteps DLT because Meta approves the template, not TRAI.
+WhatsApp Cloud API sidesteps DLT because the provider approves the template, not TRAI.
 That is why it is the recommended route for this project.
 
 ## What I would wire, and what I would not claim
@@ -70,8 +70,8 @@ def send(payload: dict) -> dict:
 Rules the adapter must obey, matching how the rest of this repo behaves:
 
 - **`SENT` only with a provider message id.** A 200 with no id is `QUEUED`.
-- **No token in the repo, ever.** `META_WHATSAPP_TOKEN`, `TWILIO_AUTH_TOKEN`,
-  and friends go in `.env`, which is already git-ignored.
+- **No token in the repo, ever.** `WHATSAPP_TOKEN`, `TWILIO_AUTH_TOKEN`, and
+  friends go in `.env`, which is already git-ignored.
 - **Delivery never blocks the decision.** The allocator seals the hash-chained
   ledger entry first; the send is a side effect with its own status field.
 - **Offline is still the demo.** With `LIFELINE_OFFLINE=1` the adapter must

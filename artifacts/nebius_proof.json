@@ -1,0 +1,228 @@
+{
+  "schema": 1,
+  "generated_at": "2026-10-28T04:48:27+00:00",
+  "provider": "Nebius Token Factory",
+  "endpoint": "https://api.tokenfactory.nebius.com/v1",
+  "tiers": {
+    "fast": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+    "deep": "nvidia/nemotron-3-super-120b-a12b",
+    "decision": "nvidia/Nemotron-3-Ultra-550b-a55b"
+  },
+  "calls": {
+    "fast": {
+      "provider": "Nebius Token Factory",
+      "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+      "endpoint": "https://api.tokenfactory.nebius.com/v1",
+      "status": "answered",
+      "latency_s": 7.08,
+      "text": "{\n  \"intent\": \"road_blocked\",\n  \"urgency\": 5,\n  \"language\": \"hi\",\n  \"quote\": \"road band hai\"\n}",
+      "usage": {
+        "completion_tokens": 602,
+        "prompt_tokens": 120,
+        "total_tokens": 722,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": null
+      },
+      "cost_usd": 0.00015168,
+      "detail": "",
+      "wall_s": 7.08,
+      "raw": "{\n  \"intent\": \"road_blocked\",\n  \"urgency\": 5,\n  \"language\": \"hi\",\n  \"quote\": \"road band hai\"\n}",
+      "json": {
+        "intent": "road_blocked",
+        "urgency": 5,
+        "language": "hi",
+        "quote": "road band hai"
+      }
+    },
+    "decision": {
+      "provider": "Nebius Token Factory",
+      "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+      "endpoint": "https://api.tokenfactory.nebius.com/v1",
+      "status": "answered",
+      "latency_s": 3.37,
+      "text": "{\n  \"allocation\": {\n    \"hospital\": 70,\n    \"water_pump\": 30\n  },\n  \"justification\": \"Hospital requires 70 L to cover the 6-hour road closure (E2) and has only 4 hours of generator runtime left (E1), making it the top priority (E6). Water pump needs 30 L to maintain water supply for 200 shelter residents (E3, E5) but depends on the hospital feeder for power (E6). The total reserve is 100 L (E7) and caps match exactly (hospital 70 L, water_pump 30 L), allowing full allocation without shortfall. Landslide clearance takes ~6 hours (E8, S1), confirming the demand window.\",\n  \"confidence\": 0.95,\n  \"citations\": [\"E1\", \"E2\", \"E3\", \"E5\", \"E6\", \"E7\", \"E8\", \"S1\"]\n}",
+      "usage": {
+        "completion_tokens": 994,
+        "prompt_tokens": 1986,
+        "total_tokens": 2980,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 773,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0,
+          "multimodal_tokens": null
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1986
+      },
+      "cost_usd": 0.004968,
+      "detail": "",
+      "wall_s": 3.37,
+      "raw": "{\n  \"allocation\": {\n    \"hospital\": 70,\n    \"water_pump\": 30\n  },\n  \"justification\": \"Hospital requires 70 L to cover the 6-hour road closure (E2) and has only 4 hours of generator runtime left (E1), making it the top priority (E6). Water pump needs 30 L to maintain water supply for 200 shelter residents (E3, E5) but depends on the hospital feeder for power (E6). The total reserve is 100 L (E7) and caps match exactly (hospital 70 L, water_pump 30 L), allowing full allocation without shortfall. Landslide clearance takes ~6 hours (E8, S1), confirming the demand window.\",\n  \"confidence\": 0.95,\n  \"citations\": [\"E1\", \"E2\", \"E3\", \"E5\", \"E6\", \"E7\", \"E8\", \"S1\"]\n}",
+      "json": {
+        "allocation": {
+          "hospital": 70,
+          "water_pump": 30
+        },
+        "justification": "Hospital requires 70 L to cover the 6-hour road closure (E2) and has only 4 hours of generator runtime left (E1), making it the top priority (E6). Water pump needs 30 L to maintain water supply for 200 shelter residents (E3, E5) but depends on the hospital feeder for power (E6). The total reserve is 100 L (E7) and caps match exactly (hospital 70 L, water_pump 30 L), allowing full allocation without shortfall. Landslide clearance takes ~6 hours (E8, S1), confirming the demand window.",
+        "confidence": 0.95,
+        "citations": [
+          "E1",
+          "E2",
+          "E3",
+          "E5",
+          "E6",
+          "E7",
+          "E8",
+          "S1"
+        ]
+      },
+      "validator": {
+        "problems": [],
+        "ok": true
+      },
+      "citations": {
+        "used": [
+          "E1",
+          "E2",
+          "E3",
+          "E5",
+          "E6",
+          "E7",
+          "E8",
+          "S1"
+        ],
+        "unknown": [],
+        "ok": true
+      }
+    },
+    "deep": {
+      "provider": "Nebius Token Factory",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "endpoint": "https://api.tokenfactory.nebius.com/v1",
+      "status": "answered",
+      "latency_s": 4.88,
+      "text": "{\"verdict\": \"pass\", \"issues\": [], \"numbers_seen\": [70, 6, 4, 30, 200, 100]}",
+      "usage": {
+        "completion_tokens": 819,
+        "prompt_tokens": 313,
+        "total_tokens": 1132,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 777,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0,
+          "created_cache_tokens": 0,
+          "multimodal_tokens": null
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 313
+      },
+      "cost_usd": 0.0008309999999999999,
+      "detail": "",
+      "wall_s": 4.88,
+      "raw": "{\"verdict\": \"pass\", \"issues\": [], \"numbers_seen\": [70, 6, 4, 30, 200, 100]}",
+      "json": {
+        "verdict": "pass",
+        "issues": [],
+        "numbers_seen": [
+          70,
+          6,
+          4,
+          30,
+          200,
+          100
+        ]
+      },
+      "verdict": "pass",
+      "issues": []
+    }
+  },
+  "decision": {
+    "allocation": {
+      "hospital": 70,
+      "water_pump": 30
+    },
+    "justification": "Hospital requires 70 L to cover the 6-hour road closure (E2) and has only 4 hours of generator runtime left (E1), making it the top priority (E6). Water pump needs 30 L to maintain water supply for 200 shelter residents (E3, E5) but depends on the hospital feeder for power (E6). The total reserve is 100 L (E7) and caps match exactly (hospital 70 L, water_pump 30 L), allowing full allocation without shortfall. Landslide clearance takes ~6 hours (E8, S1), confirming the demand window.",
+    "confidence": 0.95,
+    "validator_ok": true,
+    "citations_ok": true
+  },
+  "sources": [
+    {
+      "id": "S1",
+      "title": "Heavy rains trigger landslide on Valparai ghat road | Chennai News - The Times of India",
+      "url": "https://timesofindia.indiatimes.com/city/chennai/heavy-rains-trigger-landslide-on-valparai-ghat-road/articleshow/135099368.cms",
+      "published": "2026-10-21",
+      "mode": "live",
+      "relevance": 0.93206495,
+      "quote": "The road, the key link between Pollachi and Valparai, was cleared only around 5pm on Wednesday. No vehicle was passing by when the landslide occurred, averting an accident.A district administration official said personnel from the highways department, police and fire and rescue services worked through the night to clear the boulders. Initial attempts to remove them using earthmovers failed, forcin"
+    },
+    {
+      "id": "S2",
+      "title": "Rain batters Nilgiris; landslide buries government bus, driver loses life",
+      "url": "https://www.newindianexpress.com/states/tamil-nadu/2026/Oct/25/rain-batters-nilgiris-landslide-buries-government-bus-driver-loses-life",
+      "published": "2026-10-25",
+      "mode": "live",
+      "relevance": 0.5849357,
+      "quote": "The bus was severely damaged, with debris entering the vehicle and trapping the two occupants. Rescue teams could not reach the spot immediately as fallen trees and landslide debris blocked the road. They began the operation around 5 am after clearing the obstructions."
+    },
+    {
+      "id": "S3",
+      "title": "Driver dies as TNSTC bus buried under landslide on Mettupalayam-Coonoor Ghat Road during heavy rain | Coimbatore News - The Times of India",
+      "url": "https://timesofindia.indiatimes.com/city/coimbatore/driver-dies-as-tnstc-bus-buried-under-landslide-on-mettupalayam-coonoor-ghat-road-during-heavy-rain/articleshow/135173508.cms",
+      "published": "2026-10-24",
+      "mode": "live",
+      "relevance": 0.47227025,
+      "quote": "than 300 people, including students from Kerala who were on a trip to the Nilgiris, were stranded due to the landslides. They were rescued by rescue teams on Saturday morning.Burliar recorded the highest rainfall in the Nilgiris at 250 mm, followed by Kil Kotagiri Estate (200 mm)."
+    },
+    {
+      "id": "S4",
+      "title": "Nilgiris Landslides: 1 Dead, Students Rescued As Heavy ...",
+      "url": "https://special.ndtv.com/India-for-All-64/news-detail/nilgiris-landslides-1-dead-students-rescued-as-heavy-rain-disrupts-ooty-travel-12230732/1",
+      "published": "2026-10-24",
+      "mode": "live",
+      "relevance": 0.2245401,
+      "quote": "Wikimedia A government bus driver was killed after his vehicle was hit by a landslide at Burliar on the Ooty-Mettupalayam road in Tamil Nadu on Saturday, Deccan Herald reported. The bus involved in the accident was not carrying passengers when the landslide struck. Soon after the incident, rescue and relief operations were set in motion."
+    },
+    {
+      "id": "S5",
+      "title": "Chennai: Heavy rains from Cyclone Michaung leave trail of destruction in city",
+      "url": "https://www.bbc.com/news/world-asia-india-67645286",
+      "published": "2023-12-07",
+      "mode": "scenario",
+      "relevance": 0.78866494,
+      "quote": "J Radhakrishnan, the commissioner of Greater Chennai Corporation, told BBC Tamil that authorities had pumped out \"as much water as possible after 36 hours of continuous rain\". He added that as of Wednesday night, floodwaters had receded in three-quarters of the city. Thousands of people were evacuated to relief camps over the past three days - many were rescued from their flooded homes in rubber a"
+    },
+    {
+      "id": "S6",
+      "title": "India workers trapped for weeks in Himalayan tunnel on verge of rescue | In Pictures News | Al Jazeera",
+      "url": "https://www.aljazeera.com/gallery/2023/11/28/photos-india-workers-trapped-for-weeks-in-himalayan-tunnel-on-verge-of-rescue",
+      "published": "2023-11-28",
+      "mode": "scenario",
+      "relevance": 0.70702106,
+      "quote": "[...] The tunnel they were building was designed as part of the Char Dhaam all-weather road, which will connect various Hindu pilgrimage sites. Some experts say the project, a flagship initiative of the federal government, will exacerbate fragile conditions in the upper Himalayas, where several towns are built atop landslide debris. A general view of the site Rescue and relief operations continue "
+    }
+  ],
+  "totals": {
+    "calls": 3,
+    "tokens": 4834,
+    "cost_usd": 0.00595068,
+    "wall_s": 15.33,
+    "latency_s": {
+      "fast": 7.08,
+      "decision": 3.37,
+      "deep": 4.88
+    },
+    "validator_ok": true,
+    "citations_ok": true
+  }
+}

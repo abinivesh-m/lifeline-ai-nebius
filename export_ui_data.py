@@ -29,7 +29,6 @@ from pathlib import Path
 import a_star
 import allocator
 import blood
-import credit_tracker
 import dependency_graph
 import escalation
 import i18n
@@ -53,6 +52,7 @@ def _read(path: Path):
 
 
 def build() -> dict:
+    allocator.load_env()
     town = allocator.load_town()
     _, nodes, edges = a_star.load_network()
     route = a_star.plan_route(town, nodes, edges)
@@ -60,7 +60,6 @@ def build() -> dict:
 
     sam = _read(ROOT / "artifacts" / "sam_flood_segments.json")
     voice = _read(ROOT / "artifacts" / "voice_reports.json")
-    credit = credit_tracker.CreditTracker().status()
 
     frames = []
     if sam:
@@ -114,7 +113,9 @@ def build() -> dict:
             "validation": allocation.get("validation", {}),
             "brain": _latest_run_brain(),
         },
-        "openweight": _openweight(),
+        "nebius": _nebius(),
+        "nebius": _nebius(),
+        "tavily": _tavily(),
         "sam": {            "available": bool(sam),
             "model": sam.get("model") if sam else None,
             "prompt": sam.get("prompt") if sam else None,
@@ -130,19 +131,7 @@ def build() -> dict:
             "synthetic": voice["reports"][0].get("synthetic", True) if voice and voice.get("reports") else True,
             "cost_usd": voice.get("cost_usd") if voice else None,
         },
-        "credit": {
-            "budget_usd": credit["budget_usd"],
-            "spent_usd": credit["spent_usd"],
-            "percent": credit["percent_used"],
-            "level": credit["level"],
-            "remaining_usd": credit["remaining_usd"],
-            "reserve_usd": credit["reserve_buffer_usd"],
-            "ledger_rows": len(credit_tracker.CreditTracker().entries),
-            "by_model": {
-                model: bucket for model, bucket in credit["by_model"].items()
-                if bucket["calls"] > 0
-            },
-        },
+        "credit": _spend(),
         "escalation": {
             "tiers": [
                 {"tier": 1, "window": "0-5 min", "action": "human gate",
@@ -195,40 +184,40 @@ def _latest_run_escalation() -> dict | None:
     return None
 
 
-def _stored_openweight_brain() -> dict | None:
-    """The newest valid partner-hosted run, read from ``openweight_proof.json``.
+def _stored_nebius_brain() -> dict | None:
+    """The newest validated Nemotron run, read from ``nebius_proof.json``.
 
-    Used only when ``runs/latest.json`` was produced without the network: an
-    offline run is honest about the offline policy, but it must not erase the
-    evidence that the open-weight brain exists. The label becomes STORED RUN,
-    never LIVE CALL, so the panel still tells the truth about what just happened.
+    Used when ``runs/latest.json`` was produced offline or by an older provider:
+    an offline run is honest about the offline policy, but it must not erase the
+    evidence that the live brain exists. The label becomes STORED RUN, never
+    LIVE CALL, so the panel still tells the truth about what just happened.
     """
-    path = ROOT / "artifacts" / "openweight_proof.json"
+    path = ROOT / "artifacts" / "nebius_proof.json"
     if not path.exists():
         return None
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return None
-    valid = [run for run in data.get("runs", []) if run.get("valid")]
-    if not valid:
+    decision = data.get("decision") or {}
+    if not decision.get("allocation"):
         return None
-    run = valid[-1]
+    totals = data.get("totals") or {}
     return {
-        "source": "openweight-stored",
-        "model": run.get("model") or data.get("model"),
-        "provider": run.get("provider") or data.get("provider") or "Baseten",
+        "source": "nebius-stored",
+        "model": (data.get("tiers") or {}).get("decision"),
+        "provider": data.get("provider") or "Nebius Token Factory",
         "status": "stored",
-        "latency_s": run.get("latency_s"),
-        "at": run.get("at"),
-        "justification": run.get("justification"),
-        "confidence": run.get("confidence"),
-        "allocation": run.get("allocation"),
-        "valid": True,
+        "latency_s": (totals.get("latency_s") or {}).get("decision"),
+        "at": data.get("generated_at"),
+        "justification": decision.get("justification"),
+        "confidence": decision.get("confidence"),
+        "allocation": decision.get("allocation"),
+        "valid": bool(totals.get("validator_ok")) and bool(totals.get("citations_ok")),
         "rejected": None,
         "note": (
-            "the most recent run on this machine used the offline policy; this is "
-            "the newest validated partner-inference run, replayed from its artefact"
+            "the most recent run on this machine used the offline policy; this is the newest "
+            "validated Nemotron 3 run, replayed from its artefact"
         ),
     }
 
@@ -243,21 +232,21 @@ def _latest_run_brain() -> dict | None:
     """
     path = ROOT / "runs" / "latest.json"
     if not path.exists():
-        return _stored_openweight_brain()
+        return _stored_nebius_brain()
     try:
         run = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
-        return _stored_openweight_brain()
+        return _stored_nebius_brain()
     for step in run.get("steps", []):
         if step.get("name") != "ALLOCATE":
             continue
         trace = step.get("trace", {})
-        meta = trace.get("openweight") or trace.get("wonder") or {}
+        meta = trace.get("nebius") or {}
         source = step.get("source") or ""
-        if not source.startswith("openweight") or not step.get("allocation"):
-            # Offline policy / Wonder fallback: keep the real decision on screen,
-            # and bring the open-weight evidence back in as a stored run.
-            stored = _stored_openweight_brain()
+        if not source.startswith(("nebius", "nebius")) or not step.get("allocation"):
+            # Offline policy / no model: keep the real decision on screen, and
+            # bring the live Nemotron evidence back in as a stored run.
+            stored = _stored_nebius_brain()
             if stored:
                 return stored
         return {
@@ -274,7 +263,7 @@ def _latest_run_brain() -> dict | None:
             and not bool(trace.get("rejected")),
             "rejected": trace.get("rejected"),
         }
-    return _stored_openweight_brain()
+    return _stored_nebius_brain()
 
 
 def _multilingual() -> dict:
@@ -343,9 +332,9 @@ def _multilingual() -> dict:
             "clips": synth.get("totals", {}).get("clips", 0),
             "seconds": synth.get("totals", {}).get("seconds", 0.0),
             "note": (
-                "The Meta API publishes no text-to-speech endpoint. The words are "
-                "model-drafted and code-validated; the audio is MMS-TTS, an "
-                "open-weight model run locally. Synthetic, not a human recording."
+                "No text-to-speech endpoint is called. The words are model-drafted and "
+                "code-validated; the audio is MMS-TTS, an open-weight model run locally on "
+                "CPU - explicitly not an NVIDIA model. Synthetic, not a human recording."
             ),
         },
         "locales": locales,
@@ -424,27 +413,158 @@ def _seri_gate() -> dict:
     }
 
 
-def _openweight() -> dict:
-    """The Baseten proof, read from the artefact - never asserted in the page."""
-    path = ROOT / "artifacts" / "openweight_proof.json"
+def _nebius() -> dict:
+    """The three-tier Nebius proof, read from the artefact the runner wrote.
+
+    Every latency, token count and cost below was measured in this repo. If the
+    artefact is missing the section says so instead of inventing a number.
+    """
+    path = ROOT / "artifacts" / "nebius_proof.json"
     if not path.exists():
-        return {"available": False, "runs": 0, "valid_runs": 0,
-                "note": "no proof on file - run python openweight.py"}
+        return {"available": False, "runs": 0, "valid_runs": 0, "sources": [],
+                "note": "no proof on file - run python scripts/nebius_proof.py"}
 
     data = json.loads(path.read_text(encoding="utf-8"))
-    valid = [run for run in data.get("runs", []) if run.get("valid")]
+    calls = data.get("calls") or {}
+    decision = data.get("decision") or {}
+    answered = sum(1 for meta in calls.values() if meta.get("status") == "answered")
     return {
-        "available": bool(valid),
+        "available": True,
         "provider": data.get("provider"),
-        "model": data.get("model"),
-        "runs": len(data.get("runs", [])),
-        "valid_runs": len(valid),
-        "allocation": valid[-1]["allocation"] if valid else None,
-        "justification": valid[-1].get("justification") if valid else None,
-        "confidence": valid[-1].get("confidence") if valid else None,
-        "latencies_s": [run["latency_s"] for run in valid],
-        "latest_at": valid[-1]["at"] if valid else None,
-        "note": data.get("note"),
+        "endpoint": data.get("endpoint"),
+        "tiers": data.get("tiers") or {},
+        "model": (data.get("tiers") or {}).get("decision"),
+        "runs": len(calls),
+        "valid_runs": answered,
+        "allocation": decision.get("allocation"),
+        "justification": decision.get("justification"),
+        "confidence": decision.get("confidence"),
+        "latencies_s": [meta.get("wall_s") for meta in calls.values() if meta.get("wall_s")],
+        "latency_by_tier": (data.get("totals") or {}).get("latency_s") or {},
+        "latest_at": data.get("generated_at"),
+        "cost_usd": (data.get("totals") or {}).get("cost_usd"),
+        "tokens": (data.get("totals") or {}).get("tokens"),
+        "validator_ok": (data.get("totals") or {}).get("validator_ok"),
+        "citations_ok": (data.get("totals") or {}).get("citations_ok"),
+        "sources": data.get("sources") or [],
+        "note": (
+            "Live Nebius Token Factory calls. The validator and the citation check run in "
+            "code after the model answers, so a confident wrong answer is still rejected."
+        ),
+    }
+
+
+def _tavily() -> dict:
+    """The merged Tavily proof: what was fetched, what was accepted, what was not."""
+    path = ROOT / "artifacts" / "tavily_proof.json"
+    if not path.exists():
+        return {"available": False, "totals": {}, "modes": {}, "claims": []}
+
+    data = json.loads(path.read_text(encoding="utf-8"))
+    claims = []
+    for mode, body in (data.get("modes") or {}).items():
+        for row in body.get("excerpts") or []:
+            claims.append({
+                "mode": mode,
+                "topic": row.get("topic"),
+                "quote": row.get("quote"),
+                "url": row.get("url"),
+                "title": row.get("title"),
+                "published": row.get("published"),
+                "score": row.get("relevance"),
+                "accepted": row.get("accepted"),
+                "verdict": row.get("verdict"),
+            })
+    claims.sort(key=lambda row: (not row["accepted"], -(row.get("score") or 0)))
+    return {
+        "available": bool(claims),
+        "totals": data.get("totals") or {},
+        "usage": data.get("usage") or {},
+        "region": data.get("region") or [],
+        "window": {mode: (body.get("window") or {}) for mode, body in (data.get("modes") or {}).items()},
+        "claims": claims,
+        "accepted": sum(1 for row in claims if row["accepted"]),
+        "checked": len(claims),
+    }
+
+
+def _gate_cost() -> tuple[float, int]:
+    """Cost and call count of the seven-locale voice gate, from its artefact."""
+    data = _read(ROOT / "artifacts" / "seri_gate.json") or {}
+    locales = data.get("locales") or []
+    cost = float((data.get("summary") or {}).get("cost_usd") or 0.0)
+    calls = sum(1 for entry in locales
+                if (entry.get("model") or {}).get("status") == "answered")
+    return cost, calls
+
+
+def _spend() -> dict:
+    """Every priced call this build made, summed from the artefacts themselves.
+
+    Three inference sources, all measured in this repo: the three-tier proof,
+    the two eight-locale drafting batches, and the seven gate classifications.
+    Tavily is priced at $0.008 per credit using the count the API returned. The
+    $29.50 figure is the balance the console reported, not an assumed budget.
+    Nothing here is estimated; the deterministic core is $0.00 by construction.
+    """
+    nebius = _nebius()
+    tavily = _tavily()
+    multi = _multilingual()
+    balance = 29.50
+
+    proof = float(nebius.get("cost_usd") or 0.0)
+    multi_cost = float((multi.get("totals") or {}).get("cost_usd") or 0.0)
+    multi_calls = sum(len(batch.get("locales") or []) for batch in
+                      (_read(ROOT / "artifacts" / "multilingual_payloads.json") or {}).get("batches", []))
+    gate_cost, gate_calls = _gate_cost()
+
+    infer = round(proof + multi_cost + gate_cost, 6)
+    infer_calls = int(nebius.get("runs") or 0) + multi_calls + gate_calls
+    usage = tavily.get("usage") or {}
+    credits = float(usage.get("credits_to_date") or usage.get("credits") or 0)
+    web_calls = int(usage.get("calls") or 0)
+    web = credits * 0.008
+    spent = round(infer + web, 6)
+
+    tiers = nebius.get("tiers") or {}
+    by_model = {}
+    for tier, model in tiers.items():
+        if not model:
+            continue
+        by_model[model] = {"calls": 0, "spent_usd": 0.0, "budget_usd": balance}
+    for name, meta in ((_read(ROOT / "artifacts" / "nebius_proof.json") or {}).get("calls") or {}).items():
+        model = tiers.get(name)
+        if model:
+            by_model[model]["calls"] += 1
+            by_model[model]["spent_usd"] += float(meta.get("cost_usd") or 0.0)
+    deep_model = tiers.get("deep")
+    if deep_model:
+        by_model[deep_model]["calls"] += multi_calls + gate_calls
+        by_model[deep_model]["spent_usd"] += multi_cost + gate_cost
+    for bucket in by_model.values():
+        bucket["spent_usd"] = round(bucket["spent_usd"], 8)
+
+    return {
+        "budget_usd": balance,
+        "spent_usd": infer,
+        "percent": round(100 * infer / balance, 4) if balance else 0.0,
+        "level": "ok",
+        "remaining_usd": round(balance - infer, 6),
+        "reserve_usd": 0.0,
+        "ledger_rows": infer_calls,
+        "by_model": by_model,
+        "inference_usd": infer,
+        "tavily_usd": round(web, 6),
+        "inference_calls": infer_calls,
+        "tavily_calls": web_calls,
+        "tavily_credits": int(credits),
+        "combined_usd": spent,
+        "note": (
+            f"${infer:.5f} of inference on {infer_calls} measured calls is charged to the "
+            f"${balance:.2f} Nebius balance; {credits:.0f} Tavily credits at $0.008 = "
+            f"${web:.3f} sit on Tavily's own account. Combined cash-equivalent "
+            f"${spent:.6f}; the deterministic core is $0.00."
+        ),
     }
 
 
@@ -502,7 +622,7 @@ def _copy_media() -> dict[str, int]:
             shutil.copy2(jpg, dst / jpg.name)
             counts["photos"] += 1
 
-    # serve the full credit file (photos + SAM + Open Weight + data sources)
+    # serve the full credit file (photos + stored masks + Nemotron 3 + data sources)
     credits = ROOT / "CREDITS.json"
     if not credits.exists():
         credits = src / "CREDITS.json"
@@ -546,8 +666,9 @@ def main() -> int:
     print(f"  allocation     {payload['allocation']['policy']} = {payload['allocation']['total']} L")
     print(f"  sam frames     {len(payload['sam']['frames'])} (worst {payload['sam']['worst']}%)")
     print(f"  voice          {'present' if payload['voice']['available'] else 'missing'}")
-    print(f"  credit         ${payload['credit']['spent_usd']:.6f} of "
-          f"${payload['credit']['budget_usd']:.0f}")
+    print(f"  inference      ${payload['credit']['inference_usd']:.6f} of "
+          f"${payload['credit']['budget_usd']:.2f} · "
+          f"${payload['credit']['combined_usd']:.6f} combined with Tavily")
     print(f"  locales        {len(payload['locales'])}")
     multi = payload["multilingual"]
     if multi.get("available"):

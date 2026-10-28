@@ -10,8 +10,8 @@ type Clip = "tier2" | "allocation";
  * read. This plays the same validated payloads aloud, from committed WAV
  * files, so a reader with a feature phone and no literacy still gets the alert.
  *
- * What is real here: the words were drafted by muse-spark-1.3 and passed the
- * code check plus a muse-wonder-1.0 review; the audio is MMS-TTS, an
+ * What is real here: the words were drafted by Nemotron 3 and passed the
+ * code check plus a Nemotron 3 Super review; the audio is MMS-TTS, an
  * open-weight model run on this laptop. What is not: any delivery. No call is
  * placed - the line below says so on screen, every time.
  */

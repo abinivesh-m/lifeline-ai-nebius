@@ -13,7 +13,7 @@
   "lifegrid.runtime": "剩余 {hours} 小时运行",
   "lifegrid.feeder": "由心脏供电",
   "lifegrid.nowater": "无供水，{hours} 小时",
-  "route.blocked": "NH-544 公里 42 处封锁",
+  "route.blocked": "山路42公里处封锁",
   "route.alt": "A* 路线 {km} 公里",
   "route.saved": "节省 {percent}% 燃料",
   "alloc.title": "柴油分配",
@@ -35,7 +35,7 @@
   "esc.tier3": "无人工决策。降级自动模式：医院 {hospital} 升，水泵 {pump} 升，保留 {reserve} 升储备。",
   "esc.tier4": "需要社区决策：3 名避难所负责人中须有 2 名同意。{people} 人正在等待。",
   "esc.vote": "柴油派送表决：医院 {hospital} 升，水泵 {pump} 升。",
-  "evidence.landslide": "NH-544 公里42山体滑坡，道路封闭约 6 小时",
+  "evidence.landslide": "山路42公里处山体滑坡，道路封闭约6小时",
   "evidence.people": "避难所内 {people} 人断水",
   "world.scope": "35 亿人生活在具有同样连锁风险的城镇"
 }

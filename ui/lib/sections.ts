@@ -43,7 +43,7 @@ export const SECTIONS: SectionMeta[] = [
     kicker: "ALLOCATE",
     title: "What the models actually returned",
     note: "Segmentation, transcript, reasoning, validation and the ledger, side by side.",
-    tools: ["SAM 3.1", "muse-voice", "muse-spark-open", "ledger"],
+    tools: ["Nemotron 3 Ultra", "Tavily verified", "validator", "ledger"],
   },
   {
     id: "escalation",
@@ -56,10 +56,10 @@ export const SECTIONS: SectionMeta[] = [
   {
     id: "offline",
     n: "06",
-    kicker: "OFFLINE + OPEN WEIGHT",
+    kicker: "OFFLINE + NEMOTRON",
     title: "The core runs with the wire cut",
-    note: "Deterministic routing and allocation with no network; the Open Weight path is partner-hosted, not local.",
-    tools: ["LIFELINE_OFFLINE=1", "no API key", "Spark Open · Baseten"],
+    note: "Deterministic routing and allocation with no network; the three-tier brain runs on Nebius Token Factory and is replayed from its artefact when the link is down.",
+    tools: ["LIFELINE_OFFLINE=1", "no API key", "Token Factory"],
   },
   {
     id: "timeline",

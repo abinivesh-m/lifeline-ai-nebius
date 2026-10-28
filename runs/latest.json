@@ -1,19 +1,19 @@
 {
   "schema": "lifeline.run/1.0",
-  "generated_utc": "2026-10-27T14:57:25+00:00",
+  "generated_utc": "2026-10-28T05:58:38+00:00",
   "town": {
     "name": "Kottur",
     "lat": 11.0168,
     "lon": 76.9558
   },
   "scenario": "none",
-  "duration_s": 4.5,
+  "duration_s": 0.09,
   "executed": true,
   "steps": [
     {
       "step": 1,
       "name": "PERCEIVE",
-      "model": "sam-3.1",
+      "model": "pre-migration segmentation (not re-run in this build)",
       "status": "ok",
       "frames": 9,
       "water_severity_percent": [
@@ -62,12 +62,12 @@
           }
         ]
       },
-      "evidence": "pixel masks returned by sam-3.1, stored verbatim in artifacts/"
+      "evidence": "pixel masks captured before the migration, stored verbatim in artifacts/"
     },
     {
       "step": 2,
       "name": "LISTEN",
-      "model": "muse-voice-transcribe-1.0",
+      "model": "pre-migration ASR (not re-run in this build)",
       "status": "ok",
       "reports": 1,
       "blocked_mentions": 0,
@@ -118,7 +118,7 @@
       "fuel_litres": 2.73,
       "nodes_expanded": 5,
       "blocked_corridors": [
-        "NH-544 km 42 (slide_gate -> hospital, 2.1 km)"
+        "ghat road, km 42 (slide_gate -> hospital, 2.1 km)"
       ],
       "heuristic": "haversine to goal (admissible, audited)",
       "baseline": {
@@ -197,7 +197,7 @@
         },
         {
           "id": "E8",
-          "claim": "NH-544 km 42 is blocked for ~6 h",
+          "claim": "The ghat road, km 42, is blocked for ~6 h",
           "value": 6,
           "unit": "h",
           "source": "town.json#crisis.expected_clear_hours"
@@ -234,8 +234,8 @@
           "confidence": 1.0
         }
       ],
-      "justification": "Allocated full demand to priority 1 first then remaining reserve to priority 2 to meet exact sum and demand constraints.",
-      "confidence": 1.0,
+      "justification": "Heart first, lungs next: the hospital's 4 h of runtime is the nearest failure, and the pump is fed from the hospital feeder, so 70 L hospital + 30 L pump is the only split that keeps both alive for the 6 h closure.",
+      "confidence": 0.99,
       "constraints": {
         "reserve_litres": 100,
         "caps_litres": {
@@ -261,16 +261,9 @@
           "nothing executed - awaiting human approval"
         ]
       },
-      "source": "openweight-live",
+      "source": "policy",
       "trace": {
-        "requested_mode": "auto",
-        "openweight": {
-          "provider": "Baseten",
-          "model": "meta-models/muse-spark-open-1026",
-          "status": "live",
-          "latency_s": 4.44,
-          "at": "2026-10-27T14:57:25+00:00"
-        }
+        "requested_mode": "policy"
       },
       "human_approval_required": true,
       "executed": false,
@@ -280,13 +273,13 @@
       "step": 6,
       "name": "BUDGET",
       "status": "ok",
-      "spent_usd": 13.538564,
-      "remaining_usd": 136.46,
-      "percent_used": 9.03,
+      "spent_usd": 1.083049,
+      "remaining_usd": 28.416951,
+      "percent_used": 3.6714,
       "level": "ok",
       "alerts": [],
-      "plan_usd": 150.0,
-      "evidence": "credit_usage.json, append-only, one row per model call"
+      "plan_usd": 29.5,
+      "evidence": "artefact-reconciled spend: nebius_proof.json + multilingual_payloads.json + seri_gate.json + Tavily usage; the local ledger is a subset"
     },
     {
       "step": 7,

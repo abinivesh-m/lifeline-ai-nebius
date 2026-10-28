@@ -278,7 +278,7 @@ export default function AStarMap3D() {
 
         <div className="pointer-events-none absolute left-4 top-4 space-y-1">
           <div className="mono rounded border border-blood/40 bg-black/60 px-2 py-1 text-[10px] text-blood">
-            NH-544 km 42 · 4.2 km BLOCKED
+            GHAT ROAD · KM 42 · 4.2 km BLOCKED
           </div>
           <div className="mono rounded border border-teal/40 bg-black/60 px-2 py-1 text-[10px] text-teal">
             A* BYPASS · {km} km

@@ -17,20 +17,20 @@ const LINES: Record<Mode, [string, string][]> = {
     ["$ python agent.py --offline --yes", "8 steps, 0 network calls, 0 API keys read"],
     ["$ python a_star.py", "A* 4.2 km blocked -> 7.8 km found (40.0% saved)"],
     ["$ python allocator.py --mode policy", "70 L heart + 30 L lungs = 100 L, validator pass"],
-    ["note", "the core is offline. no local model is claimed for Open Weight."],
+    ["note", "the core is offline. no local model is claimed for Nemotron 3."],
   ],
   online: [
     [
-      "$ python openweight.py",
-      lifeline.openweight.available
-        ? `${lifeline.openweight.valid_runs}/${lifeline.openweight.runs} runs valid · 70 L / 30 L · ${lifeline.openweight.latencies_s[0] ?? 0}s`
-        : "no valid run on file - run openweight.py",
+      "$ python scripts/nebius_proof.py",
+      lifeline.nebius.available
+        ? `${lifeline.nebius.valid_runs}/${lifeline.nebius.runs} calls answered · 70 L / 30 L · ${lifeline.nebius.latency_by_tier?.decision ?? 0}s Ultra`
+        : "no proof on file - run scripts/nebius_proof.py",
     ],
-    ["$ python allocator.py --mode auto", "wonder-high returned 70 L / 30 L in 2.1 s"],
-    ["$ python capture_sam.py", "9 frames, masks decoded, $0.02"],
-    ["$ python capture_voice.py", "Tamil transcript, $0.000539"],
-    ["note", "Glimmer is 18 GB. This 6 GB card cannot hold it: partner inference only."],
-    ["status", "one partner-hosted open model, no fabricated local weights"],
+    ["$ python allocator.py --mode auto", "Nemotron 3 Ultra returned 70 L / 30 L, validator PASS"],
+    ["$ python evidence.py --mode live", "Tavily: search + extract + map + crawl, claims verified"],
+    ["$ python capture_sam.py", "9 frames, masks decoded"],
+    ["note", "Tavily quotes are literal slices of fetched pages, checked in code."],
+    ["status", "three NVIDIA tiers on Token Factory, no fabricated local weights"],
   ],
 };
 
@@ -53,7 +53,7 @@ function useScreenTexture(mode: Mode) {
 
     ctx.fillStyle = mode === "offline" ? "#f5b942" : "#2dd4bf";
     ctx.font = "bold 26px Consolas, monospace";
-    ctx.fillText(mode === "offline" ? "AIRPLANE MODE  ·  OFFLINE" : "PARTNER INFERENCE  ·  ONLINE", 36, 56);
+    ctx.fillText(mode === "offline" ? "AIRPLANE MODE  ·  OFFLINE" : "NEMOTRON 3  ·  TOKEN FACTORY", 36, 56);
 
     ctx.fillStyle = "#86a0ab";
     ctx.font = "19px Consolas, monospace";
@@ -124,7 +124,7 @@ function Holograms({ mode }: { mode: Mode }) {
   return (
     <group>
       {[
-        { pos: [-3.1, 1.05, -0.7] as [number, number, number], label: "BASETEN", detail: "muse-spark-open-1026 · qualifying", colour: COLORS.teal },
+        { pos: [-3.1, 1.05, -0.7] as [number, number, number], label: "TOKEN FACTORY", detail: "Nemotron 3 Ultra · 1.98 s", colour: COLORS.teal },
         { pos: [3.0, 0.75, -0.9] as [number, number, number], label: "MODAL", detail: "glimmer · 18 GB · not deployed", colour: COLORS.amber },
         { pos: [2.6, -0.6, 0.6] as [number, number, number], label: "THIS LAPTOP", detail: "RTX 3050 6GB · core <1.2 GB", colour: COLORS.lung },
       ].map((holo) => {
@@ -228,7 +228,7 @@ export default function OfflineProof3D() {
           <p className="mt-3 text-[11.5px] leading-relaxed text-muted">
             {mode === "offline"
               ? "Wi-Fi off. LIFELINE_OFFLINE=1. The deterministic core — A*, Kahn sort, the 70/30 validator, the ledger — runs entirely in under 1.2 GB on this laptop. No API key is read."
-              : "Partner inference is the qualifying path for Open Weight: muse-spark-open-1026 on Baseten, with the stored proof below. Muse Glimmer needs 18 GB of VRAM, so it is not claimed on this laptop."}
+              : "Three NVIDIA tiers on Nebius Token Factory, measured on this project: Ultra for the allocation decision, Super for review, Nano for volume. The latencies and the $0.006 total below come from the run, not a table."}
           </p>
         </div>
 
@@ -238,9 +238,10 @@ export default function OfflineProof3D() {
             <div className="flex gap-2">
               <span className="mono shrink-0 pt-0.5 text-[8px] tracking-[0.1em] text-teal">CLAIM</span>
               <p className="text-[11px] leading-relaxed text-ink/80">
-                The Open Weight entry is{" "}
-                <span className="mono text-teal">muse-spark-open-1026</span>, partner-hosted on
-                Baseten. Those runs are stored verbatim, re-validated locally and counted above.
+                The model is{" "}
+                <span className="mono text-teal">Nemotron 3 Ultra 550b-a55b</span> on Nebius Token
+                Factory, with Super 120b and Nano 30B behind it. Every call is stored with its
+                latency, token count and cost, then re-checked by code.
               </p>
             </div>
             <div className="flex gap-2">
@@ -248,8 +249,8 @@ export default function OfflineProof3D() {
                 NOT CLAIMED
               </span>
               <p className="text-[11px] leading-relaxed text-muted">
-                Any local model as the prize entry. This 6 GB laptop runs the deterministic core
-                only. Glimmer&apos;s 18 GB does not fit, so it is partner inference or nothing.
+                Any local model as the brain. This 6 GB laptop runs the deterministic core only.
+                The speech is MMS-TTS on CPU — explicitly not an NVIDIA model — and the UI says so.
               </p>
             </div>
           </div>
@@ -257,24 +258,24 @@ export default function OfflineProof3D() {
 
         <div
           className={`rounded-xl border p-4 ${
-            lifeline.openweight.available
+            lifeline.nebius.available
               ? "border-teal/30 bg-teal/5"
               : "border-blood/30 bg-blood/5"
           }`}
         >
           <div className="flex items-baseline justify-between">
-            <div className="mono text-[10px] tracking-[0.18em] text-teal">OPEN WEIGHT PROOF</div>
+            <div className="mono text-[10px] tracking-[0.18em] text-teal">NEBIUS PROOF</div>
             <span className="mono text-[9px] text-muted">
-              {lifeline.openweight.valid_runs}/{lifeline.openweight.runs} runs valid
+              {lifeline.nebius.valid_runs}/{lifeline.nebius.runs} calls answered
             </span>
           </div>
           <div className="mono mt-1.5 text-[11px] text-ink">
-            {lifeline.openweight.provider} · {lifeline.openweight.model}
+            {lifeline.nebius.provider} · {lifeline.nebius.model}
           </div>
           <p className="mt-1 text-[10.5px] leading-relaxed text-muted">
-            {lifeline.openweight.available
-              ? `${lifeline.openweight.valid_runs}/${lifeline.openweight.runs} runs valid · ${lifeline.openweight.latencies_s.join(" s and ")} s · ${lifeline.openweight.allocation?.hospital} L / ${lifeline.openweight.allocation?.water_pump} L. Stored verbatim in artifacts/openweight_proof.json and re-validated locally, not trusted from the model.`
-              : "No valid run on file yet. Run python openweight.py before recording the demo."}
+            {lifeline.nebius.available
+              ? `${lifeline.nebius.valid_runs}/${lifeline.nebius.runs} calls answered · Ultra ${lifeline.nebius.latency_by_tier?.decision ?? "?"} s · Super ${lifeline.nebius.latency_by_tier?.deep ?? "?"} s · Nano ${lifeline.nebius.latency_by_tier?.fast ?? "?"} s · $${(lifeline.nebius.cost_usd ?? 0).toFixed(5)} total · validator ${lifeline.nebius.validator_ok ? "PASS" : "FAIL"} · citations ${lifeline.nebius.citations_ok ? "resolved" : "unresolved"}. Stored in artifacts/nebius_proof.json and checked in code, not trusted from the model.`
+              : "No proof on file yet. Run python scripts/nebius_proof.py before recording the demo."}
           </p>
           <div className="mt-1.5 flex gap-1.5">
             <span className="rounded border border-line px-1.5 py-0.5 mono text-[8px] text-muted">

@@ -1,482 +1,431 @@
-# LIFELINE AI - Town Survival Agent
+<div align="center">
+  <img src="figma/lifegrid.png" alt="LIFELINE AI — a town's organs, its fuel reserve, and the order that keeps them alive" width="100%">
+</div>
 
-**Built in Kottur, works anywhere.**
+# LIFELINE AI
 
-Kottur, Pollachi Taluk, Coimbatore, Tamil Nadu - **11.0168 N, 76.9558 E**, PIN 642114.
-Kottur-Malayandipattinam (KM Pattinam), the largest panchayat town in the Pollachi-Anaimalai belt,
-15 km west of Pollachi at the foot of the Western Ghats, on the Kerala border beside the Parambikulam
-and Anamalai Tiger Reserve corridor.
+### When the road dies, the town still has to decide.
 
-Monsoon flood, landslide on NH-544 at km 42 (the Pollachi-Valparai road), closed for six hours. The
-fuel depot is cut off, the hospital generator has four hours left, the water pump is dead and 200 people
-in three shelters have no water. I lived through the December 2023 flood here.
+**A disaster-response agent that allocates the last 100 litres of diesel, routes around a landslide, and
+holds the decision at a human gate — reasoned by NVIDIA Nemotron 3 on Nebius Token Factory, with every
+outside fact retrieved and checked through Tavily.**
 
-This is not a hypothetical for me. What happened in Kottur is a pattern: **fuel is blood, the hospital is
-the heart, the pump is the lungs, the shelters are the organs.** When the heart stops, the lungs and then
-the organs stop with it. The pattern repeats in every low-infrastructure town on earth - the same cascade,
-a different road number.
+<p>
+  <img alt="tests" src="https://img.shields.io/badge/tests-78%20passed-2dd4bf?style=flat-square">
+  <img alt="license" src="https://img.shields.io/badge/license-MIT-2dd4bf?style=flat-square">
+  <img alt="python" src="https://img.shields.io/badge/python-3.11%2B-2dd4bf?style=flat-square">
+  <img alt="Nebius" src="https://img.shields.io/badge/Nebius-Token%20Factory-2dd4bf?style=flat-square">
+  <img alt="NVIDIA" src="https://img.shields.io/badge/NVIDIA-Nemotron%203-76b900?style=flat-square">
+  <img alt="Tavily" src="https://img.shields.io/badge/Tavily-search%20%2B%20extract-2dd4bf?style=flat-square">
+</p>
 
-> Meta Global AI Developer Hackathon 2026 - Theme: **Build for Your World**
-> Solo indie entry by [@abinivesh-m](https://github.com/abinivesh-m)
-> _Built in Kottur. Works anywhere._
+Solo entry · **Nebius × NVIDIA Global AI Hackathon 2026** · **Best Apps and Agents**
+· **Best Use of Tavily** · [@abinivesh-m](https://github.com/abinivesh-m)
 
----
-
-## The six demo frames
-
-| | |
-| --- | --- |
-| ![LIFEGRID - town as machine](figma/lifegrid.png) | ![Dependency graph](figma/graph.png) |
-| ![A* routing](figma/astar.png) | ![Evidence and allocation](figma/allocator.png) |
-| ![Offline first](figma/offline.png) | ![Eight steps](figma/agentic.png) |
-
-Rendered at 1920x1080 by `python make_frames.py`, which reads the same `town.json` and the same
-`a_star.py` the agent runs, so the slides cannot drift from the code. Drag the PNGs into Figma to
-rebuild them as editable frames.
+> **The town is real. The scenario is simulated.** Kottur, Pollachi Taluk, Coimbatore, Tamil Nadu —
+> 11.0168 N, 76.9558 E — sits at the foot of the Western Ghats, where the **Pollachi–Valparai ghat road**
+> closes under boulders every monsoon. The most recent real closure was **22 October 2026: reopened after
+> 15 hours**
+> ([New Indian Express](https://www.newindianexpress.com/states/tamil-nadu/2026/Oct/22/tamil-nadu-pollachi-valparai-ghat-road-reopens-after-15-hours-following-landslide)).
+> The 6-hour closure, the 100 L reserve and the 70/30 split are **town data**, not a claim that a
+> specific landslide happened on a specific date. [What is real](#what-is-real-and-what-is-simulated)
+> draws that line precisely.
 
 ---
 
-## Contents
+## The 30-second version
 
-- [What it does](#what-it-does)
-- [The LIFEGRID model](#the-lifegrid-model)
-- [The eight-step agent](#the-eight-step-agent)
-- [Measured impact](#measured-impact)
-- [Use of Meta AI tooling](#use-of-meta-ai-tooling)
-- [Technical depth](#technical-depth)
-- [Open-weight track](#open-weight-track)
-- [Safety and anti-disqualification](#safety-and-anti-disqualification)
-- [Credit plan: $150, zero waste](#credit-plan-150-zero-waste)
-- [Run it](#run-it)
-- [Repository layout](#repository-layout)
-- [Build log and provenance](#build-log-and-provenance)
-- [Three-minute demo](#three-minute-demo)
-
----
+- **The problem is ordering, not supply.** A hospital generator with four hours left and a water pump on
+  the same feeder compete for 100 litres. Split 50/50 and the feeder browns out; give the hospital 70 and
+  the same pump runs three times longer on its 30. Same diesel, same town, three times the water.
+- **The model proposes, code disposes.** Nemotron 3 Ultra returns an allocation and a justification.
+  Every field is run through the same validator the deterministic solver uses. A confident wrong answer
+  is rejected with a reason, and the policy solver takes over.
+- **Evidence is quoted, not summarised.** Tavily fetches the pages; a five-check verifier accepts a claim
+  only when the quote is a literal slice of the fetched body, the URL was actually opened, the date fits
+  the mode, Tavily's own score clears 0.20, and the source is regional.
+- **The deterministic core is free and offline.** Kahn ordering, A*, the 70/30 solver, the validator,
+  the ledger and the gate run with the network cable out — because if the road is down, the cloud may be
+  down too.
 
 ## What it does
 
-A town under disaster is a dependency graph with a fuel budget. LIFELINE AI takes four inputs:
-
-| Input | Model | What comes out |
-| --- | --- | --- |
-| Flood imagery | SAM 3.1 | water extent per frame, as masks and percentages |
-| Tamil phone reports | Muse Voice Transcribe | "NH-544 km 42 blocked for six hours", verbatim |
-| The town record | `town.json` | organs, fuel reserves, roads, demands |
-| The $150 budget | `credit_tracker.py` | spend proof, 80% / 95% alerts |
-
-and produces one thing a human can act on:
-
-```
-   100 L diesel  ->  hospital 70 L  +  water pump 30 L     exactly, no waste
-   route         ->  7.8 km village road, 40% less fuel than the signposted 13.0 km bypass
-   outcome       ->  pump uptime 30 min -> 90 min, water back in 2 h instead of 6 h
-   decision      ->  held at a human approval gate, never auto-executed
+```text
+100 L diesel  ->  hospital 70 L + water pump 30 L        exactly 100, no waste
+route         ->  7.8 km village road vs the 13.0 km signposted bypass   (-40% trip fuel)
+pump uptime   ->  30 min -> 90 min           water back in 2 h instead of 6 h
+decision      ->  held at a human gate, never auto-executed
 ```
 
-The agent does not guess any of those numbers. The dependency order comes from Kahn's algorithm,
-the route from A* over surveyed road lengths, the allocation from a constrained solver that a
-language model may *propose* into but cannot override.
+Eight steps. Four need no model at all, and one is a human.
 
-## The LIFEGRID model
-
-```
-        fuel_depot   BLOOD    100 L reserve, 4.2 km behind a landslide
-             |
-             v
-        hospital     HEART    70 L demand, 4 h of runtime left, 200 people
-             |
-             v
-        water_pump   LUNGS    30 L demand, powered from the hospital feeder
-             |
-             v
-        shelters     ORGANS   200 people, no water
-```
-
-Two rules fall out of the graph, and both are enforced in code:
-
-1. **Topological order.** A child can never be funded before its parent. `hospital` before `water_pump`
-   before `shelters`, because the pump's electricity comes from the hospital's generator.
-2. **Cascade failure.** If the heart dies, the lungs and organs die with it. `cascade(hospital)` returns
-   `["water_pump", "shelters"]` and **200 people affected** - computed, not narrated.
-
-Why the naive split fails: giving the pump 50 L browning out the hospital feeder, so the pump only runs
-30 minutes on fuel it cannot use. Meeting the hospital's 70 L first keeps the feeder stable and the same
-pump runs 90 minutes on 30 L. That is the whole thesis in one number.
-
-## The eight-step agent
-
-`agent.py` runs the workflow end to end and writes `runs/latest.json` as evidence.
-
-| # | Step | Who does it | Deterministic? |
+| # | Step | Who does it | Needs a model? |
 | --- | --- | --- | --- |
-| 1 | **Perceive** flood extent | SAM 3.1 (`artifacts/sam_flood_segments.json`) | model |
-| 2 | **Listen** to Tamil field reports | Muse Voice Transcribe (`artifacts/voice_reports.json`) | model |
-| 3 | **Graph** the town, sort dependencies | `dependency_graph.py` (Kahn) | yes |
-| 4 | **Route** around the landslide | `a_star.py` (heapq, haversine heuristic) | yes |
-| 5 | **Allocate** 100 L with evidence vs inference | `allocator.py` (+ Muse Spark Open on Baseten) | model proposes, code validates |
-| 6 | **Budget** the $150 | `credit_tracker.py` | yes |
-| 7 | **Approve + escalate** - human gate, four-tier ladder | operator + `escalation.py` | human decides; silence escalates |
-| 8 | **Replan** when the world changes | `agent.py` | yes |
+| 1 | Perceive flood extent | stored segmentation masks, replayed from `artifacts/` | no — stored artefact |
+| 2 | Listen to field reports | stored transcript, replayed verbatim | no — stored artefact |
+| 3 | Graph the town, sort dependencies | `dependency_graph.py` (Kahn) | **no** |
+| 4 | Route around the landslide | `a_star.py` (heapq + haversine) | **no** |
+| 5 | Allocate 100 L with evidence vs inference | `allocator.py` → Nemotron 3 Ultra | proposes; code validates |
+| 6 | Budget the spend | `credit_tracker.py` + artefact reconciliation | **no** |
+| 7 | Approve, escalate, speak | `escalation.py` + `seri_gate.py` | one human word |
+| 8 | Replan when the world changes | `agent.py` | **no** |
 
-**Six of eight steps need no human. One human touchpoint. Zero model calls are required for steps 3, 4,
-6 and 8**, which is why the agent still works in flight mode.
+## Architecture
 
-### Step 7 runs the ladder, it does not describe it
-
-`agent.py` calls `escalation.py` inside step 7, so every run record carries the real tier state and the
-real payloads, not a promise:
-
-- tier 1, 0-5 min - a person decides; `--yes` records a pre-approval
-- tier 2, 5-15 min - SMS, WhatsApp and voice payloads to duty officer, panchayat president and taluk control room
-- tier 3, 15-30 min - degraded autopilot, 50 L hospital / 20 L pump, 30 L kept in reserve
-- tier 4, over 30 min - three shelter leaders, two of three must agree
-
-The run regenerates tier-2 payloads in all eight locales and reports what actually happened:
-
-```
-ladder armed - tier 2 at T+5 min: 72 payloads / 8 languages / sms / voice_call / whatsapp
-PENDING_CREDENTIALS - generated and logged only - no SMS/WhatsApp/voice gateway configured
-```
-
-That is the honest state: 72 payloads (9 per language) are built and logged, none is claimed to have been
-sent. With a gateway configured the same call returns the gateway's status instead.
-
-### The spoken ladder
-
-A text ladder assumes the reader can read. The tier-2 SMS, the WhatsApp copy and the voice-call script are
-also **spoken**, in all eight locales, from committed WAV files:
-
-| Piece | Who does it | Cost |
-| --- | --- | --- |
-| Drafts the SMS, the spoken alert and the 70/30 decision sentence in one call | `muse-spark-1.3` | $0.50 per locale |
-| Reviews all three for invented numbers, clinical advice, wrong language, false dispatch claims | `muse-wonder-1.0` | $0.4118 per locale |
-| Re-checks every number in code (`multilingual.py`) | this repo, no model | $0 |
-| Renders the approved words to audio | **MMS-TTS** (`facebook/mms-tts-*`), open weight, local CPU | $0 |
-| Delivers the call | *nobody* - no gateway configured | $0, `PENDING_CREDENTIALS` |
-
-The Meta API exposes no text-to-speech endpoint (its model list is Wonder, Spark, SAM, Voice Transcribe and
-Image), so this repo does not pretend one exists. The model writes the words; the voice is an open-weight
-model running on this laptop. A payload ships only if the code check **and** the review pass - otherwise the
-hand-written template is kept and `artifacts/multilingual_payloads.json` records why. The artifact also
-stores a `text_sha256` per clip, so a stale WAV can never be played over a changed decision.
-
-```bash
-python multilingual.py            # draft + validate + review, 8 locales
-python voice_synth.py             # render the approved words with MMS-TTS
-python voice_synth.py --verify    # prove every clip still matches its text
+```text
+                       ┌──────────────────────────────────────────────┐
+  stored masks ───────►│  STEP 1  PERCEIVE   (artefact, no call)       │
+  stored transcript ──►│  STEP 2  LISTEN     (artefact, no call)       │
+                       └──────────────────┬───────────────────────────┘
+                                          ▼
+   town.json ──► dependency_graph.py ──► a_star.py ──► allocator.py
+   (organs,          Kahn order           7.8 km       70/30 solver
+    reserve,          + cascade           route        + validator
+    roads)                                                │
+                                                          ▼
+                       ┌──────────────────────────────────────────────┐
+                       │  brain.py  →  Nebius Token Factory            │
+                       │  fast  Nano 30B-A3B   · triage               │
+                       │  deep  Super 120B     · draft + review       │
+                       │  decision Ultra 550B  · the allocation       │
+                       └──────────────────┬───────────────────────────┘
+                                          ▼
+   evidence.py ──► Tavily search / extract / map / crawl ──► five-check verifier
+                                          │
+                                          ▼
+                       ┌──────────────────────────────────────────────┐
+                       │  human gate  →  hash-chained ledger  →  stop  │
+                       │  nothing is dispatched without a yes          │
+                       └──────────────────────────────────────────────┘
 ```
 
-### Seri gate: the yes that needs no reading
+`brain.py` is the only file that knows a provider exists. The engine exports no model name, so the
+deterministic path is identical whether the cloud answers or not.
 
-A paper QR still needs a reader. `seri_gate.py` closes that last gap in **seven spoken languages**: one
-approval phrase is rendered locally by MMS-TTS, transcribed by Muse Voice Transcribe, classified by Muse
-Wonder, and then **code** decides:
+## Why this is an agent, not a wrapper
 
-| Check | Why it exists |
-| --- | --- |
-| The transcript contains that locale's approval token (`சரி`, `sí`, `oui`, `نعم`, `sim`, `ndiyo`, `yes`) | the model cannot approve a word that was never said |
-| The model's intent agrees with the token | a misunderstood "no" must never dispatch fuel |
-| Confidence >= 0.80 | a guess is a no |
-| On approval only: append to the hash-chained ledger with the audio's sha256 and the locale | the word and the record cannot drift apart |
+Three separations, each enforced by tests:
 
-Everything else - a question, a cough, silence, "maybe" - is `WITHHELD`, and the panel says which check
-failed. Denial wins over approval, Tamil negation is a suffix (`சரியில்லை` stays one token and is never
-read as `சரி`), and an ASR stutter (`சரிசரி`) only collapses when it is an exact double. Mandarin has no
-released MMS-TTS checkpoint, so `zh` is listed as **text-only** rather than spoken in the wrong language.
+1. **The model proposes, code disposes.** Ultra returns `{"allocation": ..., "justification": ...}`.
+   Every field goes through the same validator the deterministic solver uses. Over-allocation, a short
+   total, or starving the heart while funding the lungs is rejected with a reason, and the policy solver
+   takes over. The 70/30 result ships either way.
+2. **Evidence and inference are different objects.** Each `evidence[]` item carries the exact
+   `town.json` path it came from; each `inference[]` item cites evidence ids (`because: ["E1","E2"]`).
+   A test resolves every path and every cited id, so an invented justification fails CI.
+3. **Web facts are quoted, not summarised.** See [Tavily](#tavily-the-outside-world-has-to-be-checkable).
 
-The clips in `artifacts/audio/seri_*.wav` are synthetic (MMS-TTS) until real recordings replace them; the
-page labels them that way rather than implying a field recording. Swapping one in is a file drop:
+## NVIDIA Nemotron 3 on Nebius Token Factory
 
-```bash
-python seri_gate.py                       # 7 locales: clip -> ASR -> intent -> gate -> ledger
-python seri_gate.py --locale ta           # one language
-python seri_gate.py --locale ta --file my-recording.wav
-python seri_gate.py --transcript "சரி"    # test the gate with no network
-```
+Three tiers, resolved from the live `GET /v1/models` catalogue rather than typed from memory, with prices
+read from the same response:
 
-Step 8 is not a diagram. Two real replans ship today:
-
-```bash
-python agent.py --yes --scenario reserve-loss
-# depot damaged: 80 L survive instead of 100 L
-# -> hospital still gets 70 L, pump drops 30 L -> 10 L
-# -> pump runtime 6.0 h -> 2.0 h, 16,000 L of water lost, and it says so
-
-python agent.py --yes --scenario pump-critical
-# a human insists the pump outranks the hospital
-# -> REJECTED: "water_pump: 40 L exceeds stated demand 30 L"
-# -> REJECTED: "hospital is under-funded (60/70 L) while water_pump receives diesel"
-# -> applies 70/30 anyway, and logs why
-```
-
-The second one matters more than the first. The agent can refuse its operator.
-
-## Measured impact
-
-Baseline is the no-agent response: drive the signposted 13.0 km bypass, split the reserve evenly.
-
-| Metric | Without agent | With LIFELINE AI | Change |
+| Tier | Model ID | $/M in → out | Used for |
 | --- | --- | --- | --- |
-| Route to hospital | 13.0 km bypass | **7.8 km** village road | **-5.2 km** |
-| Trip fuel | 4.55 L | 2.73 L | **-40%** |
-| Diesel reaching the town | split 50/50 | **70 / 30 exact** | no waste |
-| Water-pump uptime (first 4 h) | 30 min | **90 min** | **3x** |
-| Water reaches shelters | 6 h | **2 h** | **-4 h** |
-| People served | 200 | 200 | held |
+| fast | `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` | 0.06 → 0.24 | one measured triage call; too slow for long drafts (see below) |
+| deep | `nvidia/nemotron-3-super-120b-a12b` | 0.30 → 0.90 | 8-language drafting **and** review of every locale |
+| decision | `nvidia/Nemotron-3-Ultra-550b-a55b` | 1.00 → 3.00 | the one allocation that matters |
 
-Measured outcome lives in `runs/latest.json` under `measured_outcome`, and every number is re-derived by
-`test_phase1.py` so a stale claim cannot survive a commit.
+**The tier choice is measured, not assumed.** The same 8-language draft prompt, three ways:
 
-**Why it scales beyond Kottur.** Nothing in the code knows the word "Kottur". The organ graph, the road
-network, the reserve and the demands are all data in `town.json`. Point it at another town and the same
-three algorithms run: any blocked road, any fuel reserve, any hospital-pump-shelter chain. Kottur is the
-proof, the pattern is the product - hill towns in Nilgiris, the Assam floodplain, coastal Kerala, and the
-same cascade in the Philippines, Indonesia, Kenya and Puerto Rico.
-
-## Use of Meta AI tooling
-
-Seven Meta surfaces, each doing work a different surface cannot do:
-
-| Model | Role | Budget | Status |
-| --- | --- | --- | --- |
-| **Muse Wonder** `muse-wonder-1.0`, `reasoning_effort=high` | second opinion, cascade planning, 8-locale payload review, spoken-intent check | $70 | 20 calls, $8.235300 spent |
-| **SAM 3.1** `sam-3.1` | flood extent per frame, boxes + masks | $30 | stored: 9 frames, 35.3% featured |
-| **Muse Voice Transcribe** `muse-voice-transcribe-1.0` | Tamil field reports, code-switched; Seri Gate ears | $30 | 8 calls, $0.001479 - one report + seven approval passes |
-| **Muse Spark** `muse-spark-1.3` | 8-locale SMS + spoken payload drafting; coding helper | $20 | 13 calls, $6.500000 spent |
-| **Muse Spark Open** `meta-models/muse-spark-open-1026` | allocation brain, Baseten partner inference | $0 credits | 2/3 valid, 5.41 / 6.73 s stored, latest live 4.44 s, 70/30 |
-| **MMS-TTS** `facebook/mms-tts-*` | speaks the approved payloads, 7 locales, local CPU | $0 credits | 14 clips, 0 network at playback |
-| **Muse Glimmer 30B** | open-weight reasoner, Modal GPU | $0 credits | not deployed (18 GB does not fit) |
-| **Muse Code 1.4.13** | primary coding agent for this repo | $0 | used |
-
-Two deliberate choices worth a judge's attention:
-
-- **Evidence and inference are separate JSON objects.** `allocator.py` emits `evidence[]` where every item
-  carries the exact `town.json` field it came from (`town.json#organs.hospital.runtime_hours_left`), and
-  `inference[]` where every claim cites evidence ids (`because: ["E1","E2","E4"]`). A test resolves every
-  evidence path and every cited id, so a hallucinated justification fails CI.
-- **The model proposes, code disposes.** Muse Spark Open returns `{"allocation": ..., "justification": ...}`.
-  It is then run through the same validator as the deterministic solver. Over-allocation, a short total, or
-  starving the heart while funding the lungs is rejected with reasons and the policy solver takes over.
-
-`--mode openweight` is the product path: live Baseten inference when `BASETEN_BASE_URL` and `BASETEN_API_KEY`
-are present, otherwise the latest stored, validated run is replayed with its provenance attached (`stored` vs
-`live` is printed and exported). `--mode auto` (default) uses Open Weight when the wire is up and falls back
-to the deterministic policy when `LIFELINE_OFFLINE=1`. The fallback is the safety net, not a simulation of
-the model: same validator, same 70/30 result, no API key read.
-
-## Technical depth
-
-**A\* is real, and audited.** `a_star.py` runs a `heapq` priority queue over 9 surveyed edges with a
-haversine heuristic. `python a_star.py --audit` proves admissibility by checking that every recorded road
-length is at least the straight-line distance between its endpoints - if that fails, A* is not optimal and
-the script says so. A test additionally compares the result against a brute-force enumeration of every
-simple path.
-
-| Corridor | Length | Status |
-| --- | --- | --- |
-| NH-544 direct | 4.2 km | **blocked** at km 2.1 (landslide) |
-| Kottur village road (A*) | **7.8 km** | open |
-| Signposted bypass (no agent) | 13.0 km | open |
-
-The honest framing: 4.2 km is impassable, so no agent "saves 5.2 km against the direct road". The agent
-saves 40% against the **detour a human would actually drive**, and the tool prints exactly that.
-
-**Two survivor protocols, both runnable.** `protocols.py` adds a mode switch and a learner on the same
-graph, with no network and no invented geography.
-
-| Protocol | What it does | Result in Kottur |
-| --- | --- | --- |
-| Snake boat relay | road A* first; if the last road closes, re-run the solver on surveyed water edges | road wins at 7.8 km; **0 water edges on file**, so the relay reports `ARMED` and refuses to invent a river |
-| Ant pheromone | seeded colony (12 ants x 12 iterations) over the real edges; impassable corridors cannot be reinforced | 7.8 km found every run; blocked trail falls below 1% after **8 iterations**; seed 7 reproduces it |
-
-The relay is deliberately not dressed up: a synthetic canal would make a better screenshot and a worse
-submission. `test_protocols.py` pins both behaviours, including the refusal path.
-
-**Topological sort is real.** Kahn's algorithm with a priority-ordered ready queue, cycle detection that
-raises `CycleError` with the stuck nodes, dangling-dependency validation, and cascade propagation with a
-measured blast radius.
-
-**The budget is a hard constraint, not a dashboard.** `CreditTracker.log()` raises before it writes if a
-call would break a per-model bucket or the total. The ledger is append-only, and `verify()` re-derives
-every cumulative total from raw entries.
-
-## Open-weight track
-
-The bonus asks for Muse Glimmer or Muse Spark Open, on your own hardware **or through partner
-inference**. This submission claims exactly one path:
-
-| Claim | Model | Where | Evidence |
-| --- | --- | --- | --- |
-| **Qualifying** | **Muse Spark Open** (`meta-models/muse-spark-open-1026`) | Baseten, 2M TPM | `artifacts/openweight_proof.json` - verbatim responses, latency, token usage, locally re-validated |
-| **Not claimed** | Muse Glimmer 30B | Modal | 18 GB of weights vs 6 GB VRAM; not deployed in this build |
-
-No local model is claimed for the prize. This laptop has **6 GB VRAM and 15.7 GB RAM**, and Muse
-Glimmer's smallest published build is **18 GB**. It does not fit, so it is never presented as a
-laptop result - partner inference or nothing.
-
-The offline property is separate from the prize and scoped to what is true: steps 3, 4, 6, 7 and 8
-- the graph, the route, the ledger, the gate, the replan - run with the network cable out. That is
-resilience. It is not an Open Weight entry, and the page says so on screen.
-
-> A 3B local model was used during development as a natural-language sanity check only. It is not
-> part of the submitted entry, is not shown as an Open Weight result, and does not qualify.
-
-
-## Safety and anti-disqualification
-
-| Anti-project risk | How this avoids it |
-| --- | --- |
-| "AI medical advice" | Zero clinical content. The agent allocates **diesel**. `safety` is asserted in every result and tested. |
-| "Basic RAG app" | No vector store, no document retrieval. The reasoning substrate is a dependency graph, A*, and a constrained solver. |
-| "Simple image analyzer" | SAM output feeds a routing and allocation decision; it is one input to a multi-step plan, not the product. |
-| Auto-executing harm | `--yes` is the only way past step 7, and it is logged as an operator approval. Interactive mode defaults to **deny** (`[y/N]`). |
-| Ungrounded numbers | Every evidence item resolves to a `town.json` path; every inference cites evidence ids. Both are tested. |
-| Fabricated demo | Steps whose artifacts are not captured report `pending_capture`. They never invent a metric. |
-
-## Credit plan: $150, zero waste
-
-| Bucket | Calls | Unit | Total | Artefact it buys |
+| Model | Token cap | Result | Completion tokens | Wall |
 | --- | --- | --- | --- | --- |
-| Muse Wonder | 170 | $0.4118 | $70.00 | cascade allocation + replans |
-| SAM 3.1 | 20 | $1.50 | $30.00 | flood extent across 20 frames |
-| Muse Voice Transcribe | 50 | $0.60 | $30.00 | 50 Tamil field reports |
-| Muse Spark | 40 | $0.50 | $20.00 | coding + creative prompts |
-| Spark Open / Glimmer / Muse Code | - | $0 | $0.00 | partner inference |
-| **Total** | **280** | | **$150.00** | |
+| Nano 30B-A3B | 6,000 | `finish_reason=length`, **empty content** | 6,000 (all reasoning) | 59 s |
+| Nano 30B-A3B | 16,000 | answered | 3,449 | 38 s |
+| Super 120b | 6,000 | answered | 966 | **6.7 s** |
 
-Alerts fire at **80% ($120)** and **95% ($142.50)**; a **$20 reserve** is tracked separately so the demo
-week keeps contingency. `python credit_tracker.py simulate` replays the whole plan and proves it lands on
-$150.00 exactly, with `verify()` passing.
+Super is 5.6× faster and uses a third of the tokens for this task, so drafting runs on Super.
+`reasoning_effort=low` does not bound Nano's thinking — that is a finding, not a workaround.
 
-The table above is the *plan*. Actual live spend at build time, read from the append-only rows in
-`credit_usage.json` and shown on screen:
+**Measured, not estimated:** the proof run measured Ultra at **3.37 s** for the allocation call
+(the very first probe answered in 1.98 s), valid JSON, `{"hospital": 70, "water_pump": 30}`, validator
+**PASS**. The proof artefact holds all three tiers: **4,834 tokens, $0.00595068, 15.33 s wall**. Reproduce
+with `python scripts/nebius_proof.py`.
 
-| Bucket | Calls | Spent | Where it came from |
+```python
+import brain
+brain.chat(prompt, tier="fast")      # Nano 30B-A3B
+brain.chat(prompt, tier="deep")      # Super 120B, draft + review
+brain.chat(prompt, tier="decision")  # Ultra 550B, the allocation
+```
+
+The tiering is the point of the entry: Nano and Super absorb the volume so that Ultra is affordable for
+the single decision where reasoning changes the outcome.
+
+## Tavily: the outside world has to be checkable
+
+The engine's own numbers come from `town.json`. Everything **outside** the town — what a landslide does
+to a highway, what a hospital generator actually needs, how often this repeats — comes from the web, and
+a judge must be able to check it without trusting us.
+
+Four endpoint types do real work, all at `advanced` depth:
+
+| Call | What it buys | List price |
+| --- | --- | --- |
+| `POST /search` | ranked results **+ synthesised answer + full raw content + image descriptions**, domain-filtered, date-bounded | 2 credits |
+| `POST /extract` | the pages actually opened, 20 per batch, markdown, with per-URL failures reported | 2 per 5 URLs |
+| `POST /map` | the site structure of the authority being cited | 1 per 10 pages |
+| `POST /crawl` | map + extract in one hop, to prove a source was explored, not stumbled on | map + extract |
+
+### What the run actually produced
+
+| Measure | Result |
+| --- | --- |
+| Queries in the merged proof | **10** |
+| Leads returned | **65** |
+| URLs fetched | **37** (3 failed and are listed as failures) |
+| Images described | **45** |
+| Synthesised answers | **10** |
+| Site maps | **2** |
+| Crawls | **3** |
+| Claims checked | **17** |
+| Claims accepted | **9** |
+| Credits consumed across the build | **132** (47 calls) |
+
+Every accepted and rejected row is in
+[`artifacts/tavily_proof.json`](artifacts/tavily_proof.json), with its quote, URL, score, publication date
+and verdict. Nothing is summarised into existence.
+
+### The rule that makes it evidence
+
+A claim is accepted only when **five** independent checks pass:
+
+1. **Literal quote.** The quoted sentence is *sliced out of the fetched body*, so `quote in text` is
+   true by construction. Nothing is paraphrased into existence.
+2. **Fetched, not found.** The URL must appear in an `extract` success list. A search hit is a lead.
+3. **Dated when it is an event.** Scenario mode requires a publication date inside the 2023 world the
+   town replays; live mode requires the last 45 days. A mechanism claim ("generators run on diesel") may
+   be timeless, and is labelled as such. No date on an event claim means `undated`, which is a rejection.
+4. **Relevant.** Tavily's own relevance score must clear **0.20**.
+5. **Regional.** The source must match the configured region terms (`LIFELINE_REGION_TERMS`), so a
+   landslide story from another continent cannot support a Kottur claim.
+
+Check 4 exists because the first run failed without it. A BBC story about an **M25 footbridge** was
+accepted as support for "landslide closes road", purely because both sentences contained the word
+*closed*. The score was **0.01**. That is now a rejected row in the artefact, kept on purpose: it shows
+the false positive the verifier caught, next to the rows it accepted.
+
+### Two modes, never blended
+
+| Mode | Question | Window |
+| --- | --- | --- |
+| **Scenario** | what did comparable 2023 events do to roads, grids and fuel? | 2023-11-01 → 2024-02-29 |
+| **Live** | what is true on this road **today**? | last 45 days |
+
+Blending them is how a 2023 figure gets quoted as current. The UI labels the mode on every row and the
+artefact stores the window with the claim.
+
+### Replay is free
+
+Every response is cached by request hash, so the proof artefact rebuilds offline and re-running costs
+zero credits:
+
+```bash
+python evidence.py --mode live                # real calls
+python evidence.py --mode live --replay       # cache only, no network
+```
+
+Credits are read from the API's own `usage` field and appended to `artifacts/tavily_usage.json` — never
+computed from a price table we wrote ourselves.
+
+## Eight languages, one gate
+
+The same alert is drafted in **English, Spanish, French, Chinese, Arabic, Portuguese, Swahili and Tamil**
+by Nemotron 3 Super, then reviewed by Super, then checked in code for length, forbidden numbers, medical
+advice, links and reply codes. The validator is the last word: a reviewer model cannot approve a payload
+that contains an invented figure.
+
+| Measure | Result |
+| --- | --- |
+| Locales with all three payloads valid | **8 / 8** |
+| Model-drafted (not template fallback) | **8 / 8** |
+| Drafting + review | **8 Super calls, $0.020234** |
+| Spoken locales | **7** — Mandarin has no released MMS-TTS checkpoint, so it ships text-only |
+| Clips rendered locally | **14** (alert + allocation, 7 locales) |
+| Audio | **161.34 s**, MMS-TTS on CPU, **$0.00** |
+| Voice gate | **7 / 7 approved, 0 withheld**, 7 Super calls, **$0.000864** |
+
+The gate is not a button. A stored transcript is replayed, classified by Nemotron 3 Super, and decided in
+code: token intent and model intent must agree, confidence must clear the threshold, and a global deny
+wins in every locale. A misheard "no" must never dispatch fuel, so a question, a cough or a maybe is a
+no. The seven approvals are sealed in a hash-chained ledger (`artifacts/escalation_ledger.json`).
+
+TTS is explicitly **not** an NVIDIA model and **not** a Nebius endpoint. It runs locally on CPU, costs
+nothing, and is labelled synthetic on screen.
+
+## What is real, and what is simulated
+
+| Item | Status |
+| --- | --- |
+| Kottur, its coordinates, the ghat road and its monsoon closures | **real** |
+| Pollachi–Valparai closure, 22 Oct 2026, reopened after 15 h | **real**, linked above |
+| `town.json` — 100 L reserve, 4 h generator, 70 L / 30 L demands, 6 h closure | **simulated**, chosen to be plausible |
+| "December 2023 Kottur landslide" | **not claimed.** No such event is asserted anywhere in this repo |
+| Flood masks, 9 frames, worst 59.4% | **stored pre-migration artefacts**, replayed and re-checked; no image model is called or billed in this build |
+| ASR transcript, 10.78 s | **stored pre-migration transcript**, replayed verbatim; no ASR call is claimed or billed |
+| Nemotron 3 calls | **real**, 18 calls, $0.027049, traces in `artifacts/` |
+| Tavily sources, quotes, scores, credits | **real**, per-row in `artifacts/tavily_proof.json` |
+| TTS clips | **MMS-TTS, local CPU** — explicitly *not* NVIDIA, labelled synthetic |
+| SMS / WhatsApp / voice delivery | `PENDING_CREDENTIALS` — payloads built and logged, **none sent** |
+| Demo deployment | code included; **no public URL is claimed until it answers** |
+
+The stored-mask and stored-transcript rows are the ones a judge would otherwise catch. They are stated
+before they are asked.
+
+## What it costs, and why
+
+Every figure below is measured in this repo. The unit prices are the catalogue rates; the token counts
+and credit counts are the ones the APIs returned.
+
+| What | Calls | Cost | Share of total |
 | --- | --- | --- | --- |
-| Muse Wonder | 20 | $8.235300 | one allocation proposal, twelve 8-locale payload reviews, seven spoken-approval passes |
-| SAM 3.1 | 15 | $0.037500 | six capture images + nine flood frames |
-| Muse Voice Transcribe | 8 | $0.001479 | one Tamil report + seven Seri Gate passes |
-| Muse Spark | 13 | $6.500000 | 8 locales x (SMS + spoken alert + decision), plus early retries |
-| MMS-TTS (local) | 14 | $0.000000 | spoken SMS and 70/30 decision in 7 locales |
-| Spark Open / Glimmer / Muse Code | 0 | $0 | partner inference at $0 |
-| **Total** | **70** | **$14.774279** | **$14.77 of $150 - the badge on the page** |
+| Nemotron 3 Ultra — the allocation | 1 | **$0.004968** | 0.46% |
+| Nemotron 3 Super — draft, review, gate | 16 | **$0.021929** | 2.02% |
+| Nemotron 3 Nano — one triage call | 1 | **$0.000152** | 0.01% |
+| **Nebius inference total** | **18** | **$0.027049** | **2.50%** |
+| Tavily — search, extract, map, crawl | 47 | **$1.056000** | 97.50% |
+| **Combined cash-equivalent** | **65** | **$1.083049** | **100%** |
 
-The SAM bucket aggregates two rows (6 + 9 calls), which is why the panel says 15 calls. The seven Seri
-Gate passes are the cost of proving the gate refuses a misheard word as well as it accepts a clear one,
-not of the demo path. Meta's free credits cover the spend; Open Weight calls on Baseten and every
-MMS-TTS clip are not metered against this budget at all.
+At build time the Nebius Token Factory balance was **$29.50**. Inference therefore used **0.0917%** of
+that balance; the remaining **$29.472951** is untouched. Tavily's 132 credits are priced at its list rate
+of **$0.008** and sit on Tavily's own account, not the Nebius one — the combined figure is the honest
+cost of goods for the demo, not a claim that one provider bills the other.
 
-> `credit_usage.json` is git-ignored because it is generated at runtime. The submission attaches the
-> ledger produced by the real capture runs; `python credit_tracker.py verify` proves it.
+### Why the spend has this shape
+
+**1. The deterministic core is $0.00 by construction.** Kahn ordering, A*, the 70/30 solver, the
+validator, the ledger, the gate and the replan make no network call. There is no model where arithmetic
+is sufficient, so the largest part of the product is free to run and impossible to rate-limit.
+
+**2. Ultra is used once, on purpose.** The decision call cost **$0.004968** — half a cent — for 1,986
+input tokens and 994 output tokens at $1.00 / $3.00 per million. The same call on a larger context or a
+retry loop would still be cents. Tiering is what makes a 550B model rational for a single decision:
+Super absorbs 16 calls for **$0.021929**, and Nano's one triage call cost **$0.000152**.
+
+**3. Tavily is 97.5% of the bill because evidence is the expensive part.** A claim is not one search. It
+is a search, then the pages actually opened, then a map or crawl to prove the source was explored, then a
+literal-quote check. 47 calls consumed 132 credits; 17 claims were checked and **8 were rejected** —
+rejections still cost credits, and that is the point. A cheaper verifier that accepts everything would
+save $1.06 and destroy the product.
+
+**4. The per-call unit economics are small enough to operate.** Ultra is **$0.004968 per decision**;
+Super averages **$0.001371 per call**; Tavily averages **$0.022468 per call**. A town making one decision
+per closure spends less than a cent on reasoning and about a dollar on proof.
+
+**5. What is not in the table.** The figure is the cost of the artefacts that ship. A handful of
+exploratory calls made while choosing tiers, and failed draft repairs, are visible in the provider
+console but are not part of the shipping artefacts. They are not hidden; they are simply not claimed as
+product cost.
+
+The ledger alerts at **80% ($23.60)** and **95% ($28.03)** were never approached. The page shows the
+same reconciled number the CLI prints: `python agent.py --yes --mode policy`.
 
 ## Run it
 
-Core has **zero third-party dependencies** - Python 3.11+ standard library only.
+Core is **standard library only** — no NumPy, no SDK, Python 3.11+ (measured on 3.14).
 
 ```bash
-git clone https://github.com/abinivesh-m/lifeline-ai-survival-agent
-cd lifeline-ai-survival-agent
+git clone https://github.com/abinivesh-m/lifeline-ai-nebius
+cd lifeline-ai-nebius
 
-python -m pytest -q                   # 78 acceptance tests
-python dependency_graph.py            # LIFEGRID + topological order + cascade
-python a_star.py                      # 4.2 blocked -> 7.8 km -> 40% fuel saved
-python a_star.py --audit              # prove the heuristic is admissible
-python protocols.py                   # snake-boat relay + ant-pheromone learner
-python allocator.py --mode policy     # 70 L / 30 L, evidence vs inference
-python credit_tracker.py simulate     # replay the $150 plan
-python multilingual.py --verify       # 8-locale payloads still satisfy every rule
-python voice_synth.py --verify        # every spoken clip still matches its text
-python seri_gate.py                   # one spoken word -> gated approval -> ledger
-python benchmark.py                   # local medians + recorded model latencies
-python agent.py --yes --mode policy   # the eight steps, start to finish
-python agent.py --yes --scenario reserve-loss
+python -m pytest -q                      # 78 tests
+python agent.py --yes --mode policy      # the eight steps, offline-safe
+
+cp .env.example .env                     # NEBIUS_API_KEY, TAVILY_API_KEY
+python evidence.py --mode live           # Tavily: search + extract + map + crawl
+python scripts/nebius_proof.py           # three real Nemotron calls, priced and timed
+python allocator.py --mode auto          # live proposal, then the validator
+python multilingual.py                   # 8 locales, drafted and reviewed on Super
+python seri_gate.py --verify             # re-check the stored approvals
 ```
 
-Live Meta calls (optional):
+`.env` is git-ignored. No key appears in this repository, its history, or its artefacts.
+
+### The UI
 
 ```bash
-cp .env.example .env      # add META_API_KEY from the Meta Model API dashboard
-pip install -r requirements.txt
-python allocator.py --mode openweight      # Baseten Spark Open, live or stored replay
-python allocator.py --mode wonder --log-credit
-python openweight.py                       # new qualifying run, appended to the proof
+cd ui
+npm install
+npm run build                            # static export to ui/out
+cd ..
+python deploy/serve.py                   # http://127.0.0.1:8080
 ```
 
-### Offline proof (resilience, not the prize entry)
+`deploy/serve.py` is a stdlib server: it hosts the exported site and exposes `GET /api/health` plus
+`POST /api/allocate`, which runs the real engine. No Node server is needed at demo time. The page is fully
+readable offline from the baked artefacts; the API route is the live part.
 
-```powershell
-nvidia-smi                                  # RTX 3050 6 GB
-$env:LIFELINE_OFFLINE = "1"                 # no network calls
-python agent.py --yes --mode policy         # graph + A* + allocator + gate + replan
-```
+## Deploy it
 
-Then turn on airplane mode and run it again. Screenshot `nvidia-smi`, the airplane-mode icon, and the
-run - that is the offline artefact. No model is downloaded and no Open Weight claim is made here.
+**Vercel (static demo).** The exported `ui/out` folder is a plain static site. Set the Vercel project root
+to `ui`, build command `npm run build`, output directory `out`. The page, media, artefacts and the
+three.js scenes all work; `POST /api/allocate` does not, because Vercel is not running the Python engine.
 
-Proof captures live in `artifacts/proof/`:
+**Nebius AI Cloud (full demo).** The included `Dockerfile` builds the UI in a Node stage and serves it
+from a Python stage with `deploy/serve.py`. Push the image to a registry, create a Serverless Endpoint,
+set `NEBIUS_API_KEY` as a secret, and point the health check at `/api/health`. The container listens on
+`$PORT` (default 8080). Full steps: [`deploy/README.md`](deploy/README.md).
 
-| File | Status |
-| --- | --- |
-| `nvidia_smi.txt` / `gpu_6gb_nvidia_smi.png` | real output: `NVIDIA GeForce RTX 3050 6GB Laptop GPU, 6144 MiB` |
-| `credit_usage_live.json` | snapshot of the live $150 ledger |
-| `gpu_6gb_taskmgr.png` | **capture needed** - Task Manager, `0.0/6.0 GB` |
-| `offline_proof.mp4` | **capture needed** - airplane mode + `LIFELINE_OFFLINE=1 python agent.py --yes` |
-| `baseten_proof.mp4` | **capture needed** - `python openweight.py`, 2/3 valid, 5.41 s and 6.73 s |
-
-The pending three need the desktop session that owns the GPU. They are labelled pending rather than
-generated, because a fabricated screenshot is the one artefact a judge can disprove in a minute.
-
-### Image generation note (India)
-
-Muse Image is **not available in India** (HTTP 403 by region). Nothing in this project calls it. Visuals
-use Muse Wonder prompts, Muse Spark prompts and Modal-hosted diffusion instead. This is a documented
-substitution, not a missing feature.
+No public URL is claimed in this README. A deployment is real when it returns 200 in a private window,
+and not before.
 
 ## Repository layout
 
+```text
+brain.py                the only file that knows Nebius Token Factory exists
+evidence.py             Tavily search/extract/map/crawl + the five-check verifier
+allocator.py            70/30 solver, evidence vs inference, validator, model proposal
+dependency_graph.py     Kahn sort, cascade blast radius
+a_star.py               heapq A*, haversine, admissibility audit
+protocols.py            snake-boat relay + seeded ant colony
+seri_gate.py            spoken approval -> token check -> hash-chained ledger
+multilingual.py         8-locale payloads, code-checked then model-reviewed
+voice_synth.py          local MMS-TTS rendering, $0.00
+credit_tracker.py       append-only spend ledger + plan thresholds
+agent.py                the eight steps
+deploy/serve.py         static site + /api/allocate, no framework
+deploy/README.md        Nebius AI Cloud and Vercel steps
+Dockerfile              Node build stage + Python runtime stage
+test_phase1.py          acceptance tests pinning the claims above
+artifacts/              proofs: Nemotron calls, Tavily rows, gate, masks, audio
 ```
-town.json               the whole town as data: organs, roads, reserve, baseline
-dependency_graph.py     Kahn topological sort, cascade blast radius, funding order
-a_star.py               heapq A*, haversine heuristic, admissibility audit, fuel maths
-protocols.py            snake-boat mode switch + seeded ant-pheromone learner
-allocator.py            70/30 solver, evidence vs inference, Wonder client, validator
-credit_tracker.py       $150 ledger, 80%/95% alerts, verify()
-agent.py                the eight-step workflow, approval gate, replanning
-test_phase1.py          acceptance tests pinning every claim in this README
-test_protocols.py       proof the relay refuses to invent a river, and the colony learns
-runs/latest.json        last agent run, as evidence
-artifacts/              captured model output (SAM frames, voice reports, proof)
-```
 
-## Build log and provenance
+## Deterministic core, and how it is proved
 
-Everything in this repository was written during the hackathon (build window 27 Oct - 4 Nov 2026) by a
-solo entrant. No pre-existing product, no borrowed codebase.
+| Claim | How it is proved |
+| --- | --- |
+| 7.8 km is the shortest open route | A* over 9 surveyed edges + brute-force enumeration of every simple path |
+| The heuristic is admissible | `python a_star.py --audit` checks every edge ≥ its straight-line distance |
+| 40% less trip fuel | 4.55 L → 2.73 L on the same vehicle model |
+| 70/30 is optimal under the constraint | constrained solver + validator; 50/50 browns out the feeder |
+| The blocked trail is abandoned | seeded ant colony (12 × 12, seed 7), <1% after 8 iterations |
+| 78 acceptance tests | `python -m pytest -q` |
 
-| Phase | Status | What exists |
-| --- | --- | --- |
-| Phase 1 - deterministic core | **done** | town model, graph, A*, allocator, ledger, 8-step agent, 78 tests |
-| Phase 2 - model capture | pending | SAM frames, Tamil transcripts, Wonder live calls, Baseten + Modal runs |
-| Phase 3 - demo | pending | 3-minute video, LIFEGRID visuals, X post |
-
-Pending means pending: the adapters are written and the runs above are real, but the model-capture files
-are not committed yet. They land in Phase 2.
+The honest framing of the route: 4.2 km is impassable, so the agent does not "save 5.2 km against the
+direct road". It saves 40% against **the detour a human would actually drive**, and the CLI prints
+exactly that.
 
 ## Three-minute demo
 
 | Time | Beat |
 | --- | --- |
-| 0:00 | Kottur, 11.0168 N 76.9558 E. NH-544 km 42, six hours closed. Personal, not hypothetical. |
-| 0:30 | LIFEGRID: fuel is blood, hospital is the heart, pump is the lungs, shelters are the organs. |
-| 1:00 | SAM 3.1 flood extent, Voice Transcribe Tamil report, Kahn order, A* 4.2 blocked -> 7.8 km -> 40%. |
-| 1:30 | Wonder proposes, code validates: 70 L / 30 L, exactly 100 L, evidence vs inference side by side. |
-| 2:00 | Approval gate. Then `reserve-loss`: 80 L survive, heart still protected, and the cost is stated. |
-| 2:30 | Airplane mode, `nvidia-smi`, agent still runs. 30 min -> 90 min uptime. Done. |
+| 0:00 | The road that really closes: Pollachi–Valparai, reopened after 15 hours. The town is real; the scenario is simulated — said out loud. |
+| 0:30 | 100 L, hospital at 4 h, pump on the same feeder. Why 50/50 fails. |
+| 1:00 | Deterministic core: Kahn, A* 4.2 blocked → 7.8 km → 40%, 78 tests. |
+| 1:30 | Tavily, live: search → extract → map → crawl, and the verifier **rejecting** a source on camera. |
+| 2:00 | Nemotron 3 Ultra on Token Factory: proposal, 3.37 s, validator PASS 70/30. Nano and Super behind it. |
+| 2:30 | Approval gate, spoken `சரி`, ledger hash. Offline run with the cable out. Done. |
+
+The full shot list, with what not to say, is in [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md).
+
+## Feedback, in the entrant's words
+
+Written from the build, not from the marketing page — see [`FEEDBACK.md`](FEEDBACK.md). It covers the
+approval/credit gap, the near-duplicate model IDs, the missing `usage.cost_usd`, the absent TTFT trace,
+the Docker assumption in the deploy path, and the two Tavily fields that would have saved code.
 
 ---
 
-**License.** MIT (see `LICENSE`). Copyright the author; a perpetual, royalty-free licence is granted to
-the hackathon organisers for judging, promotion and archival.
+**License.** MIT — see [`LICENSE`](LICENSE).
 
-**Contact.** abinivesh.1203@gmail.com - Kottur, Tamil Nadu, India.
+**Contact.** abinivesh.1203@gmail.com — Kottur, Tamil Nadu, India.

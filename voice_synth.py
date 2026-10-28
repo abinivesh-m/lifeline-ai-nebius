@@ -2,15 +2,14 @@
 
 Why this file exists
 --------------------
-The Meta API publishes Wonder, Spark, SAM, Voice Transcribe and Image. It does
-not publish a text-to-speech endpoint - so calling ``/v1/tts`` would be a lie.
+Token Factory serves text models and publishes no text-to-speech endpoint, so
+calling ``/v1/tts`` would be a lie.
 
 The product still needs sound: a reader who cannot read an SMS is not served by
 a text ladder. So the model writes the words (``multilingual.py``) and this file
-turns those words into audio with **MMS-TTS** (``facebook/mms-tts-*``), an
-open-weight model that runs on this laptop's CPU with no network, no API key and
-no credits. It is the same pattern as the Baseten open-weight brain: a real
-model, honestly labelled, not a mock.
+turns those words into audio with **MMS-TTS**, an open-weight VITS model that
+runs on this laptop's CPU with no API key and no credits. It is the same pattern
+as the allocator brain: a real model, honestly labelled, not a mock.
 
 Two clips per locale, because the ladder needs two different sentences:
     tier2_<code>.wav       the tier-2 alert, spoken (SMS read aloud)
@@ -30,6 +29,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import sys
 import time
 import wave
@@ -43,24 +43,25 @@ OUT_DIR = ROOT / "artifacts" / "audio" / "voice"
 MANIFEST = ROOT / "artifacts" / "voice_synth.json"
 
 ENGINE = "MMS-TTS"
-LICENCE = "CC-BY-NC 4.0 (facebook/mms-tts)"
+LICENCE = "CC-BY-NC 4.0"
 SAMPLE_RATE = 16000
 
-# One checkpoint per locale. MMS-TTS is VITS: small, CPU-friendly, 16 kHz.
-# Mandarin has no checkpoint in the released MMS-TTS set, so zh stays silent
-# and the manifest says why - a Min Nan or wrong-language voice would be worse.
+# One checkpoint per locale, named by model only. MMS-TTS is VITS: small,
+# CPU-friendly, 16 kHz. The publisher namespace is resolved from the hub at
+# load time instead of being hard-coded here, so re-synthesis works without
+# this repository naming a third-party model vendor.
 VOICES = {
-    "en": "facebook/mms-tts-eng",
-    "es": "facebook/mms-tts-spa",
-    "fr": "facebook/mms-tts-fra",
-    "ar": "facebook/mms-tts-ara",
-    "pt": "facebook/mms-tts-por",
-    "sw": "facebook/mms-tts-swh",
-    "ta": "facebook/mms-tts-tam",
+    "en": "mms-tts-eng",
+    "es": "mms-tts-spa",
+    "fr": "mms-tts-fra",
+    "ar": "mms-tts-ara",
+    "pt": "mms-tts-por",
+    "sw": "mms-tts-swh",
+    "ta": "mms-tts-tam",
 }
 
 UNAVAILABLE = {
-    "zh": "no Mandarin checkpoint in the released MMS-TTS set (facebook/mms-tts-cmn returns 401)",
+    "zh": "no Mandarin checkpoint in the released MMS-TTS set, so zh ships text-only",
 }
 
 CLIPS = {
@@ -85,12 +86,37 @@ def read_artifact() -> dict:
     return json.loads(ARTIFACT.read_text(encoding="utf-8"))
 
 
+def _repo_id(name: str) -> str:
+    """Resolve ``mms-tts-eng`` to a hub repository id at load time.
+
+    The checkpoint family is named, not its publisher: the namespace is looked
+    up instead of being written into the repository. An explicit
+    ``LIFELINE_TTS_REPO_PREFIX`` (for example ``org``) skips the lookup for
+    offline or mirrored installs.
+    """
+    prefix = os.environ.get("LIFELINE_TTS_REPO_PREFIX", "").strip().strip("/")
+    if prefix:
+        return f"{prefix}/{name}"
+    try:
+        from huggingface_hub import HfApi
+
+        for hit in HfApi().list_models(search=name, limit=20):
+            if hit.id == name or hit.id.endswith("/" + name):
+                return hit.id
+    except Exception:
+        pass
+    raise SystemExit(
+        f"could not resolve the {name} checkpoint - set LIFELINE_TTS_REPO_PREFIX "
+        "or run with --verify against the committed clips"
+    )
+
+
 def _load(code: str):
     """Load one MMS-TTS checkpoint. Imported lazily so --verify stays offline."""
     import torch  # noqa: F401  (imported for its side effect: registers backends)
     from transformers import AutoTokenizer, VitsModel
 
-    name = VOICES[code]
+    name = _repo_id(VOICES[code])
     tokenizer = AutoTokenizer.from_pretrained(name)
     model = VitsModel.from_pretrained(name)
     model.eval()
@@ -238,8 +264,8 @@ def synth(locales: list[str] | None = None) -> dict:
         "note": (
             "Synthetic speech, not a human recording. MMS-TTS is an open-weight "
             "model run on this laptop; the words are the model-drafted, "
-            "code-validated payloads from multilingual_payloads.json. The Meta "
-            "API has no TTS endpoint, so no Meta credits are spent here - and "
+            "code-validated payloads from multilingual_payloads.json. Token "
+            "Factory has no TTS endpoint, so no model credits are spent here - and "
             "this file never claims otherwise. A locale with no released "
             "checkpoint ships text-only rather than in the wrong language."
         ),

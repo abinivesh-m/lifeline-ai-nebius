@@ -60,13 +60,13 @@ def recorded() -> dict:
     """Latencies other steps already paid for, read back from their artefacts."""
     out: dict = {}
 
-    run = _read("openweight_proof.json") or {}
+    run = _read("nebius_proof.json") or {}
     valid = [r for r in run.get("runs", []) if r.get("valid")]
     if valid:
-        out["openweight_brain"] = {
-            "model": valid[0].get("model") or "meta-models/muse-spark-open-1026",
+        out["nebius_brain"] = {
+            "model": (run.get("tiers") or {}).get("decision"),
             "latencies_s": [round(r["latency_s"], 2) for r in valid if r.get("latency_s")],
-            "source": "artifacts/openweight_proof.json",
+            "source": "artifacts/nebius_proof.json",
         }
 
     voice = _read("voice_reports.json") or {}
@@ -160,8 +160,8 @@ def main(argv: list[str] | None = None) -> int:
     for name, row in local.items():
         print(f"  {name:26s} {row['median_ms']:9.3f} {row['p95_ms']:9.3f}")
     rec = payload["recorded"]
-    if "openweight_brain" in rec:
-        print(f"  brain    recorded {rec['openweight_brain']['latencies_s']} s")
+    if "nebius_brain" in rec:
+        print(f"  brain    recorded {rec['nebius_brain']['latencies_s']} s")
     if "tts" in rec:
         print(
             f"  tts      {rec['tts']['audio_seconds']}s audio in {rec['tts']['synth_seconds']}s "

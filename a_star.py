@@ -6,7 +6,7 @@ an admissible heuristic.  Because every recorded road length is longer than the
 straight line between its endpoints, the heuristic can never overestimate and
 A* returns the true shortest path.
 
-Crisis: the 4.2 km NH-544 corridor is blocked at km 2.1 by a landslide.
+Crisis: the 4.2 km ghat-road corridor is blocked at km 2.1 by a landslide.
 Without an agent the tanker takes the signposted 13.0 km bypass.
 With an agent A* finds a 7.8 km village-road route: 5.2 km and 40% of the trip
 fuel saved, which converts into extra generator minutes at the hospital.

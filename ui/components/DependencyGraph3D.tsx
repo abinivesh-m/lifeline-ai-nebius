@@ -285,7 +285,7 @@ export default function DependencyGraph3D() {
             {t(ORDER_KEY[selected])}
           </div>
           <div className="mt-1 text-[12px] leading-relaxed text-muted">
-            {selected === "fuel_depot" && "100 L at the depot on NH-544 km 42. Everything downstream is fed from here."}
+            {selected === "fuel_depot" && "100 L at the depot on the ghat road at km 42. Everything downstream is fed from here."}
             {selected === "hospital" &&
               "Priority 1. 70 L keeps the ICU, the vaccine cold chain and the pump feeder alive for 4 hours."}
             {selected === "water_pump" && "Priority 2 and electrically downstream: 30 L only reaches the pump if the hospital has power."}

@@ -1,6 +1,6 @@
 {
   "schema": "lifeline.town/1.0",
-  "generated_for": "Meta AI Hackathon - Build for Your World - Kottur, Tamil Nadu",
+  "generated_for": "Nebius x NVIDIA Global AI Hackathon - Kottur, Tamil Nadu",
   "town": {
     "name": "Kottur",
     "full_name": "Kottur-Malayandipattinam (KM Pattinam)",
@@ -17,7 +17,7 @@
     "people_at_risk": 200,
     "description": "Largest panchayat town in the Pollachi-Anaimalai belt, 15 km west of Pollachi, at the foot of the Western Ghats on the Kerala border, beside the Parambikulam and Anamalai Tiger Reserve corridor. Flood prone, low infrastructure.",
     "flood_history": "December 2023 flood - lived through it",
-    "context": "Monsoon flood + landslide on NH-544 km 42 (Pollachi-Valparai road). Fuel depot cut off, hospital on generator, water pump dead, 200 people in three shelters with no water.",
+    "context": "Monsoon flood + landslide at km 42 of the ghat road (the Pollachi-Valparai road). Fuel depot cut off, hospital on generator, water pump dead, 200 people in three shelters with no water.",
     "scalable_to": ["Kerala", "Assam", "Philippines", "Indonesia", "Brazil", "Kenya", "Puerto Rico"],
     "scope_note": "Kottur is the reference town, not a special case. The organ graph, the A* road search and the allocator are parameterised by town.json, so any low-infrastructure town with a fuel reserve, a hospital, a pump and shelters runs the same cascade."
   },
@@ -34,12 +34,12 @@
     "id": "kottur-flood-nh544-km42",
     "type": ["flood", "landslide", "road_closure"],
     "started_local": "2026-10-26T18:40:00+05:30",
-    "blocked_corridor": "NH-544 km 42",
+    "blocked_corridor": "ghat road, km 42",
     "blocked_at_km": 2.1,
     "blocked_corridor_km": 4.2,
     "expected_clear_hours": 6,
     "water_outage_eta_hours": 6,
-    "summary": "Landslide at NH-544 km 42 closes the 4.2 km direct corridor for ~6 h. The depot holds 100 L diesel. Hospital generator has 4 h of runtime left. The water pump is fed from the hospital feeder and 200 people in shelters have no water."
+    "summary": "Landslide at km 42 of the ghat road closes the 4.2 km direct corridor for ~6 h. The depot holds 100 L diesel. Hospital generator has 4 h of runtime left. The water pump is fed from the hospital feeder and 200 people in shelters have no water."
   },
 
   "reserve": {
@@ -55,7 +55,7 @@
 
   "organs": {
     "fuel_depot": {
-      "label": "Fuel depot, NH-544 km 42",
+      "label": "Fuel depot, ghat road km 42",
       "role": "blood",
       "priority": 4,
       "depends_on": [],
@@ -124,8 +124,8 @@
       "bypass_jn": {"lat": 11.0136, "lon": 76.9667, "kind": "waypoint"}
     },
     "edges": [
-      {"from": "fuel_depot", "to": "slide_gate", "km": 2.1, "road": "NH-544", "status": "open"},
-      {"from": "slide_gate", "to": "hospital", "km": 2.1, "road": "NH-544 km 42", "status": "blocked", "reason": "landslide"},
+      {"from": "fuel_depot", "to": "slide_gate", "km": 2.1, "road": "ghat road", "status": "open"},
+      {"from": "slide_gate", "to": "hospital", "km": 2.1, "road": "ghat road, km 42", "status": "blocked", "reason": "landslide"},
       {"from": "fuel_depot", "to": "village_jn", "km": 2.6, "road": "Kottur village road", "status": "open", "surface": "village"},
       {"from": "village_jn", "to": "water_pump", "km": 3.4, "road": "Kottur village road", "status": "open", "surface": "village"},
       {"from": "water_pump", "to": "hospital", "km": 1.8, "road": "pump feeder road", "status": "open"},
@@ -161,12 +161,10 @@
   },
 
   "models": {
-    "wonder_high": {"vendor": "Meta", "role": "allocation reasoning", "budget_usd": 70, "planned_calls": 170},
-    "sam_3_1": {"vendor": "Meta", "role": "flood extent perception", "budget_usd": 30, "planned_calls": 20},
-    "spark_voice": {"vendor": "Meta", "role": "Tamil field report transcription", "budget_usd": 30, "planned_calls": 50},
-    "spark": {"vendor": "Meta", "role": "coding + creative prompts", "budget_usd": 20},
-    "spark_open_1026": {"vendor": "Meta via Baseten", "role": "open-weight qualifying path (partner-hosted)", "budget_usd": 0},
-    "llama32_3b": {"vendor": "Ollama (local RTX 3050)", "role": "development-only sanity check, not an entry", "budget_usd": 0}
+    "decision": {"vendor": "Nebius Token Factory", "model": "nvidia/Nemotron-3-Ultra-550b-a55b", "role": "allocation decision", "price_per_m": [1.00, 3.00]},
+    "deep": {"vendor": "Nebius Token Factory", "model": "nvidia/nemotron-3-super-120b-a12b", "role": "payload review, spoken intent", "price_per_m": [0.30, 0.90]},
+    "fast": {"vendor": "Nebius Token Factory", "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B", "role": "8-language drafting", "price_per_m": [0.06, 0.24]},
+    "tavily": {"vendor": "Tavily", "role": "search, extract, map, crawl, images, answers", "price_per_credit_usd": 0.008}
   },
 
   "credit_policy": {

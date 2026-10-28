@@ -66,7 +66,7 @@ const NODES: NodeSpec[] = [
   },
   {
     id: "blocked",
-    title: "NH-544 BLOCKED",
+    title: "GHAT ROAD BLOCKED",
     sub: "km 42 · 5x5 RISK / TDR LOG",
     position: [2.0, 0.42, 2.0],
     color: RED,

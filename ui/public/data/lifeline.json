@@ -2,7 +2,7 @@
   "generated_from": "live artefacts - re-run python export_ui_data.py",
   "town": {
     "schema": "lifeline.town/1.0",
-    "generated_for": "Meta AI Hackathon - Build for Your World - Kottur, Tamil Nadu",
+    "generated_for": "Nebius x NVIDIA Global AI Hackathon - Kottur, Tamil Nadu",
     "town": {
       "name": "Kottur",
       "full_name": "Kottur-Malayandipattinam (KM Pattinam)",
@@ -22,7 +22,7 @@
       "people_at_risk": 200,
       "description": "Largest panchayat town in the Pollachi-Anaimalai belt, 15 km west of Pollachi, at the foot of the Western Ghats on the Kerala border, beside the Parambikulam and Anamalai Tiger Reserve corridor. Flood prone, low infrastructure.",
       "flood_history": "December 2023 flood - lived through it",
-      "context": "Monsoon flood + landslide on NH-544 km 42 (Pollachi-Valparai road). Fuel depot cut off, hospital on generator, water pump dead, 200 people in three shelters with no water.",
+      "context": "Monsoon flood + landslide at km 42 of the ghat road (the Pollachi-Valparai road). Fuel depot cut off, hospital on generator, water pump dead, 200 people in three shelters with no water.",
       "scalable_to": [
         "Kerala",
         "Assam",
@@ -49,12 +49,12 @@
         "road_closure"
       ],
       "started_local": "2026-10-26T18:40:00+05:30",
-      "blocked_corridor": "NH-544 km 42",
+      "blocked_corridor": "ghat road, km 42",
       "blocked_at_km": 2.1,
       "blocked_corridor_km": 4.2,
       "expected_clear_hours": 6,
       "water_outage_eta_hours": 6,
-      "summary": "Landslide at NH-544 km 42 closes the 4.2 km direct corridor for ~6 h. The depot holds 100 L diesel. Hospital generator has 4 h of runtime left. The water pump is fed from the hospital feeder and 200 people in shelters have no water."
+      "summary": "Landslide at km 42 of the ghat road closes the 4.2 km direct corridor for ~6 h. The depot holds 100 L diesel. Hospital generator has 4 h of runtime left. The water pump is fed from the hospital feeder and 200 people in shelters have no water."
     },
     "reserve": {
       "resource": "diesel",
@@ -68,7 +68,7 @@
     },
     "organs": {
       "fuel_depot": {
-        "label": "Fuel depot, NH-544 km 42",
+        "label": "Fuel depot, ghat road km 42",
         "role": "blood",
         "priority": 4,
         "depends_on": [],
@@ -185,14 +185,14 @@
           "from": "fuel_depot",
           "to": "slide_gate",
           "km": 2.1,
-          "road": "NH-544",
+          "road": "ghat road",
           "status": "open"
         },
         {
           "from": "slide_gate",
           "to": "hospital",
           "km": 2.1,
-          "road": "NH-544 km 42",
+          "road": "ghat road, km 42",
           "status": "blocked",
           "reason": "landslide"
         },
@@ -279,38 +279,37 @@
       "why_uptime_improves": "The naive split gives the pump 50 L but the hospital generator browns out and the feeder drops, so the pump only runs 30 min. Meeting the hospital's 70 L demand first keeps the feeder stable and the pump runs 90 min on its 30 L."
     },
     "models": {
-      "wonder_high": {
-        "vendor": "Meta",
-        "role": "allocation reasoning",
-        "budget_usd": 70,
-        "planned_calls": 170
+      "decision": {
+        "vendor": "Nebius Token Factory",
+        "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+        "role": "allocation decision",
+        "price_per_m": [
+          1.0,
+          3.0
+        ]
       },
-      "sam_3_1": {
-        "vendor": "Meta",
-        "role": "flood extent perception",
-        "budget_usd": 30,
-        "planned_calls": 20
+      "deep": {
+        "vendor": "Nebius Token Factory",
+        "model": "nvidia/nemotron-3-super-120b-a12b",
+        "role": "payload review, spoken intent",
+        "price_per_m": [
+          0.3,
+          0.9
+        ]
       },
-      "spark_voice": {
-        "vendor": "Meta",
-        "role": "Tamil field report transcription",
-        "budget_usd": 30,
-        "planned_calls": 50
+      "fast": {
+        "vendor": "Nebius Token Factory",
+        "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+        "role": "8-language drafting",
+        "price_per_m": [
+          0.06,
+          0.24
+        ]
       },
-      "spark": {
-        "vendor": "Meta",
-        "role": "coding + creative prompts",
-        "budget_usd": 20
-      },
-      "spark_open_1026": {
-        "vendor": "Meta via Baseten",
-        "role": "open-weight qualifying path (partner-hosted)",
-        "budget_usd": 0
-      },
-      "llama32_3b": {
-        "vendor": "Ollama (local RTX 3050)",
-        "role": "development-only sanity check, not an entry",
-        "budget_usd": 0
+      "tavily": {
+        "vendor": "Tavily",
+        "role": "search, extract, map, crawl, images, answers",
+        "price_per_credit_usd": 0.008
       }
     },
     "credit_policy": {
@@ -322,7 +321,7 @@
   },
   "organs": {
     "fuel_depot": {
-      "label": "Fuel depot, NH-544 km 42",
+      "label": "Fuel depot, ghat road km 42",
       "role": "blood",
       "priority": 4,
       "litres": 100,
@@ -419,7 +418,7 @@
     "fuel_litres": 2.73,
     "nodes_expanded": 5,
     "blocked_corridors": [
-      "NH-544 km 42 (slide_gate -> hospital, 2.1 km)"
+      "ghat road, km 42 (slide_gate -> hospital, 2.1 km)"
     ],
     "heuristic": "haversine to goal (admissible, audited)",
     "baseline": {
@@ -699,8 +698,8 @@
       "burn_l_per_hour": 17.5,
       "hours": 4.0,
       "minutes": 240,
-      "dies_at": "2026-10-27T18:59:14+00:00",
-      "started_at": "2026-10-27T14:59:14+00:00",
+      "dies_at": "2026-10-28T10:10:43+00:00",
+      "started_at": "2026-10-28T06:10:43+00:00",
       "label": "4 h 00 m",
       "confidence": "arithmetic",
       "note": "Fuel-limited runtime, not a failure prediction. Mechanical failure, fuel contamination and overload tripping all shorten this and are not modelled - because no failure-sound dataset exists in this repo."
@@ -711,8 +710,8 @@
       "burn_l_per_hour": 21.0,
       "hours": 3.33,
       "minutes": 200,
-      "dies_at": "2026-10-27T18:19:14+00:00",
-      "started_at": "2026-10-27T14:59:14+00:00",
+      "dies_at": "2026-10-28T09:30:43+00:00",
+      "started_at": "2026-10-28T06:10:43+00:00",
       "label": "3 h 20 m",
       "confidence": "arithmetic",
       "note": "Fuel-limited runtime, not a failure prediction. Mechanical failure, fuel contamination and overload tripping all shorten this and are not modelled - because no failure-sound dataset exists in this repo."
@@ -813,7 +812,7 @@
       },
       {
         "id": "E8",
-        "claim": "NH-544 km 42 is blocked for ~6 h",
+        "claim": "The ghat road, km 42, is blocked for ~6 h",
         "value": 6,
         "unit": "h",
         "source": "town.json#crisis.expected_clear_hours"
@@ -862,44 +861,346 @@
       ]
     },
     "brain": {
-      "source": "openweight-live",
-      "model": "meta-models/muse-spark-open-1026",
-      "provider": "Baseten",
-      "status": "live",
-      "latency_s": 4.44,
-      "at": "2026-10-27T14:57:25+00:00",
-      "justification": "Allocated full demand to priority 1 first then remaining reserve to priority 2 to meet exact sum and demand constraints.",
-      "confidence": 1.0,
+      "source": "nebius-stored",
+      "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+      "provider": "Nebius Token Factory",
+      "status": "stored",
+      "latency_s": 3.37,
+      "at": "2026-10-28T04:48:27+00:00",
+      "justification": "Hospital requires 70 L to cover the 6-hour road closure (E2) and has only 4 hours of generator runtime left (E1), making it the top priority (E6). Water pump needs 30 L to maintain water supply for 200 shelter residents (E3, E5) but depends on the hospital feeder for power (E6). The total reserve is 100 L (E7) and caps match exactly (hospital 70 L, water_pump 30 L), allowing full allocation without shortfall. Landslide clearance takes ~6 hours (E8, S1), confirming the demand window.",
+      "confidence": 0.95,
       "allocation": {
         "hospital": 70,
         "water_pump": 30
       },
       "valid": true,
-      "rejected": null
+      "rejected": null,
+      "note": "the most recent run on this machine used the offline policy; this is the newest validated Nemotron 3 run, replayed from its artefact"
     }
   },
-  "openweight": {
+  "nebius": {
     "available": true,
-    "provider": "Baseten",
-    "model": "meta-models/muse-spark-open-1026",
+    "provider": "Nebius Token Factory",
+    "endpoint": "https://api.tokenfactory.nebius.com/v1",
+    "tiers": {
+      "fast": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+      "deep": "nvidia/nemotron-3-super-120b-a12b",
+      "decision": "nvidia/Nemotron-3-Ultra-550b-a55b"
+    },
+    "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
     "runs": 3,
-    "valid_runs": 2,
+    "valid_runs": 3,
     "allocation": {
       "hospital": 70,
       "water_pump": 30
     },
-    "justification": "Reserve fully allocated in priority order within demand caps totaling exactly 100L.",
-    "confidence": 0.99,
+    "justification": "Hospital requires 70 L to cover the 6-hour road closure (E2) and has only 4 hours of generator runtime left (E1), making it the top priority (E6). Water pump needs 30 L to maintain water supply for 200 shelter residents (E3, E5) but depends on the hospital feeder for power (E6). The total reserve is 100 L (E7) and caps match exactly (hospital 70 L, water_pump 30 L), allowing full allocation without shortfall. Landslide clearance takes ~6 hours (E8, S1), confirming the demand window.",
+    "confidence": 0.95,
     "latencies_s": [
-      5.41,
-      6.73
+      7.08,
+      3.37,
+      4.88
     ],
-    "latest_at": "2026-10-27T08:49:09+00:00",
-    "note": "Every run below is a real HTTP request whose response text is stored verbatim. Validation is recomputed locally, never trusted from the model."
+    "latency_by_tier": {
+      "fast": 7.08,
+      "decision": 3.37,
+      "deep": 4.88
+    },
+    "latest_at": "2026-10-28T04:48:27+00:00",
+    "cost_usd": 0.00595068,
+    "tokens": 4834,
+    "validator_ok": true,
+    "citations_ok": true,
+    "sources": [
+      {
+        "id": "S1",
+        "title": "Heavy rains trigger landslide on Valparai ghat road | Chennai News - The Times of India",
+        "url": "https://timesofindia.indiatimes.com/city/chennai/heavy-rains-trigger-landslide-on-valparai-ghat-road/articleshow/135099368.cms",
+        "published": "2026-10-21",
+        "mode": "live",
+        "relevance": 0.93206495,
+        "quote": "The road, the key link between Pollachi and Valparai, was cleared only around 5pm on Wednesday. No vehicle was passing by when the landslide occurred, averting an accident.A district administration official said personnel from the highways department, police and fire and rescue services worked through the night to clear the boulders. Initial attempts to remove them using earthmovers failed, forcin"
+      },
+      {
+        "id": "S2",
+        "title": "Rain batters Nilgiris; landslide buries government bus, driver loses life",
+        "url": "https://www.newindianexpress.com/states/tamil-nadu/2026/Oct/25/rain-batters-nilgiris-landslide-buries-government-bus-driver-loses-life",
+        "published": "2026-10-25",
+        "mode": "live",
+        "relevance": 0.5849357,
+        "quote": "The bus was severely damaged, with debris entering the vehicle and trapping the two occupants. Rescue teams could not reach the spot immediately as fallen trees and landslide debris blocked the road. They began the operation around 5 am after clearing the obstructions."
+      },
+      {
+        "id": "S3",
+        "title": "Driver dies as TNSTC bus buried under landslide on Mettupalayam-Coonoor Ghat Road during heavy rain | Coimbatore News - The Times of India",
+        "url": "https://timesofindia.indiatimes.com/city/coimbatore/driver-dies-as-tnstc-bus-buried-under-landslide-on-mettupalayam-coonoor-ghat-road-during-heavy-rain/articleshow/135173508.cms",
+        "published": "2026-10-24",
+        "mode": "live",
+        "relevance": 0.47227025,
+        "quote": "than 300 people, including students from Kerala who were on a trip to the Nilgiris, were stranded due to the landslides. They were rescued by rescue teams on Saturday morning.Burliar recorded the highest rainfall in the Nilgiris at 250 mm, followed by Kil Kotagiri Estate (200 mm)."
+      },
+      {
+        "id": "S4",
+        "title": "Nilgiris Landslides: 1 Dead, Students Rescued As Heavy ...",
+        "url": "https://special.ndtv.com/India-for-All-64/news-detail/nilgiris-landslides-1-dead-students-rescued-as-heavy-rain-disrupts-ooty-travel-12230732/1",
+        "published": "2026-10-24",
+        "mode": "live",
+        "relevance": 0.2245401,
+        "quote": "Wikimedia A government bus driver was killed after his vehicle was hit by a landslide at Burliar on the Ooty-Mettupalayam road in Tamil Nadu on Saturday, Deccan Herald reported. The bus involved in the accident was not carrying passengers when the landslide struck. Soon after the incident, rescue and relief operations were set in motion."
+      },
+      {
+        "id": "S5",
+        "title": "Chennai: Heavy rains from Cyclone Michaung leave trail of destruction in city",
+        "url": "https://www.bbc.com/news/world-asia-india-67645286",
+        "published": "2023-12-07",
+        "mode": "scenario",
+        "relevance": 0.78866494,
+        "quote": "J Radhakrishnan, the commissioner of Greater Chennai Corporation, told BBC Tamil that authorities had pumped out \"as much water as possible after 36 hours of continuous rain\". He added that as of Wednesday night, floodwaters had receded in three-quarters of the city. Thousands of people were evacuated to relief camps over the past three days - many were rescued from their flooded homes in rubber a"
+      },
+      {
+        "id": "S6",
+        "title": "India workers trapped for weeks in Himalayan tunnel on verge of rescue | In Pictures News | Al Jazeera",
+        "url": "https://www.aljazeera.com/gallery/2023/11/28/photos-india-workers-trapped-for-weeks-in-himalayan-tunnel-on-verge-of-rescue",
+        "published": "2023-11-28",
+        "mode": "scenario",
+        "relevance": 0.70702106,
+        "quote": "[...] The tunnel they were building was designed as part of the Char Dhaam all-weather road, which will connect various Hindu pilgrimage sites. Some experts say the project, a flagship initiative of the federal government, will exacerbate fragile conditions in the upper Himalayas, where several towns are built atop landslide debris. A general view of the site Rescue and relief operations continue "
+      }
+    ],
+    "note": "Live Nebius Token Factory calls. The validator and the citation check run in code after the model answers, so a confident wrong answer is still rejected."
+  },
+  "tavily": {
+    "available": true,
+    "totals": {
+      "queries": 10,
+      "leads": 65,
+      "urls_fetched": 37,
+      "urls_failed": 3,
+      "images": 45,
+      "answers": 10,
+      "maps": 2,
+      "crawls": 3,
+      "claims_checked": 17,
+      "claims_accepted": 9,
+      "wall_clock_s": 179.44
+    },
+    "usage": {
+      "credits_to_date": 132,
+      "calls": 47
+    },
+    "region": [
+      "pollachi",
+      "valparai",
+      "coimbatore",
+      "tamil nadu",
+      "nilgiris",
+      "anamalai",
+      "kerala"
+    ],
+    "window": {
+      "scenario": {
+        "start": "2023-11-01",
+        "end": "2024-02-29"
+      },
+      "live": {
+        "fresh_days": 45
+      }
+    },
+    "claims": [
+      {
+        "mode": "live",
+        "topic": "rescue",
+        "quote": "The road, the key link between Pollachi and Valparai, was cleared only around 5pm on Wednesday. No vehicle was passing by when the landslide occurred, averting an accident.A district administration official said personnel from the highways department, police and fire and rescue services worked through the night to clear the boulders. Initial attempts to remove them using earthmovers failed, forcin",
+        "url": "https://timesofindia.indiatimes.com/city/chennai/heavy-rains-trigger-landslide-on-valparai-ghat-road/articleshow/135099368.cms",
+        "title": "Heavy rains trigger landslide on Valparai ghat road | Chennai News - The Times of India",
+        "published": "2026-10-21",
+        "score": 0.93206495,
+        "accepted": true,
+        "verdict": "accepted"
+      },
+      {
+        "mode": "scenario",
+        "topic": "disaster_scale",
+        "quote": "J Radhakrishnan, the commissioner of Greater Chennai Corporation, told BBC Tamil that authorities had pumped out \"as much water as possible after 36 hours of continuous rain\". He added that as of Wednesday night, floodwaters had receded in three-quarters of the city. Thousands of people were evacuated to relief camps over the past three days - many were rescued from their flooded homes in rubber a",
+        "url": "https://www.bbc.com/news/world-asia-india-67645286",
+        "title": "Chennai: Heavy rains from Cyclone Michaung leave trail of destruction in city",
+        "published": "2023-12-07",
+        "score": 0.78866494,
+        "accepted": true,
+        "verdict": "accepted"
+      },
+      {
+        "mode": "scenario",
+        "topic": "rescue",
+        "quote": "[...] The tunnel they were building was designed as part of the Char Dhaam all-weather road, which will connect various Hindu pilgrimage sites. Some experts say the project, a flagship initiative of the federal government, will exacerbate fragile conditions in the upper Himalayas, where several towns are built atop landslide debris. A general view of the site Rescue and relief operations continue ",
+        "url": "https://www.aljazeera.com/gallery/2023/11/28/photos-india-workers-trapped-for-weeks-in-himalayan-tunnel-on-verge-of-rescue",
+        "title": "India workers trapped for weeks in Himalayan tunnel on verge of rescue | In Pictures News | Al Jazeera",
+        "published": "2023-11-28",
+        "score": 0.70702106,
+        "accepted": true,
+        "verdict": "accepted"
+      },
+      {
+        "mode": "live",
+        "topic": "rescue",
+        "quote": "The bus was severely damaged, with debris entering the vehicle and trapping the two occupants. Rescue teams could not reach the spot immediately as fallen trees and landslide debris blocked the road. They began the operation around 5 am after clearing the obstructions.",
+        "url": "https://www.newindianexpress.com/states/tamil-nadu/2026/Oct/25/rain-batters-nilgiris-landslide-buries-government-bus-driver-loses-life",
+        "title": "Rain batters Nilgiris; landslide buries government bus, driver loses life",
+        "published": "2026-10-25",
+        "score": 0.5849357,
+        "accepted": true,
+        "verdict": "accepted"
+      },
+      {
+        "mode": "live",
+        "topic": "road_cut",
+        "quote": "He is suspected to have died from a head injury. The bus was severely damaged, with debris entering the vehicle and trapping the two occupants. Rescue teams could not reach the spot immediately as fallen trees and landslide debris blocked the road.",
+        "url": "https://www.newindianexpress.com/states/tamil-nadu/2026/Oct/25/rain-batters-nilgiris-landslide-buries-government-bus-driver-loses-life",
+        "title": "Rain batters Nilgiris; landslide buries government bus, driver loses life",
+        "published": "2026-10-25",
+        "score": 0.5849357,
+        "accepted": true,
+        "verdict": "accepted"
+      },
+      {
+        "mode": "live",
+        "topic": "rescue",
+        "quote": "than 300 people, including students from Kerala who were on a trip to the Nilgiris, were stranded due to the landslides. They were rescued by rescue teams on Saturday morning.Burliar recorded the highest rainfall in the Nilgiris at 250 mm, followed by Kil Kotagiri Estate (200 mm).",
+        "url": "https://timesofindia.indiatimes.com/city/coimbatore/driver-dies-as-tnstc-bus-buried-under-landslide-on-mettupalayam-coonoor-ghat-road-during-heavy-rain/articleshow/135173508.cms",
+        "title": "Driver dies as TNSTC bus buried under landslide on Mettupalayam-Coonoor Ghat Road during heavy rain | Coimbatore News - The Times of India",
+        "published": "2026-10-24",
+        "score": 0.47227025,
+        "accepted": true,
+        "verdict": "accepted"
+      },
+      {
+        "mode": "scenario",
+        "topic": "rescue",
+        "quote": "[...] # Uttarakhand tunnel collapse: Rescuers explore new ways to reach trapped Indians Getty Images The tunnel where efforts are on to rescue 41 workers Authorities are working on new ways to reach the 41 Indian workers trapped inside a tunnel in Uttarakhand state after the main rescue plan suffered a major delay. Until now, rescuers were drilling a hole horizontally through the rocks to allow th",
+        "url": "https://www.bbc.com/news/world-asia-india-67540250",
+        "title": "Uttarakhand tunnel collapse: Rescuers explore new ways to reach trapped Indians",
+        "published": "2023-11-27",
+        "score": 0.22535734,
+        "accepted": true,
+        "verdict": "accepted"
+      },
+      {
+        "mode": "live",
+        "topic": "rescue",
+        "quote": "Wikimedia A government bus driver was killed after his vehicle was hit by a landslide at Burliar on the Ooty-Mettupalayam road in Tamil Nadu on Saturday, Deccan Herald reported. The bus involved in the accident was not carrying passengers when the landslide struck. Soon after the incident, rescue and relief operations were set in motion.",
+        "url": "https://special.ndtv.com/India-for-All-64/news-detail/nilgiris-landslides-1-dead-students-rescued-as-heavy-rain-disrupts-ooty-travel-12230732/1",
+        "title": "Nilgiris Landslides: 1 Dead, Students Rescued As Heavy ...",
+        "published": "2026-10-24",
+        "score": 0.2245401,
+        "accepted": true,
+        "verdict": "accepted"
+      },
+      {
+        "mode": "scenario",
+        "topic": "rescue",
+        "quote": "Mr Karwal says that rescuers are figuring ways to reduce the time it will take to pull the workers out. [...] ## To play this video you need to enable JavaScript in your browser. This video can not be played Watch: The machines at work in the tunnel rescue operation Ambulances, doctors and stretchers on sitepublished at 05:44 GMT 23 November 2023 05:44 GMT 23 November 2023 Ambulances at the Uttara",
+        "url": "https://www.bbc.com/news/live/world-asia-67498210",
+        "title": "Uttarakhand tunnel collapse: Rescuers metres away from trapped workers - BBC News",
+        "published": "2023-11-22",
+        "score": 0.22436157,
+        "accepted": true,
+        "verdict": "accepted"
+      },
+      {
+        "mode": "live",
+        "topic": "road_cut",
+        "quote": "[...] Express News Service Updated on: 2 min read Copied PHULABANI: A month-long closure of Kalinga Ghat on National Highway-157 has disrupted life along the Kandhamal-Ganjam border, pushing up the cost of essential commodities, crippling roadside businesses and forcing commuters and goods carriers to take a detour of around 50 km. Amid growing public resentment over the delay in restoring traffic",
+        "url": "https://www.newindianexpress.com/states/odisha/2026/Oct/26/iit-delhi-team-inspects-landslide-hit-kalinga-ghat",
+        "title": "IIT Delhi team inspects landslide-hit Kalinga Ghat",
+        "published": "2026-10-26",
+        "score": 0.87218446,
+        "accepted": false,
+        "verdict": "rejected: no regional anchor"
+      },
+      {
+        "mode": "live",
+        "topic": "fuel_logistics",
+        "quote": "Communicable disease • Respiratory infections, tonsillitis, bronchitis and pneumonia were the leading condition every week, mostly in children, linked to overcrowded migrant housing. • Acute watery diarrhea fell from 77 cases in the first week to 36–50 a week, and bloody diarrhea from 6 to [...] numbers fell in early September. 6.2 Fuel, power and communications • Generator diesel ran out on 20 Ju",
+        "url": "https://www.emro.who.int/images/stories/libya/AlQatrun_Health_Response-19-July-30-Sep-2026.pdf",
+        "title": "WHO Al Qatrun Health Response",
+        "published": "2026-09-30",
+        "score": 0.73505294,
+        "accepted": false,
+        "verdict": "rejected: no regional anchor"
+      },
+      {
+        "mode": "live",
+        "topic": "power_loss",
+        "quote": "Communicable disease • Respiratory infections, tonsillitis, bronchitis and pneumonia were the leading condition every week, mostly in children, linked to overcrowded migrant housing. • Acute watery diarrhea fell from 77 cases in the first week to 36–50 a week, and bloody diarrhea from 6 to [...] numbers fell in early September. 6.2 Fuel, power and communications • Generator diesel ran out on 20 Ju",
+        "url": "https://www.emro.who.int/images/stories/libya/AlQatrun_Health_Response-19-July-30-Sep-2026.pdf",
+        "title": "WHO Al Qatrun Health Response",
+        "published": "2026-09-30",
+        "score": 0.73505294,
+        "accepted": false,
+        "verdict": "rejected: no regional anchor"
+      },
+      {
+        "mode": "scenario",
+        "topic": "power_loss",
+        "quote": "Christian Mbuya, the medical director at the hospital, said, “We send out heartfelt thanks to benefactors, who are supporting Afia Don Bosco Hospital. This donation is important for the health and well-being of each patient. Thanks to this electrical supply, it will reduce the risk linked to the lack of power in this health and hospital environment.” Salesian missionaries have been working in the ",
+        "url": "https://reliefweb.int/report/democratic-republic-congo/dr-congo-afia-don-bosco-hospital-receives-donor-funding-new-generator",
+        "title": "DR Congo: Afia Don Bosco Hospital receives donor ...",
+        "published": "2023-12-18",
+        "score": 0.48425868,
+        "accepted": false,
+        "verdict": "rejected: no regional anchor"
+      },
+      {
+        "mode": "scenario",
+        "topic": "fuel_logistics",
+        "quote": "[...] Sustainable and cost-effective services \"The solar energy system is a vital and cost-effective project for the hospital, as it significantly reduces the financial expenses incurred for purchasing diesel for electric generators,\" explains Ali Hizam Haroun, an electrical technician at Al-Jumhori Hospital in Hajjah.",
+        "url": "https://reliefweb.int/report/yemen/solar-power-brings-renewable-energy-hospitals-yemen-enar",
+        "title": "Solar power brings renewable energy to hospitals in Yemen [EN/AR] - Yemen | ReliefWeb",
+        "published": "2024-01-11",
+        "score": 0.28491458,
+        "accepted": false,
+        "verdict": "rejected: no regional anchor"
+      },
+      {
+        "mode": "scenario",
+        "topic": "rescue",
+        "quote": "Save Share Ambulances wait to carry workers from the site of an under-construction road tunnel that collapsed in Silkyara in the northern Indian state of Uttarakhand, India, Tuesday, Nov. 28, 2023. Officials in India said Tuesday they were on the verge of rescuing the 41 construction workers trapped in a collapsed mountain tunnel for over two weeks in the country's north, after rescuers drilled th",
+        "url": "https://www.aljazeera.com/news/2023/11/28/first-of-41-indian-workers-rescued-from-collapsed-tunnel",
+        "title": "All 41 miners rescued from collapsed tunnel in India’s Uttarakhand | News | Al Jazeera",
+        "published": "2023-11-28",
+        "score": 0.16297895,
+        "accepted": false,
+        "verdict": "rejected: relevance 0.16297895 below 0.2"
+      },
+      {
+        "mode": "scenario",
+        "topic": "rescue",
+        "quote": "State and federal rescue teams have been using a massive drill to push through the debris to reach the men. Officials have been able to establish contact with the workers. Authorities have also brought fresh and more sophisticated drilling equipment from Delhi to speed up the rescue operations, they told BBC Hindi.",
+        "url": "https://www.bbc.com/news/world-asia-india-67423302",
+        "title": "Uttarakhand tunnel collapse: Fears for India workers stuck for 72 hours",
+        "published": "2023-11-15",
+        "score": 0.15575814,
+        "accepted": false,
+        "verdict": "rejected: relevance 0.15575814 below 0.2"
+      },
+      {
+        "mode": "live",
+        "topic": "disaster_scale",
+        "quote": "This must be done in accordance with relevant human rights principles in order to avoid or minimize any harmful effects or risks that may occur affecting the affected communities. Project activities involving infrastructural physical interventions, transportation of wastes along roads. The operation of the project will involve management of hazardous wastes, road safety, pedestrian crossing the ra",
+        "url": "https://documents1.worldbank.org/curated/en/099500008292238868/pdf/P177932062006d0ac0bac207288d6e022a4.pdf",
+        "title": "Cairo-Alexandria Trade Logistics Development Project",
+        "published": "2026-10-06",
+        "score": 0.046677228,
+        "accepted": false,
+        "verdict": "rejected: relevance 0.046677228 below 0.2"
+      }
+    ],
+    "accepted": 9,
+    "checked": 17
   },
   "sam": {
     "available": true,
-    "model": "sam-3.1",
+    "model": "pre-migration segmentation (stored masks)",
     "prompt": "flood water",
     "frames": [
       {
@@ -980,47 +1281,44 @@
   },
   "voice": {
     "available": true,
-    "model": "muse-voice-transcribe-1.0",
+    "model": "pre-migration ASR (stored transcript)",
     "transcript": "ஏனைச் செய்த நான்கு நான்கு km 42 மைனஸ் நிலச்சரிவு. சாலை ஆறு ஆறு மணி நேரத்திற்கும் மூடப்பட்டுள்ளது. மருத்துவமனைக்கு diesel தேவை..",
     "seconds": 10.78,
     "synthetic": true,
     "cost_usd": 0.000539
   },
   "credit": {
-    "budget_usd": 150.0,
-    "spent_usd": 14.774279,
-    "percent": 9.85,
+    "budget_usd": 29.5,
+    "spent_usd": 0.027049,
+    "percent": 0.0917,
     "level": "ok",
-    "remaining_usd": 135.23,
-    "reserve_usd": 20.0,
-    "ledger_rows": 44,
+    "remaining_usd": 29.472951,
+    "reserve_usd": 0.0,
+    "ledger_rows": 18,
     "by_model": {
-      "wonder": {
-        "calls": 20,
-        "spent_usd": 8.2353,
-        "budget_usd": 70.0
+      "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B": {
+        "calls": 1,
+        "spent_usd": 0.00015168,
+        "budget_usd": 29.5
       },
-      "sam": {
-        "calls": 15,
-        "spent_usd": 0.0375,
-        "budget_usd": 30.0
+      "nvidia/nemotron-3-super-120b-a12b": {
+        "calls": 16,
+        "spent_usd": 0.021929,
+        "budget_usd": 29.5
       },
-      "voice": {
-        "calls": 8,
-        "spent_usd": 0.001479,
-        "budget_usd": 30.0
-      },
-      "spark": {
-        "calls": 13,
-        "spent_usd": 6.5,
-        "budget_usd": 20.0
-      },
-      "voice_synth": {
-        "calls": 14,
-        "spent_usd": 0.0,
-        "budget_usd": 0.0
+      "nvidia/Nemotron-3-Ultra-550b-a55b": {
+        "calls": 1,
+        "spent_usd": 0.004968,
+        "budget_usd": 29.5
       }
-    }
+    },
+    "inference_usd": 0.027049,
+    "tavily_usd": 1.056,
+    "inference_calls": 18,
+    "tavily_calls": 47,
+    "tavily_credits": 132,
+    "combined_usd": 1.083049,
+    "note": "$0.02705 of inference on 18 measured calls is charged to the $29.50 Nebius balance; 132 Tavily credits at $0.008 = $1.056 sit on Tavily's own account. Combined cash-equivalent $1.083049; the deterministic core is $0.00."
   },
   "escalation": {
     "tiers": [
@@ -1099,7 +1397,7 @@
       ],
       "evidence": "escalation.notifications(tier 2) for every code in locales/index.json",
       "gate": "approved",
-      "at": "2026-10-27T14:57:25+00:00"
+      "at": "2026-10-28T05:58:38+00:00"
     }
   },
   "world": {
@@ -1393,14 +1691,16 @@
   ],
   "multilingual": {
     "available": true,
-    "generated_utc": "2026-10-27T14:43:19+00:00",
+    "generated_utc": "2026-10-28T05:48:26+00:00",
     "generator": {
-      "provider": "Meta Model API",
-      "model": "muse-spark-1.3"
+      "provider": "Nebius Token Factory",
+      "tier": "deep",
+      "model": "nvidia/nemotron-3-super-120b-a12b"
     },
     "reviewer": {
-      "provider": "Meta Model API",
-      "model": "muse-wonder-1.0"
+      "provider": "Nebius Token Factory",
+      "tier": "deep",
+      "model": "nvidia/nemotron-3-super-120b-a12b"
     },
     "totals": {
       "locales": 8,
@@ -1408,14 +1708,14 @@
       "model_drafted": 8,
       "voice_scripts": 8,
       "allocation_scripts": 8,
-      "cost_usd": 8.205885,
-      "last_batch_usd": 0.911765
+      "cost_usd": 0.020234,
+      "last_batch_usd": 0.020234
     },
     "rules": {
       "max_chars": {
         "sms": 160,
-        "voice": 300,
-        "allocation": 300
+        "voice": 360,
+        "allocation": 360
       },
       "allowed_numbers": [
         "1",
@@ -1427,34 +1727,33 @@
         "42",
         "70",
         "100",
-        "200",
-        "544"
+        "200"
       ],
       "require_reply_codes": [
         "1",
         "2"
       ],
       "fallback": "locales/*.json templates",
-      "speech": "the meta api exposes no text-to-speech endpoint; voice_synth.py renders these scripts with MMS-TTS, an open-weight model, on this laptop's CPU"
+      "speech": "Token Factory serves text models only, so nothing is billed for speech; voice_synth.py renders these scripts with MMS-TTS, an open-weight model, on this laptop's CPU"
     },
     "speech": {
       "engine": "MMS-TTS",
-      "licence": "CC-BY-NC 4.0 (facebook/mms-tts)",
+      "licence": "CC-BY-NC 4.0",
       "device": "cpu",
       "sample_rate_hz": 16000,
       "cost_usd": 0.0,
       "clips": 14,
-      "seconds": 199.46,
-      "note": "The Meta API publishes no text-to-speech endpoint. The words are model-drafted and code-validated; the audio is MMS-TTS, an open-weight model run locally. Synthetic, not a human recording."
+      "seconds": 161.34,
+      "note": "No text-to-speech endpoint is called. The words are model-drafted and code-validated; the audio is MMS-TTS, an open-weight model run locally on CPU - explicitly not an NVIDIA model. Synthetic, not a human recording."
     },
     "locales": [
       {
         "code": "en",
         "language": "English",
         "native": "English",
-        "sms": "Kottur diesel: NH-544 km 42 blocked, bypass 7.8 km. Hospital has 4 hours left. Plan 70 hospital, 30 pump, 100 total. Reply 1 approve, 2 deny.",
-        "voice": "Attention Kottur. NH 544 at kilometre forty two is blocked. Bypass is seven point eight kilometres. Hospital generator has four hours left. Plan seventy litres hospital, thirty litres pump, one hundred litres total. Press 1 to approve, press 2 to deny.",
-        "allocation": "The decided plan for Kottur is 70 litres to the hospital, 30 litres to the water pump, 100 litres in total.",
+        "sms": "Kottur ghat km42 blocked, bypass 7.8km. Hospital gen 4h left. Reply 1 to dispatch fuel, 2 to cancel.",
+        "voice": "Kottur ghat road at kilometre four two is blocked; the surveyed bypass is seven point eight kilometres long. The hospital generator has four hours of diesel remaining. To approve dispatch, say one; to deny, say two.",
+        "allocation": "70 litres to the hospital, 30 litres to the water pump, 100 litres in total",
         "sms_source": "model",
         "voice_source": "model",
         "drafted": true,
@@ -1462,17 +1761,17 @@
         "audio": {
           "tier2": {
             "src": "/media/audio/voice/tier2_en.wav",
-            "seconds": 20.16,
-            "bytes": 645164,
-            "model": "facebook/mms-tts-eng",
-            "text_sha256": "5e28569eec793b5ab97dd08b3220e321e24dc8d8daf7a341dfdea553323ae61b"
+            "seconds": 13.26,
+            "bytes": 424492,
+            "model": "mms-tts-eng",
+            "text_sha256": "a504aedfe4b830f1b9499bb36b7eeb578b99d140932fa9b59458f60ff5f349d8"
           },
           "allocation": {
             "src": "/media/audio/voice/allocation_en.wav",
-            "seconds": 6.5,
-            "bytes": 207916,
-            "model": "facebook/mms-tts-eng",
-            "text_sha256": "8767073787cc4f0fe0d79cb8a22cf9f95d4d798d93d378bad1e011480988f737"
+            "seconds": 4.62,
+            "bytes": 148012,
+            "model": "mms-tts-eng",
+            "text_sha256": "da03b7d192a5092a03da81248d1ccaba7ce7f2df619b6200c8be53ac9b2e0774"
           }
         }
       },
@@ -1480,9 +1779,9 @@
         "code": "es",
         "language": "Spanish",
         "native": "Español",
-        "sms": "Kottur: NH-544 km 42 bloqueada, hospital con 4 horas de diesel. Reparto 70-30-100. Responda 1 para aprobar, 2 para negar.",
-        "voice": "Atención Kottur: NH-544 kilómetro 42 bloqueada, desvío de 7.8 kilómetros. Hospital con 4 horas de diésel. Propuesta 70 litros hospital, 30 litros bomba de agua, 100 en total. Pulse 1 para aprobar o 2 para denegar.",
-        "allocation": "Decisión Kottur: 70 litros al hospital, 30 litros a la bomba de agua, 100 en total. NH-544 kilómetro 42 sigue bloqueada.",
+        "sms": "Kottur: carretera bloqueada km42, desvio 7.8km. Generador hospital 4h. Responder 1 para enviar, 2 para negar.",
+        "voice": "Atención en Kottur, la carretera del paso de montaña está bloqueada en el kilómetro cuarenta y dos, el desvío validado tiene siete punto ocho kilómetros. El generador del hospital tiene cuatro horas de diésel restante. Para autorizar el envío diga uno, para rechazar diga dos.",
+        "allocation": "70 litros al hospital, 30 litros a la bomba de agua, 100 litros en total.",
         "sms_source": "model",
         "voice_source": "model",
         "drafted": true,
@@ -1490,17 +1789,17 @@
         "audio": {
           "tier2": {
             "src": "/media/audio/voice/tier2_es.wav",
-            "seconds": 17.33,
-            "bytes": 554540,
-            "model": "facebook/mms-tts-spa",
-            "text_sha256": "2500ddd6b8636aa5cf83b5224184a750cc0c98f0f8af37578155c250516885f8"
+            "seconds": 21.54,
+            "bytes": 689196,
+            "model": "mms-tts-spa",
+            "text_sha256": "0fc516f4749d8234e9177850d4611c025b5be0bb6487f3b437695e76b72b8392"
           },
           "allocation": {
             "src": "/media/audio/voice/allocation_es.wav",
-            "seconds": 10.1,
-            "bytes": 323116,
-            "model": "facebook/mms-tts-spa",
-            "text_sha256": "3f771fe6b2da2b689dd165a4496432b4e5fbd189031888a0e61f0aea2bcdfe20"
+            "seconds": 5.7,
+            "bytes": 182316,
+            "model": "mms-tts-spa",
+            "text_sha256": "166a01fa5e5960a194e2ac2e540ea960ad0981cffc1dd6d8ab9e417ed9d8e4e5"
           }
         }
       },
@@ -1508,9 +1807,9 @@
         "code": "fr",
         "language": "French",
         "native": "Français",
-        "sms": "Kottur: NH-544 km 42 bloque, deviation 7.8 km. Generateur hopital: 4 heures. Plan: 70 L hopital, 30 L pompe, 100 total. Repondez 1 oui, 2 non.",
-        "voice": "Attention Kottur. Route NH-544 kilometre 42 bloque, deviation 7.8 kilometres. Generateur hopital: 4 heures de diesel. Proposition: 70 litres hopital, 30 litres pompe a eau, 100 au total. Pour approuver appuyez sur 1, pour refuser appuyez sur 2.",
-        "allocation": "Decision proposee a Kottur: 70 litres pour hopital, 30 litres pour pompe a eau, 100 au total. Route NH-544 km 42 bloque, deviation 7.8 km. Generateur: 4 heures. Reponse attendue: 1 pour oui, 2 pour non.",
+        "sms": "Kottur route bloquée km42, détour 7,8km. Génér. hôpital 4h restant. Répondre 1 pour envoyer aide, 2 pour refuser.",
+        "voice": "À Kottur, la route de montagne est bloquée au kilomètre quarante-deux ; le détour mesure sept virgule huit kilomètres. Le générateur de l'hôpital dispose encore de quatre heures de diesel. Si vous approuvez l'envoi d'aide, dites oui ; sinon dites non.",
+        "allocation": "70 litres à l'hôpital, 30 litres à la pompe à eau, 100 litres au total",
         "sms_source": "model",
         "voice_source": "model",
         "drafted": true,
@@ -1518,17 +1817,17 @@
         "audio": {
           "tier2": {
             "src": "/media/audio/voice/tier2_fr.wav",
-            "seconds": 15.46,
-            "bytes": 494636,
-            "model": "facebook/mms-tts-fra",
-            "text_sha256": "3ed5952d5b9cbf1ae4cf7af919b501fc3f6808f224e66da63e390564b3f8ef13"
+            "seconds": 16.0,
+            "bytes": 512044,
+            "model": "mms-tts-fra",
+            "text_sha256": "ef5a89cb10991696dada7f851a12e1ce49c0c8e732ca50597c389e1f151c8eed"
           },
           "allocation": {
             "src": "/media/audio/voice/allocation_fr.wav",
-            "seconds": 12.72,
-            "bytes": 407084,
-            "model": "facebook/mms-tts-fra",
-            "text_sha256": "bb5ace1077edb9dd927b7b8ef5ce703cd68d38815921767cfa4c423e2a5e185a"
+            "seconds": 4.1,
+            "bytes": 131116,
+            "model": "mms-tts-fra",
+            "text_sha256": "f79c5fd712ddca6d47a1ea6ae6be7bf5e3fd9c1609be4982f1e44aa9d7734292"
           }
         }
       },
@@ -1536,9 +1835,9 @@
         "code": "zh",
         "language": "Chinese",
         "native": "中文",
-        "sms": "科图尔柴油告急：国道544在42公里处中断，备用路7.8公里。医院发电剩4小时。建议分70升医院，30升水泵，共100升。回复1同意，2拒绝。待批准，未派出。",
-        "voice": "请注意，科图尔紧急通知。国道544在42公里处中断，备用路7.8公里。医院发电只剩4小时。建议分70升给医院，30升给水泵，共100升。请按1同意，按2拒绝。目前待批准，未派出。",
-        "allocation": "决定如下：给医院70升，给水泵30升，共100升。目前待批准，未派出。",
+        "sms": "Kottur ghat路km四十二阻斷，繞道七點八公里。醫院發電機油將盡，請回覆1同意調度，2拒絕。",
+        "voice": "注意！Kottur ghat路km四十二被山體滑坡阻斷，繞道約七點八公里。醫院備用發電機燃料即將用完，請立即協助調度。請用語音回答同意或不同意。",
+        "allocation": "70升分配給醫院，30升分配給水泵，總計100升。",
         "sms_source": "model",
         "voice_source": "model",
         "drafted": true,
@@ -1549,9 +1848,9 @@
         "code": "ar",
         "language": "Arabic",
         "native": "العربية",
-        "sms": "أزمة ديزل كوتور: الطريق 544 كم 42 مغلق، البديل 7.8 كم. المستشفى 4 ساعات وقود. 70 مستشفى، 30 مضخة، 100 الكل. رد 1 موافقة، 2 رفض.",
-        "voice": "تنبيه كوتور: الطريق 544 عند الكيلومتر 42 مغلق، البديل 7.8 كيلومتر. وقود المستشفى يكفي 4 ساعات. المقترح 70 لتر للمستشفى و 30 لتر لمضخة الماء و 100 لتر المجموع. اضغط 1 للموافقة أو اضغط 2 للرفض.",
-        "allocation": "القرار المقترح في كوتور: 70 لتر للمستشفى و 30 لتر لمضخة الماء و 100 لتر في المجموع. لم يتم إرسال الوقود بعد. أجب 1 للموافقة أو 2 للرفض.",
+        "sms": "كوتور: الطريق مسدود عند 42، الالتفاف 7.8 كم. المولد 4 ساعات ديزل. رد 1 للموافقة، 2 للرفض.",
+        "voice": "أهلاً، هذا تنبيه من كوتور. الطريق الجبلي مغلق عند العلامة الأربعين واثنين، والمسار البديل طولها سبع فاصلة ثمانية كيلومترات. مولد المستشفى لديه وقود ديزل يكفي لأربع ساعات فقط. إذا توافق على إرسال الديزل، قل نعم؛ إذا ترفض، قل لا.",
+        "allocation": "70 ل للمستشفى، 30 ل لضخ الماء، 100 ل إجمالي",
         "sms_source": "model",
         "voice_source": "model",
         "drafted": true,
@@ -1559,17 +1858,17 @@
         "audio": {
           "tier2": {
             "src": "/media/audio/voice/tier2_ar.wav",
-            "seconds": 19.58,
-            "bytes": 626732,
-            "model": "facebook/mms-tts-ara",
-            "text_sha256": "b911c633fea90a39afeb0da9ebf3bacd43913e9dce12f8f2b834f8c1efc91b2f"
+            "seconds": 24.94,
+            "bytes": 798252,
+            "model": "mms-tts-ara",
+            "text_sha256": "cc36933f3249def1df39e6621e9f5537f7db91b9bf83923ccb59f0dac7484273"
           },
           "allocation": {
             "src": "/media/audio/voice/allocation_ar.wav",
-            "seconds": 12.99,
-            "bytes": 415788,
-            "model": "facebook/mms-tts-ara",
-            "text_sha256": "972cc795cbff5f20f509be67623ffe1570815c50ce4e420b82c64dbc7d998135"
+            "seconds": 4.0,
+            "bytes": 128044,
+            "model": "mms-tts-ara",
+            "text_sha256": "721c399246acd19cb7dc27c5d7438289637e5c1ec2e4b747ee6d6c53190f83c9"
           }
         }
       },
@@ -1577,9 +1876,9 @@
         "code": "pt",
         "language": "Portuguese",
         "native": "Português",
-        "sms": "Kottur: NH-544 km 42 bloqueada, desvio 7.8 km. Hospital com 4 horas de diesel. Proposta 70 L hospital, 30 L bomba. Responda 1 aprovar, 2 negar.",
-        "voice": "Atenção Kottur: estrada NH-544 no quilómetro 42 bloqueada, desvio de 7.8 quilómetros. Hospital com 4 horas de diesel. Proposta: 70 litros hospital, 30 litros bomba de água. Prima 1 para aprovar ou 2 para negar.",
-        "allocation": "Decisão proposta em Kottur: 70 litros para o hospital, 30 litros para a bomba de água, 100 litros no total. Aguardando aprovação, combustível ainda não enviado.",
+        "sms": "Kottur ghat km42 bloqueado. Bypass 7,8km. Gerador tem 4h. Responda 1 para enviar ou 2 para negar.",
+        "voice": "Atenção moradores de Kottur: o acesso pela estrada de serra no quilômetro quarenta e dois está bloqueado. O desvio validado tem sete vírgula oito quilômetros. O gerador do hospital possui quatro horas de diesel restante. Por favor, indique se aprovamos o envio dizendo sim ou não.",
+        "allocation": "70 litros para o hospital, 30 litros para a bomba d'água, 100 litros no total.",
         "sms_source": "model",
         "voice_source": "model",
         "drafted": true,
@@ -1587,17 +1886,17 @@
         "audio": {
           "tier2": {
             "src": "/media/audio/voice/tier2_pt.wav",
-            "seconds": 16.45,
-            "bytes": 526380,
-            "model": "facebook/mms-tts-por",
-            "text_sha256": "ea8aebfb695c392460aa46ff55ed9d57dc6f26da7ab5ac0d5cef9b379be30bda"
+            "seconds": 19.18,
+            "bytes": 613932,
+            "model": "mms-tts-por",
+            "text_sha256": "a0fc14eeb9036bcea0ff19a93cef1adb609135e24b9959792121c112ee4b11e4"
           },
           "allocation": {
             "src": "/media/audio/voice/allocation_pt.wav",
-            "seconds": 11.41,
-            "bytes": 365100,
-            "model": "facebook/mms-tts-por",
-            "text_sha256": "49f8af2c0220a3a0fd64600c8b3c4a252fcdddea2cfd6cfe40486bc9eda4f348"
+            "seconds": 5.54,
+            "bytes": 177196,
+            "model": "mms-tts-por",
+            "text_sha256": "b9eca8d47e14dc2793bf68be7c2ef18df3c0efa2b2ad51d9df77fd6c2fafd7d3"
           }
         }
       },
@@ -1605,9 +1904,9 @@
         "code": "sw",
         "language": "Swahili",
         "native": "Kiswahili",
-        "sms": "Kottur: NH-544 km 42 imefungwa, njia 7.8 km. Hospitali ina saa 4 za dizeli. Pendekezo: 70 hospitali, 30 pampu, 100 jumla. Jibu 1 kukubali, 2 kukataa.",
-        "voice": "Tahadhari Kottur: Barabara NH-544 kilomita 42 imefungwa, njia mbadala kilomita 7.8. Hospitali ina saa 4 za dizeli. Pendekezo lita 70 hospitali, lita 30 pampu, lita 100 jumla. Bonyeza 1 kukubali au 2 kukataa.",
-        "allocation": "Uamuzi Kottur: 70 lita kwa hospitali, 30 lita kwa pampu ya maji, 100 lita jumla. Bado haijasafirishwa, inasubiri idhini. Jibu 1 kukubali, 2 kukataa.",
+        "sms": "Kottur: barabara km42 blokada, bypass 7.8km. Jeneretori hospitali 4saa. Jibu 1 kuleta, 2 kusukuma.",
+        "voice": "Kottur, barabara ya mlima km42 imewekwa, njia ya kupitia 7.8 kilometri. Jeneretori ya hospitali lina mafuta ya kusaa saa 4. Tafadhali jibu kwa sauti: 1 kuwezesha kutuma mafuta, 2 kusukuma.",
+        "allocation": "Mafuta yatatumika: 70 litri hospitalini, 30 litri bomboni ya maji, jumla 100 litri.",
         "sms_source": "model",
         "voice_source": "model",
         "drafted": true,
@@ -1615,17 +1914,17 @@
         "audio": {
           "tier2": {
             "src": "/media/audio/voice/tier2_sw.wav",
-            "seconds": 17.33,
-            "bytes": 554540,
-            "model": "facebook/mms-tts-swh",
-            "text_sha256": "a0aaa11fa01df00b5c07364f692e4cc5d178afa2739b1411d927d1ca982a6ab7"
+            "seconds": 14.3,
+            "bytes": 457772,
+            "model": "mms-tts-swh",
+            "text_sha256": "5f5daf2f392ee52f64cc1af8f791796642fc017a75ba06af106e2feb1372bdb7"
           },
           "allocation": {
             "src": "/media/audio/voice/allocation_sw.wav",
-            "seconds": 14.5,
-            "bytes": 463916,
-            "model": "facebook/mms-tts-swh",
-            "text_sha256": "d1d3bb276f42baadb277814805adb7a569d4057b4eabd7cac1e42ea2174968b6"
+            "seconds": 8.59,
+            "bytes": 274988,
+            "model": "mms-tts-swh",
+            "text_sha256": "c22e3e2daea9a815a5a27467372951ae38594323c646a3f7d9d333381c3231b3"
           }
         }
       },
@@ -1633,9 +1932,9 @@
         "code": "ta",
         "language": "Tamil",
         "native": "தமிழ்",
-        "sms": "கொட்டூர் NH-544 km 42 அடைப்பு, மாற்று 7.8 km. டீசல் 4 மணி. திட்டம் 70, 30, 100. 1 சரி, 2 வேண்டாம்",
-        "voice": "கொட்டூர் கவனம். NH-544 42 கிலோமீட்டரில் அடைப்பு. மாற்றுப்பாதை 7.8 கிலோமீட்டர். மருத்துவமனை டீசல் 4 மணி நேரம். திட்டம் மருத்துவமனைக்கு 70 லிட்டர், பம்புக்கு 30 லிட்டர், மொத்தம் 100 லிட்டர். சரி என 1 அழுத்தவும், வேண்டாம் என 2 அழுத்தவும்.",
-        "allocation": "திட்ட முடிவு: மருத்துவமனைக்கு 70 லிட்டர், தண்ணீர் பம்புக்கு 30 லிட்டர், மொத்தம் 100 லிட்டர். இன்னும் அனுப்பவில்லை.",
+        "sms": "கொட்டூர் ghat road கி.மீ. 42 தடை, விருப்பமான பாதை 7.8 கி.மீ. மருத்துவம் ஜெனரேட்டர் 4 மணி தூக்கம். 1-அனுமதி, 2-நிராகரிப்பு.",
+        "voice": "கொட்டூர் மலைவழி சாலை கி.மீ. 42 தடைப்பட்டுள்ளது. விருப்பமான பாதை 7.8 கி.மீ. நீளமுள்ளது. மருத்துவக் கेंद्र ஜெனரேட்டரில் 4 மணி தூக்கம் டீசல் 남아있다. நீ ஆம் அல்லது இல்லை என்று சொல்லவும்.",
+        "allocation": "மருத்துவக் கेंद्रுக்கு 70 லίτர், நீர்மوترுக்கு 30 லίτர், மொத்தம் 100 லίτர்.",
         "sms_source": "model",
         "voice_source": "model",
         "drafted": true,
@@ -1643,17 +1942,17 @@
         "audio": {
           "tier2": {
             "src": "/media/audio/voice/tier2_ta.wav",
-            "seconds": 16.75,
-            "bytes": 536108,
-            "model": "facebook/mms-tts-tam",
-            "text_sha256": "6f65712cdcccfef2fe48b4e024d8cdb77028a3933567dacb4fa5c460de827172"
+            "seconds": 13.81,
+            "bytes": 441900,
+            "model": "mms-tts-tam",
+            "text_sha256": "c8fc3ff2f0f0657e04fdb70333d8d4983dbbfcd371abb2f5ca518042b41279bc"
           },
           "allocation": {
             "src": "/media/audio/voice/allocation_ta.wav",
-            "seconds": 8.18,
-            "bytes": 261676,
-            "model": "facebook/mms-tts-tam",
-            "text_sha256": "9cb95c74bc4f709acd8bdb53c017e87cd7b7ca44517432a402b17faa8fdd6a0f"
+            "seconds": 5.76,
+            "bytes": 184364,
+            "model": "mms-tts-tam",
+            "text_sha256": "b857a8703170ab7118ddf8ed1bdab76d20f896529f5587ae3e3299b5a8ad1ef1"
           }
         }
       }
@@ -1661,57 +1960,421 @@
   },
   "seri": {
     "available": true,
-    "generated_utc": "2026-10-27T14:59:02+00:00",
-    "transcript": "சரிசரி அனுமதிக்கிறேன்.",
-    "audio": {
-      "src": "/media/audio/seri.wav",
-      "sha256": "7919d7c91b7ed48e429e4ca423060a2b6f0f4f36c8d5e494eca99acbea55c85a",
-      "seconds": 2.81
-    },
-    "asr": {
-      "status": "answered",
-      "model": "muse-voice-transcribe-1.0",
-      "latency_s": 2.96,
-      "language_bias": [
-        "Tamil",
-        "English"
-      ]
-    },
-    "model": {
-      "status": "answered",
-      "intent": "APPROVE",
-      "confidence": 0.98,
-      "reason": "Contains 'சரி' meaning approve",
-      "latency_s": 4.15
-    },
-    "gate": {
-      "decision": "APPROVED",
-      "approved": true,
-      "token_intent": "APPROVE",
-      "model_intent": "APPROVE",
-      "confidence": 0.98,
-      "threshold": 0.8,
-      "reasons": [],
-      "rule": "approval needs an approval token, an agreeing model and confidence >= 0.80"
-    },
-    "ledger": {
-      "seq": 2,
-      "ts": "2026-10-27T14:59:02+00:00",
-      "tier": 1,
-      "action": "VOICE_APPROVAL",
-      "detail": {
-        "transcript": "சரிசரி அனுமதிக்கிறேன்.",
-        "audio_sha256": "7919d7c91b7ed48e429e4ca423060a2b6f0f4f36c8d5e494eca99acbea55c85a",
-        "intent": "APPROVE",
-        "confidence": 0.98,
-        "model": "muse-wonder-1.0",
-        "asr_model": "muse-voice-transcribe-1.0"
+    "generated_utc": "2026-10-28T05:31:46+00:00",
+    "summary": {
+      "languages": 7,
+      "spoken": 7,
+      "approved": 7,
+      "withheld": 0,
+      "text_only": {
+        "zh": "no released MMS-TTS checkpoint - text-only, not spoken"
       },
-      "prev": "6ef72de680583f8e46d8e1c7c6a04cb0a4c62004fcf31f71ca42823da36350ca",
-      "hash": "3eb0b214e45ceceda2ee423f1ea842a68fb6f8076288ea17547d3e376e6b1437"
+      "cost_usd": 0.000864
     },
-    "cost_usd": 0.411905,
-    "note": "Voice approval, not delivery. The clip is transcribed by Muse Voice Transcribe and classified by Muse Wonder; the gate decides in code. Nothing is dispatched - there is no gateway on this machine."
+    "locales": [
+      {
+        "locale": "en",
+        "native": "English",
+        "language": "English",
+        "phrase": "Yes, I approve.",
+        "transcript": "yes I prove",
+        "asr": {
+          "status": "stored",
+          "model": "pre-migration ASR (stored transcript)",
+          "latency_s": 0.03,
+          "language_bias": [
+            "English"
+          ],
+          "detail": "stored capture, replayed: the clip was transcribed before the Nebius migration, and Token Factory has no speech-to-text endpoint"
+        },
+        "model": {
+          "status": "answered",
+          "intent": "APPROVE",
+          "confidence": 0.96,
+          "reason": "Transcript contains \"yes\" indicating approval.",
+          "latency_s": 1.64
+        },
+        "gate": {
+          "decision": "APPROVED",
+          "approved": true,
+          "locale": "en",
+          "token_intent": "APPROVE",
+          "model_intent": "APPROVE",
+          "confidence": 0.96,
+          "threshold": 0.8,
+          "reasons": [],
+          "rule": "approval needs an approval token, an agreeing model and confidence >= 0.80"
+        },
+        "ledger": {
+          "seq": 1,
+          "ts": "2026-10-28T05:31:36+00:00",
+          "tier": 1,
+          "action": "VOICE_APPROVAL",
+          "detail": {
+            "locale": "en",
+            "transcript": "yes I prove",
+            "audio_sha256": "c993885d128c4da3430814741ac05339b8e0ecab3bd5e4c6dfa06a4db913180c",
+            "intent": "APPROVE",
+            "confidence": 0.96,
+            "model": "nvidia/nemotron-3-super-120b-a12b",
+            "asr_model": "pre-migration ASR (stored transcript)"
+          },
+          "prev": "0000000000000000000000000000000000000000000000000000000000000000",
+          "hash": "195bf21ef420b8cd17febd97776b496cf053af581cba2298bfce8089ea497a61"
+        },
+        "cost_usd": 0.000114,
+        "audio": {
+          "src": "/media/audio/seri_en.wav",
+          "sha256": "c993885d128c4da3430814741ac05339b8e0ecab3bd5e4c6dfa06a4db913180c",
+          "seconds": 2.34
+        }
+      },
+      {
+        "locale": "es",
+        "native": "Español",
+        "language": "Spanish",
+        "phrase": "Sí, apruebo.",
+        "transcript": "Sí apruebo.",
+        "asr": {
+          "status": "stored",
+          "model": "pre-migration ASR (stored transcript)",
+          "latency_s": 0.0,
+          "language_bias": [
+            "Español"
+          ],
+          "detail": "stored capture, replayed: the clip was transcribed before the Nebius migration, and Token Factory has no speech-to-text endpoint"
+        },
+        "model": {
+          "status": "answered",
+          "intent": "APPROVE",
+          "confidence": 0.96,
+          "reason": "Transcript contains \"Sí\" (yes) and \"apruebo\" which means I approve",
+          "latency_s": 1.51
+        },
+        "gate": {
+          "decision": "APPROVED",
+          "approved": true,
+          "locale": "es",
+          "token_intent": "APPROVE",
+          "model_intent": "APPROVE",
+          "confidence": 0.96,
+          "threshold": 0.8,
+          "reasons": [],
+          "rule": "approval needs an approval token, an agreeing model and confidence >= 0.80"
+        },
+        "ledger": {
+          "seq": 2,
+          "ts": "2026-10-28T05:31:37+00:00",
+          "tier": 1,
+          "action": "VOICE_APPROVAL",
+          "detail": {
+            "locale": "es",
+            "transcript": "Sí apruebo.",
+            "audio_sha256": "8f1b64d0c544efb4e463a7ed57e08828a142e6cb97ef90b8f281e5d0352a6c4e",
+            "intent": "APPROVE",
+            "confidence": 0.96,
+            "model": "nvidia/nemotron-3-super-120b-a12b",
+            "asr_model": "pre-migration ASR (stored transcript)"
+          },
+          "prev": "195bf21ef420b8cd17febd97776b496cf053af581cba2298bfce8089ea497a61",
+          "hash": "520c0ceaabea7c1277442291c82f9cc2461e1899f35e24cd86dfeb22929f6de2"
+        },
+        "cost_usd": 0.000121,
+        "audio": {
+          "src": "/media/audio/seri_es.wav",
+          "sha256": "8f1b64d0c544efb4e463a7ed57e08828a142e6cb97ef90b8f281e5d0352a6c4e",
+          "seconds": 2.62
+        }
+      },
+      {
+        "locale": "fr",
+        "native": "Français",
+        "language": "French",
+        "phrase": "Oui, j'approuve.",
+        "transcript": "Oui j'approuve.",
+        "asr": {
+          "status": "stored",
+          "model": "pre-migration ASR (stored transcript)",
+          "latency_s": 0.0,
+          "language_bias": [
+            "Français"
+          ],
+          "detail": "stored capture, replayed: the clip was transcribed before the Nebius migration, and Token Factory has no speech-to-text endpoint"
+        },
+        "model": {
+          "status": "answered",
+          "intent": "APPROVE",
+          "confidence": 0.96,
+          "reason": "Transcript contains 'oui' and 'approuve', both indicating approval in French",
+          "latency_s": 2.17
+        },
+        "gate": {
+          "decision": "APPROVED",
+          "approved": true,
+          "locale": "fr",
+          "token_intent": "APPROVE",
+          "model_intent": "APPROVE",
+          "confidence": 0.96,
+          "threshold": 0.8,
+          "reasons": [],
+          "rule": "approval needs an approval token, an agreeing model and confidence >= 0.80"
+        },
+        "ledger": {
+          "seq": 3,
+          "ts": "2026-10-28T05:31:39+00:00",
+          "tier": 1,
+          "action": "VOICE_APPROVAL",
+          "detail": {
+            "locale": "fr",
+            "transcript": "Oui j'approuve.",
+            "audio_sha256": "2fd567e0a32dc60a3b8f75da4377a883a6803b6808d93ef38cc7c2001951d90c",
+            "intent": "APPROVE",
+            "confidence": 0.96,
+            "model": "nvidia/nemotron-3-super-120b-a12b",
+            "asr_model": "pre-migration ASR (stored transcript)"
+          },
+          "prev": "520c0ceaabea7c1277442291c82f9cc2461e1899f35e24cd86dfeb22929f6de2",
+          "hash": "15037301c72f6a64c28b62bf55dcb307691dca44d1a3e4d4962e060fe5087383"
+        },
+        "cost_usd": 0.000116,
+        "audio": {
+          "src": "/media/audio/seri_fr.wav",
+          "sha256": "2fd567e0a32dc60a3b8f75da4377a883a6803b6808d93ef38cc7c2001951d90c",
+          "seconds": 2.18
+        }
+      },
+      {
+        "locale": "ar",
+        "native": "العربية",
+        "language": "Arabic",
+        "phrase": "نعم، أوافق.",
+        "transcript": "Nam أوفقوا",
+        "asr": {
+          "status": "stored",
+          "model": "pre-migration ASR (stored transcript)",
+          "latency_s": 0.0,
+          "language_bias": [
+            "العربية"
+          ],
+          "detail": "stored capture, replayed: the clip was transcribed before the Nebius migration, and Token Factory has no speech-to-text endpoint"
+        },
+        "model": {
+          "status": "answered",
+          "intent": "APPROVE",
+          "confidence": 0.95,
+          "reason": "Transcript contains 'أوافقوا' which matches approved term",
+          "latency_s": 1.88
+        },
+        "gate": {
+          "decision": "APPROVED",
+          "approved": true,
+          "locale": "ar",
+          "token_intent": "APPROVE",
+          "model_intent": "APPROVE",
+          "confidence": 0.95,
+          "threshold": 0.8,
+          "reasons": [],
+          "rule": "approval needs an approval token, an agreeing model and confidence >= 0.80"
+        },
+        "ledger": {
+          "seq": 4,
+          "ts": "2026-10-28T05:31:41+00:00",
+          "tier": 1,
+          "action": "VOICE_APPROVAL",
+          "detail": {
+            "locale": "ar",
+            "transcript": "Nam أوفقوا",
+            "audio_sha256": "f976c046c685c581fcb38a6bc345e94c874e46916f132a0101c4f12941377ea6",
+            "intent": "APPROVE",
+            "confidence": 0.95,
+            "model": "nvidia/nemotron-3-super-120b-a12b",
+            "asr_model": "pre-migration ASR (stored transcript)"
+          },
+          "prev": "15037301c72f6a64c28b62bf55dcb307691dca44d1a3e4d4962e060fe5087383",
+          "hash": "99a0d192faabe4c37aa8a3c16f89ede6596b60d2427b300e9f50ad6ced6df2c7"
+        },
+        "cost_usd": 0.00014,
+        "audio": {
+          "src": "/media/audio/seri_ar.wav",
+          "sha256": "f976c046c685c581fcb38a6bc345e94c874e46916f132a0101c4f12941377ea6",
+          "seconds": 3.06
+        }
+      },
+      {
+        "locale": "pt",
+        "native": "Português",
+        "language": "Portuguese",
+        "phrase": "Sim, aprovo.",
+        "transcript": "sim",
+        "asr": {
+          "status": "stored",
+          "model": "pre-migration ASR (stored transcript)",
+          "latency_s": 0.0,
+          "language_bias": [
+            "Português"
+          ],
+          "detail": "stored capture, replayed: the clip was transcribed before the Nebius migration, and Token Factory has no speech-to-text endpoint"
+        },
+        "model": {
+          "status": "answered",
+          "intent": "APPROVE",
+          "confidence": 0.95,
+          "reason": "Transcript contains 'sim' which means approve in Portuguese.",
+          "latency_s": 1.42
+        },
+        "gate": {
+          "decision": "APPROVED",
+          "approved": true,
+          "locale": "pt",
+          "token_intent": "APPROVE",
+          "model_intent": "APPROVE",
+          "confidence": 0.95,
+          "threshold": 0.8,
+          "reasons": [],
+          "rule": "approval needs an approval token, an agreeing model and confidence >= 0.80"
+        },
+        "ledger": {
+          "seq": 5,
+          "ts": "2026-10-28T05:31:43+00:00",
+          "tier": 1,
+          "action": "VOICE_APPROVAL",
+          "detail": {
+            "locale": "pt",
+            "transcript": "sim",
+            "audio_sha256": "bffee94fedfac1199188380858a53db4bad440e5d3a5e0c86325e157a448c011",
+            "intent": "APPROVE",
+            "confidence": 0.95,
+            "model": "nvidia/nemotron-3-super-120b-a12b",
+            "asr_model": "pre-migration ASR (stored transcript)"
+          },
+          "prev": "99a0d192faabe4c37aa8a3c16f89ede6596b60d2427b300e9f50ad6ced6df2c7",
+          "hash": "54e5b1bc68ba721872733d0412386c35c6684658e0900f6dc91dbcc5d2eff529"
+        },
+        "cost_usd": 0.000106,
+        "audio": {
+          "src": "/media/audio/seri_pt.wav",
+          "sha256": "bffee94fedfac1199188380858a53db4bad440e5d3a5e0c86325e157a448c011",
+          "seconds": 2.25
+        }
+      },
+      {
+        "locale": "sw",
+        "native": "Kiswahili",
+        "language": "Swahili",
+        "phrase": "Ndiyo, nakubali.",
+        "transcript": "Ndio na kubali.",
+        "asr": {
+          "status": "stored",
+          "model": "pre-migration ASR (stored transcript)",
+          "latency_s": 0.0,
+          "language_bias": [
+            "Kiswahili"
+          ],
+          "detail": "stored capture, replayed: the clip was transcribed before the Nebius migration, and Token Factory has no speech-to-text endpoint"
+        },
+        "model": {
+          "status": "answered",
+          "intent": "APPROVE",
+          "confidence": 0.96,
+          "reason": "Contains \"ndio\" (yes) and \"kubali\" (accept), indicating approval",
+          "latency_s": 1.52
+        },
+        "gate": {
+          "decision": "APPROVED",
+          "approved": true,
+          "locale": "sw",
+          "token_intent": "APPROVE",
+          "model_intent": "APPROVE",
+          "confidence": 0.96,
+          "threshold": 0.8,
+          "reasons": [],
+          "rule": "approval needs an approval token, an agreeing model and confidence >= 0.80"
+        },
+        "ledger": {
+          "seq": 6,
+          "ts": "2026-10-28T05:31:44+00:00",
+          "tier": 1,
+          "action": "VOICE_APPROVAL",
+          "detail": {
+            "locale": "sw",
+            "transcript": "Ndio na kubali.",
+            "audio_sha256": "77797052f9466b82df78f7f41087700d8ba195043d218c39abe3b5fdf4dd77eb",
+            "intent": "APPROVE",
+            "confidence": 0.96,
+            "model": "nvidia/nemotron-3-super-120b-a12b",
+            "asr_model": "pre-migration ASR (stored transcript)"
+          },
+          "prev": "54e5b1bc68ba721872733d0412386c35c6684658e0900f6dc91dbcc5d2eff529",
+          "hash": "2b9906039d1f566004a29cbf81578e5d05a17701400081647890a5d4f693b0d1"
+        },
+        "cost_usd": 0.000129,
+        "audio": {
+          "src": "/media/audio/seri_sw.wav",
+          "sha256": "77797052f9466b82df78f7f41087700d8ba195043d218c39abe3b5fdf4dd77eb",
+          "seconds": 2.79
+        }
+      },
+      {
+        "locale": "ta",
+        "native": "தமிழ்",
+        "language": "Tamil",
+        "phrase": "சரி, அனுமதிக்கிறேன்.",
+        "transcript": "சரி அனுமதிக்கிறேன்.",
+        "asr": {
+          "status": "stored",
+          "model": "pre-migration ASR (stored transcript)",
+          "latency_s": 0.0,
+          "language_bias": [
+            "Tamil",
+            "English"
+          ],
+          "detail": "stored capture, replayed: the clip was transcribed before the Nebius migration, and Token Factory has no speech-to-text endpoint"
+        },
+        "model": {
+          "status": "answered",
+          "intent": "APPROVE",
+          "confidence": 0.98,
+          "reason": "Transcript contains 'சரி' (okay) and 'அனுமதிக்கிறேன்' (I approve), indicating approval.",
+          "latency_s": 1.9
+        },
+        "gate": {
+          "decision": "APPROVED",
+          "approved": true,
+          "locale": "ta",
+          "token_intent": "APPROVE",
+          "model_intent": "APPROVE",
+          "confidence": 0.98,
+          "threshold": 0.8,
+          "reasons": [],
+          "rule": "approval needs an approval token, an agreeing model and confidence >= 0.80"
+        },
+        "ledger": {
+          "seq": 7,
+          "ts": "2026-10-28T05:31:46+00:00",
+          "tier": 1,
+          "action": "VOICE_APPROVAL",
+          "detail": {
+            "locale": "ta",
+            "transcript": "சரி அனுமதிக்கிறேன்.",
+            "audio_sha256": "702acc257528f26a54d0a05bb6d8efa3cfb9e079ef4a94c55da0a83b3a32c74b",
+            "intent": "APPROVE",
+            "confidence": 0.98,
+            "model": "nvidia/nemotron-3-super-120b-a12b",
+            "asr_model": "pre-migration ASR (stored transcript)"
+          },
+          "prev": "2b9906039d1f566004a29cbf81578e5d05a17701400081647890a5d4f693b0d1",
+          "hash": "a86fe0130aca2fbc2da98962d60dc3ab5a6b6451d254d0c784cc035b0a9e8450"
+        },
+        "cost_usd": 0.000138,
+        "audio": {
+          "src": "/media/audio/seri_ta.wav",
+          "sha256": "702acc257528f26a54d0a05bb6d8efa3cfb9e079ef4a94c55da0a83b3a32c74b",
+          "seconds": 2.86
+        }
+      }
+    ],
+    "cost_usd": 0.000864,
+    "note": "Voice approval, not delivery. Each clip is rendered locally by MMS-TTS, classified by Nemotron 3 Super 120b on Nebius Token Factory, and decided in code. The transcript in this artefact was captured before the migration, so no ASR call is claimed here. Nothing is dispatched - there is no gateway on this machine. A locale that cannot be heard is text-only rather than spoken in the wrong language."
   },
   "messages": {
     "en": {
@@ -1729,7 +2392,7 @@
       "lifegrid.runtime": "{hours} h runtime left",
       "lifegrid.feeder": "fed by the heart",
       "lifegrid.nowater": "no water, {hours} h",
-      "route.blocked": "NH-544 km 42 blocked",
+      "route.blocked": "Ghat road km 42 blocked",
       "route.alt": "A* route {km} km",
       "route.saved": "{percent}% fuel saved",
       "alloc.title": "DIESEL ALLOCATION",
@@ -1751,7 +2414,7 @@
       "esc.tier3": "No human decision. Degraded autopilot: {hospital} L hospital, {pump} L pump, {reserve} L reserve kept.",
       "esc.tier4": "Community decision required: 3 shelter leaders, 2 of 3 must agree. {people} people waiting.",
       "esc.vote": "Vote on diesel dispatch: hospital {hospital} L, water pump {pump} L.",
-      "evidence.landslide": "NH-544 km 42 landslide, road closed about 6 h",
+      "evidence.landslide": "Ghat road km 42 landslide, road closed about 6 h",
       "evidence.people": "{people} people in shelters have no water",
       "world.scope": "3.5 billion people live in towns with this same cascade"
     },
@@ -1770,7 +2433,7 @@
       "lifegrid.runtime": "{hours} h de autonomía restante",
       "lifegrid.feeder": "alimentado por el corazón",
       "lifegrid.nowater": "sin agua, {hours} h",
-      "route.blocked": "NH-544 km 42 bloqueado",
+      "route.blocked": "Estrada de montanha km 42 bloqueada",
       "route.alt": "Ruta A* {km} km",
       "route.saved": "{percent}% de combustible ahorrado",
       "alloc.title": "ASIGNACIÓN DE DIÉSEL",
@@ -1792,7 +2455,7 @@
       "esc.tier3": "Sin decisión humana. Piloto automático degradado: {hospital} L hospital, {pump} L bomba, {reserve} L de reserva.",
       "esc.tier4": "Se requiere decisión comunitaria: 3 líderes de refugios, 2 de 3 deben aceptar. {people} personas esperan.",
       "esc.vote": "Voto sobre el envío de diésel: hospital {hospital} L, bomba de agua {pump} L.",
-      "evidence.landslide": "NH-544 km 42 deslizamiento, carretera cerrada unas 6 h",
+      "evidence.landslide": "Deslizamiento en la carretera de montaña km 42, vía cerrada unas 6 h",
       "evidence.people": "{people} personas en refugios no tienen agua",
       "world.scope": "3.500 millones de personas viven en ciudades con esta misma cascada"
     },
@@ -1811,7 +2474,7 @@
       "lifegrid.runtime": "{hours} h d'autonomie restante",
       "lifegrid.feeder": "alimenté par le cœur",
       "lifegrid.nowater": "sans eau, {hours} h",
-      "route.blocked": "NH-544 km 42 bloqué",
+      "route.blocked": "Route de montagne km 42 bloquée",
       "route.alt": "Itinéraire A* {km} km",
       "route.saved": "{percent}% de carburant économisé",
       "alloc.title": "RÉPARTITION DU GAZOLE",
@@ -1833,7 +2496,7 @@
       "esc.tier3": "Aucune décision humaine. Pilote automatique dégradé : {hospital} L hôpital, {pump} L pompe, {reserve} L de réserve.",
       "esc.tier4": "Décision communautaire requise : 3 responsables d'abris, 2 sur 3 doivent accepter. {people} personnes attendent.",
       "esc.vote": "Vote sur l'envoi de gazole : hôpital {hospital} L, pompe à eau {pump} L.",
-      "evidence.landslide": "NH-544 km 42 glissement de terrain, route fermée environ 6 h",
+      "evidence.landslide": "Glissement de terrain sur la route de montagne km 42, route fermée environ 6 h",
       "evidence.people": "{people} personnes dans les abris sont sans eau",
       "world.scope": "3,5 milliards de personnes vivent dans des villes connaissant cette même cascade"
     },
@@ -1852,7 +2515,7 @@
       "lifegrid.runtime": "剩余 {hours} 小时运行",
       "lifegrid.feeder": "由心脏供电",
       "lifegrid.nowater": "无供水，{hours} 小时",
-      "route.blocked": "NH-544 公里 42 处封锁",
+      "route.blocked": "山路42公里处封锁",
       "route.alt": "A* 路线 {km} 公里",
       "route.saved": "节省 {percent}% 燃料",
       "alloc.title": "柴油分配",
@@ -1874,7 +2537,7 @@
       "esc.tier3": "无人工决策。降级自动模式：医院 {hospital} 升，水泵 {pump} 升，保留 {reserve} 升储备。",
       "esc.tier4": "需要社区决策：3 名避难所负责人中须有 2 名同意。{people} 人正在等待。",
       "esc.vote": "柴油派送表决：医院 {hospital} 升，水泵 {pump} 升。",
-      "evidence.landslide": "NH-544 公里42山体滑坡，道路封闭约 6 小时",
+      "evidence.landslide": "山路42公里处山体滑坡，道路封闭约6小时",
       "evidence.people": "避难所内 {people} 人断水",
       "world.scope": "35 亿人生活在具有同样连锁风险的城镇"
     },
@@ -1893,7 +2556,7 @@
       "lifegrid.runtime": "متبقٍ {hours} ساعات تشغيل",
       "lifegrid.feeder": "يُغذّى من القلب",
       "lifegrid.nowater": "بلا ماء، {hours} ساعات",
-      "route.blocked": "NH-544 كم 42 مغلق",
+      "route.blocked": "الطريق الجبلي كم 42 مغلق",
       "route.alt": "مسار A* {km} كم",
       "route.saved": "توفير {percent}% من الوقود",
       "alloc.title": "توزيع الديزل",
@@ -1915,7 +2578,7 @@
       "esc.tier3": "لا قرار بشري. طيار آلي مخفّض: {hospital} لتر للمستشفى، {pump} لتر للمضخة، مع الاحتفاظ بـ {reserve} لتر احتياطياً.",
       "esc.tier4": "مطلوب قرار مجتمعي: 3 من قادة الملاجئ، ويجب موافقة 2 من 3. {people} شخصاً في الانتظار.",
       "esc.vote": "تصويت على إرسال الديزل: المستشفى {hospital} لتر، مضخة المياه {pump} لتر.",
-      "evidence.landslide": "NH-544 كم 42 انهيار أرضي، الطريق مغلق نحو 6 ساعات",
+      "evidence.landslide": "انهيار أرضي على الطريق الجبلي كم 42، الطريق مغلق نحو 6 ساعات",
       "evidence.people": "{people} شخصاً في الملاجئ بلا ماء",
       "world.scope": "3.5 مليار شخص يعيشون في بلدات تواجه هذا التسلسل نفسه"
     },
@@ -1934,7 +2597,7 @@
       "lifegrid.runtime": "{hours} h de autonomia restante",
       "lifegrid.feeder": "alimentado pelo coração",
       "lifegrid.nowater": "sem água, {hours} h",
-      "route.blocked": "NH-544 km 42 bloqueado",
+      "route.blocked": "Estrada de montanha km 42 bloqueada",
       "route.alt": "Rota A* {km} km",
       "route.saved": "{percent}% de combustível economizado",
       "alloc.title": "DISTRIBUIÇÃO DE DIESEL",
@@ -1956,7 +2619,7 @@
       "esc.tier3": "Sem decisão humana. Piloto automático degradado: {hospital} L hospital, {pump} L bomba, {reserve} L de reserva.",
       "esc.tier4": "Decisão comunitária necessária: 3 líderes de abrigos, 2 de 3 devem concordar. {people} pessoas aguardam.",
       "esc.vote": "Votação sobre o envio de diesel: hospital {hospital} L, bomba de água {pump} L.",
-      "evidence.landslide": "NH-544 km 42 deslizamento, estrada fechada cerca de 6 h",
+      "evidence.landslide": "Deslizamento na estrada de montanha km 42, estrada fechada cerca de 6 h",
       "evidence.people": "{people} pessoas em abrigos sem água",
       "world.scope": "3,5 bilhões de pessoas vivem em cidades com esta mesma cascata"
     },
@@ -1975,7 +2638,7 @@
       "lifegrid.runtime": "saa {hours} za uendeshaji zimesalia",
       "lifegrid.feeder": "hulishwa na moyo",
       "lifegrid.nowater": "hakuna maji, saa {hours}",
-      "route.blocked": "NH-544 km 42 imefungwa",
+      "route.blocked": "Barabara ya mlima km 42 imefungwa",
       "route.alt": "Njia ya A* km {km}",
       "route.saved": "{percent}% mafuta yameokolewa",
       "alloc.title": "UGAWAJI WA DIZELI",
@@ -1997,7 +2660,7 @@
       "esc.tier3": "Hakuna uamuzi wa mtu. Otomatiki iliyopunguzwa: {hospital} L hospitali, {pump} L pampu, {reserve} L akiba imehifadhiwa.",
       "esc.tier4": "Uamuzi wa jamii unahitajika: viongozi 3 wa makazi, 2 kati ya 3 wakubali. Watu {people} wanasubiri.",
       "esc.vote": "Kura kuhusu usafirishaji wa dizeli: hospitali {hospital} L, pampu ya maji {pump} L.",
-      "evidence.landslide": "NH-544 km 42 maporomoko ya ardhi, barabara imefungwa takriban saa 6",
+      "evidence.landslide": "Maporomoko ya ardhi kwenye barabara ya mlima km 42, barabara imefungwa takriban saa 6",
       "evidence.people": "watu {people} kwenye makazi hawana maji",
       "world.scope": "watu bilioni 3.5 wanaishi katika miji yenye mfululizo huu huo"
     },
@@ -2016,7 +2679,7 @@
       "lifegrid.runtime": "{hours} மணி நேரம் இயக்கத்தில்",
       "lifegrid.feeder": "இதயத்தால் இயக்கப்படுகிறது",
       "lifegrid.nowater": "தண்ணீர் இல்லை, {hours} மணி",
-      "route.blocked": "NH-544 கிமீ 42 மூடப்பட்டுள்ளது",
+      "route.blocked": "மலைச் சாலை கிமீ 42 மூடப்பட்டுள்ளது",
       "route.alt": "A* வழி {km} கிமீ",
       "route.saved": "{percent}% எரிபொருள் சேமிப்பு",
       "alloc.title": "டீசல் ஒதுக்கீடு",
@@ -2038,7 +2701,7 @@
       "esc.tier3": "மனித முடிவு இல்லை. தானியங்கி பயன்முறை: மருத்துவமனை {hospital} லி, பம்ப் {pump} லி, {reserve} லி இருப்பு தக்கவைக்கப்பட்டது.",
       "esc.tier4": "சமூக முடிவு தேவை: 3 தங்குமிடத் தலைவர்களில் 2 பேர் ஒப்புக்கொள்ள வேண்டும். {people} பேர் காத்திருக்கின்றனர்.",
       "esc.vote": "டீசல் அனுப்பீட்டு வாக்கெடுப்பு: மருத்துவமனை {hospital} லி, நீர் பம்ப் {pump} லி.",
-      "evidence.landslide": "NH-544 கிமீ 42 நிலச்சரிவு, சாலை சுமார் 6 மணி நேரம் மூடல்",
+      "evidence.landslide": "மலைச் சாலை கிமீ 42 நிலச்சரிவு, சாலை சுமார் 6 மணி நேரம் மூடல்",
       "evidence.people": "தங்குமிடங்களில் {people} பேருக்கு தண்ணீர் இல்லை",
       "world.scope": "இதே தொடர் விளைவைக் கொண்ட நகரங்களில் 350 கோடி மக்கள் வாழ்கிறார்கள்"
     }

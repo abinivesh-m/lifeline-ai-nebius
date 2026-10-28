@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "fuel allocation",
     "Kottur",
     "Tamil Nadu",
-    "Meta AI",
+    "Nebius x NVIDIA Global AI Hackathon",
     "agentic",
   ],
 };

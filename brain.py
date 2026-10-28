@@ -4,10 +4,9 @@ The deterministic core (A*, the 70/30 validator, the hash chain, the gate) does
 not import this file. Only the three places that need a language model do:
 allocation, the 8-locale payloads, and spoken-intent classification.
 
-Two providers are supported and only one is active per checkout:
+One provider, because this repo was built for one hackathon:
 
-    LLM_PROVIDER=meta     Meta Model API, /chat/completions  (Meta hackathon repo)
-    LLM_PROVIDER=nebius   Nebius Token Factory, /chat/completions  (this repo)
+    LLM_PROVIDER=nebius   Nebius Token Factory, /chat/completions
 
 The Nebius side is not a URL swap. The four model IDs below were read from
 ``GET /v1/models`` on 2026-10-28, together with their per-token prices, and are
@@ -32,7 +31,7 @@ import time
 import urllib.error
 import urllib.request
 
-PROVIDERS = ("meta", "nebius")
+PROVIDERS = ("nebius",)
 
 # USD per token, read from the live catalogue rather than typed from memory.
 PRICES: dict[str, tuple[float, float]] = {
@@ -40,8 +39,6 @@ PRICES: dict[str, tuple[float, float]] = {
     "nvidia/Nemotron-3_5-Lightning": (0.00000006, 0.00000024),
     "nvidia/nemotron-3-super-120b-a12b": (0.0000003, 0.0000009),
     "nvidia/Nemotron-3-Ultra-550b-a55b": (0.000001, 0.000003),
-    "muse-wonder-1.0": (0.0, 0.0),
-    "muse-spark-1.3": (0.0, 0.0),
 }
 
 TIER_ENV = {
@@ -58,18 +55,16 @@ DEFAULTS = {
 
 
 def provider() -> str:
-    value = os.environ.get("LLM_PROVIDER", "meta").strip().lower()
-    return value if value in PROVIDERS else "meta"
+    value = os.environ.get("LLM_PROVIDER", "nebius").strip().lower()
+    return value if value in PROVIDERS else "nebius"
 
 
 def label() -> str:
-    return "Nebius Token Factory" if provider() == "nebius" else "Meta Model API"
+    return "Nebius Token Factory"
 
 
 def model(tier: str = "deep") -> str:
     """Resolve a tier to a real model ID, with a cheaper fallback, never a guess."""
-    if provider() != "nebius":
-        return os.environ.get("META_MODEL", "muse-wonder-1.0")
     tier = tier if tier in DEFAULTS else "deep"
     order = {"decision": ("decision", "deep", "fast"), "deep": ("deep", "fast"), "fast": ("fast",)}
     for candidate in order[tier]:
@@ -83,15 +78,11 @@ def model(tier: str = "deep") -> str:
 
 
 def endpoint() -> str:
-    if provider() == "nebius":
-        return os.environ.get("NEBIUS_BASE_URL", "https://api.tokenfactory.nebius.com/v1/").rstrip("/")
-    return os.environ.get("META_API_BASE", "").rstrip("/")
+    return os.environ.get("NEBIUS_BASE_URL", "https://api.tokenfactory.nebius.com/v1/").rstrip("/")
 
 
 def key() -> str:
-    if provider() == "nebius":
-        return os.environ.get("NEBIUS_API_KEY", "")
-    return os.environ.get("META_API_KEY", "")
+    return os.environ.get("NEBIUS_API_KEY", "")
 
 
 def configured() -> bool:
@@ -149,11 +140,7 @@ def chat(
         meta["detail"] = "LIFELINE_OFFLINE=1"
         return meta
     if not configured():
-        meta["detail"] = (
-            "NEBIUS_BASE_URL and NEBIUS_API_KEY must be set"
-            if provider() == "nebius"
-            else "META_API_BASE and META_API_KEY must be set"
-        )
+        meta["detail"] = "NEBIUS_BASE_URL and NEBIUS_API_KEY must be set"
         return meta
 
     payload: dict = {
@@ -167,11 +154,10 @@ def chat(
         "max_tokens": max_tokens,
     }
     if reasoning_effort:
+        # Token Factory accepts it. It is not a token cap: measured here, Nano
+        # still spent 6,000 tokens and returned empty content on a draft, so the
+        # tier choice is what actually bounds cost and latency.
         payload["reasoning_effort"] = reasoning_effort
-    # Meta's Muse models take reasoning_effort; Nemotron does not need it, and an
-    # unknown top-level field is a 400 on some gateways, so it stays Meta-only.
-    if provider() == "meta" and os.environ.get("META_REASONING_EFFORT"):
-        payload["reasoning_effort"] = os.environ["META_REASONING_EFFORT"]
 
     started = time.time()
     try:

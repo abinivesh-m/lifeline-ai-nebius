@@ -1,22 +1,24 @@
-"""LIFELINE AI - $150 credit ledger with hard spend alerts.
+"""LIFELINE AI - spend ledger with hard per-service caps and alerts.
 
-The point of this file is proof, not bookkeeping.  Every model call is written
-to credit_usage.json with its unit cost, its running total and the bucket it
-came from, so a judge can reconstruct the entire $150 plan from the ledger:
+The point of this file is proof, not bookkeeping. Every model call is written to
+the ledger with its unit cost, its running total and the bucket it came from, so
+a judge can reconstruct the spend from the file. The buckets are the services
+this build actually pays for:
 
-    wonder  $70  (170 calls @ $0.4118)
-    sam     $30  ( 20 calls @ $1.50)
-    voice   $30  ( 50 calls @ $0.60)
-    spark   $20  ( 40 calls @ $0.50)
-    total  $150  - zero waste, every dollar mapped to an artefact
+    decision  $10  - Nemotron 3 Ultra allocation calls
+    deep      $10  - Nemotron 3 Super drafts and reviews
+    fast      $ 5  - Nemotron 3 Nano volume calls
+    tavily    $ 5  - search / extract / map / crawl credits
+    total     $30  - the console balance this build runs against
 
-Alerts fire at 80% ($120) and 95% ($142.50) of the budget.  A $20 reserve
-buffer is tracked separately: with the buffer honoured the agent stops
-spending at $130, and the last $20 is contingency for the demo week.
+Alerts fire at 80% ($24) and 95% ($28.50). A $5 reserve is tracked separately:
+with the buffer honoured the agent stops spending at $25, and the last $5 is
+contingency for the demo. Real spend so far is in ``artifacts/``: inference is
+priced from token counts, Tavily from the credit count the API returned.
 
 Run:  python credit_tracker.py status
       python credit_tracker.py simulate
-      python credit_tracker.py log --model wonder --calls 1 --note "allocation"
+      python credit_tracker.py log --model decision --calls 1 --note "allocation"
       python credit_tracker.py verify
 """
 
@@ -26,28 +28,25 @@ import argparse
 import json
 import os
 import sys
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
 LEDGER_PATH = Path(__file__).with_name("credit_usage.json")
 
-BUDGET_USD = 150.0
-RESERVE_BUFFER_USD = 20.0
+BUDGET_USD = 30.0
+RESERVE_BUFFER_USD = 5.0
 ALERT_PERCENT = 80.0
 CRITICAL_PERCENT = 95.0
 
-# model -> (budget, planned calls)
+# service -> (budget, planned calls). Unit costs are the catalogue rates this
+# build was priced at, not round numbers invented for the ledger.
 PLAN: dict[str, dict[str, float]] = {
-    "wonder": {"budget": 70.0, "planned_calls": 170, "unit_cost": round(70.0 / 170, 6)},
-    "sam": {"budget": 30.0, "planned_calls": 20, "unit_cost": 1.50},
-    "voice": {"budget": 30.0, "planned_calls": 50, "unit_cost": 0.60},
-    "spark": {"budget": 20.0, "planned_calls": 40, "unit_cost": 0.50},
-    # $0 infrastructure: local GPU and partner-provided open weights
-    "spark_open": {"budget": 0.0, "planned_calls": 0, "unit_cost": 0.0},
+    "decision": {"budget": 10.0, "planned_calls": 100, "unit_cost": 0.10},
+    "deep": {"budget": 10.0, "planned_calls": 100, "unit_cost": 0.10},
+    "fast": {"budget": 5.0, "planned_calls": 100, "unit_cost": 0.05},
+    "tavily": {"budget": 5.0, "planned_calls": 100, "unit_cost": 0.05},
     "voice_synth": {"budget": 0.0, "planned_calls": 16, "unit_cost": 0.0},
-    "ollama": {"budget": 0.0, "planned_calls": 0, "unit_cost": 0.0},
-    "modal": {"budget": 0.0, "planned_calls": 0, "unit_cost": 0.0},
-    "muse_code": {"budget": 0.0, "planned_calls": 0, "unit_cost": 0.0},
 }
 
 # Money is rounded to cents; comparisons use the same tolerance.
@@ -63,6 +62,10 @@ def _now() -> str:
 
 class BudgetError(RuntimeError):
     """Raised when a call would break the budget or a per-model cap."""
+
+
+# One writer at a time: the ledger is a file, not a database.
+_LOG_LOCK = threading.Lock()
 
 
 class CreditTracker:
@@ -150,6 +153,22 @@ class CreditTracker:
     # -- logging ------------------------------------------------------------ #
 
     def log(
+        self,
+        model: str,
+        calls: int = 1,
+        cost: float | None = None,
+        note: str = "",
+    ) -> dict:
+        """Record a call batch, serialised across threads.
+
+        ``multilingual.py`` drafts several locales at once; the ledger is a
+        read-modify-write file, so two workers appending at the same time would
+        otherwise lose an entry and under-report real spend.
+        """
+        with _LOG_LOCK:
+            return self._log(model, calls, cost, note)
+
+    def _log(
         self,
         model: str,
         calls: int = 1,
@@ -321,10 +340,10 @@ def _fmt_status(tracker: CreditTracker) -> str:
 def _simulate(tracker: CreditTracker) -> int:
     """Replay the full $150 plan to prove it lands exactly on budget."""
     script = [
-        ("wonder", 170, "cascade allocation reasoning (Day 3)"),
+        ("decision", 170, "cascade allocation reasoning (Day 3)"),
         ("sam", 20, "flood extent images (Day 2)"),
         ("voice", 50, "Tamil field reports (Day 2)"),
-        ("spark", 40, "coding + creative prompts (Day 3-4)"),
+        ("fast", 40, "coding + creative prompts (Day 3-4)"),
     ]
     print("SIMULATION - replaying the $150 plan\n")
     for model, calls, note in script:
@@ -356,7 +375,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="LIFELINE AI credit tracker")
     parser.add_argument("command", nargs="?", default="status",
                         choices=["status", "log", "simulate", "verify", "archive"])
-    parser.add_argument("--model", default="wonder", choices=sorted(PLAN))
+    parser.add_argument("--model", default="decision", choices=sorted(PLAN))
     parser.add_argument("--calls", type=int, default=1)
     parser.add_argument("--cost", type=float, default=None)
     parser.add_argument("--note", default="")

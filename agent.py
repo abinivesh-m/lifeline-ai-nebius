@@ -1,11 +1,11 @@
 """LIFELINE AI - the 8-step survival agent, end to end.
 
-    step 1  PERCEIVE   SAM 3.1    flood extent from imagery        (artifact adapter)
-    step 2  LISTEN     Voice      Tamil field reports              (artifact adapter)
+    step 1  PERCEIVE   stored     flood extent from stored masks   (artifact adapter)
+    step 2  LISTEN     stored     field reports, stored transcripts (artifact adapter)
     step 3  GRAPH      code       dependency order + cascade       deterministic
     step 4  ROUTE      code       A* around the landslide          deterministic
-    step 5  ALLOCATE   Wonder     evidence -> 70 L / 30 L           model + validator
-    step 6  BUDGET     code       $150 ledger, 80%/95% alerts       deterministic
+    step 5  ALLOCATE   Nemotron   evidence -> 70 L / 30 L           model + validator
+    step 6  BUDGET     code       $29.50 ledger, 80%/95% alerts     deterministic
     step 7  APPROVE    human      nothing executes without a yes   gate
     step 8  REPLAN     code       new constraint -> new plan       deterministic
 
@@ -89,7 +89,7 @@ def step_perceive(town: dict) -> dict:
         return {
             "step": 1,
             "name": "PERCEIVE",
-            "model": "sam-3.1",
+            "model": "pre-migration segmentation (not re-run in this build)",
             "status": "pending_capture",
             "detail": "artifacts/sam_flood_segments.json not captured yet (Day 2)",
         }
@@ -99,12 +99,12 @@ def step_perceive(town: dict) -> dict:
     return {
         "step": 1,
         "name": "PERCEIVE",
-        "model": "sam-3.1",
+        "model": "pre-migration segmentation (not re-run in this build)",
         "status": "ok",
         "frames": len(frames),
         "water_severity_percent": severity,
         "worst_frame": max(frames, key=lambda f: f.get("water_severity_percent", 0), default=None),
-        "evidence": "pixel masks returned by sam-3.1, stored verbatim in artifacts/",
+        "evidence": "pixel masks captured before the migration, stored verbatim in artifacts/",
     }
 
 
@@ -114,7 +114,7 @@ def step_listen(town: dict) -> dict:
         return {
             "step": 2,
             "name": "LISTEN",
-            "model": "muse-voice-transcribe-1.0",
+            "model": "pre-migration ASR (not re-run in this build)",
             "status": "pending_capture",
             "detail": "artifacts/voice_reports.json not captured yet (Day 2)",
         }
@@ -124,7 +124,7 @@ def step_listen(town: dict) -> dict:
     return {
         "step": 2,
         "name": "LISTEN",
-        "model": "muse-voice-transcribe-1.0",
+        "model": "pre-migration ASR (not re-run in this build)",
         "status": "ok",
         "reports": len(reports),
         "blocked_mentions": len(blocked),
@@ -165,8 +165,39 @@ def step_allocate(town: dict, mode: str, log_credit: bool) -> dict:
 
 
 def step_budget(town: dict) -> dict:
+    """Report the reconciled spend, not just the local ledger.
+
+    The ledger records only calls made on this machine. The artefacts also
+    carry priced calls made by the proof, multilingual and gate runners, so the
+    number a judge sees here is the same one the page shows. If the export has
+    not been built yet, fall back to the ledger alone and say so.
+    """
     tracker = credit_tracker.CreditTracker()
     status = tracker.status()
+    measured = None
+    try:
+        import export_ui_data  # local import keeps the CLI startup light
+        measured = export_ui_data._spend()
+    except Exception:  # the agent must still run if the export cannot be built
+        measured = None
+    if measured and measured.get("spent_usd") is not None:
+        spent = float(measured["spent_usd"])
+        budget = float(measured["budget_usd"])
+        return {
+            "step": 6,
+            "name": "BUDGET",
+            "status": "ok",
+            "spent_usd": spent,
+            "remaining_usd": round(budget - spent, 6),
+            "percent_used": round(100 * spent / budget, 4) if budget else 0.0,
+            "level": measured.get("level", "ok"),
+            "alerts": status["alerts"],
+            "plan_usd": budget,
+            "evidence": (
+                "artefact-reconciled spend: nebius_proof.json + multilingual_payloads.json "
+                "+ seri_gate.json + Tavily usage; the local ledger is a subset"
+            ),
+        }
     return {
         "step": 6,
         "name": "BUDGET",
@@ -386,7 +417,7 @@ def _print_step(result: dict, town: dict) -> None:
         for organ, litres in result["allocation"].items():
             print(f"  {litres:3d} L  {organ:12s} {town['organs'][organ]['role']}")
         print(f"  {result['total']:3d} L  total  (source: {result['source']})")
-        brain = result["trace"].get("openweight") or {}
+        brain = result["trace"].get("nebius") or {}
         if brain.get("model"):
             print(f"  brain: {brain['status']} · {brain['model']} · "
                   f"{brain.get('latency_s') or '?'} s")
@@ -469,7 +500,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="LIFELINE AI - 8 step survival agent")
     parser.add_argument("--yes", action="store_true", help="pre-approve dispatch (recording mode)")
     parser.add_argument(
-        "--mode", choices=["auto", "policy", "wonder", "openweight"], default="auto"
+        "--mode", choices=["auto", "policy", "nebius"], default="auto"
     )
     parser.add_argument("--scenario", choices=["none", "pump-critical", "reserve-loss"], default="none")
     parser.add_argument("--log-credit", action="store_true")

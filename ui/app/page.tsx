@@ -130,7 +130,7 @@ export default function Page() {
               </h1>
 
               <p className="mt-4 max-w-xl text-[14.5px] leading-relaxed text-muted">
-                A landslide blocks NH-544 at km 42. One health centre, 200 people in
+                A landslide blocks the ghat road at km 42. One health centre, 200 people in
                 shelters, and 100 L of diesel decides whether the pumps keep turning.
                 LIFELINE AI runs the town like an organ system: heart first, lungs
                 second, and never a litre moved without a human saying yes.
@@ -142,7 +142,7 @@ export default function Page() {
                   `${lifeline.locales.length} world languages [${lifeline.locales
                     .map((locale) => locale.code.toUpperCase())
                     .join(" ")}]`,
-                  `ledger $${lifeline.credit.spent_usd.toFixed(4)}/$${lifeline.credit.budget_usd.toFixed(0)} live`,
+                  `inference $${lifeline.credit.spent_usd.toFixed(4)}/$${lifeline.credit.budget_usd.toFixed(2)} live`,
                   "78/78 pytest",
                 ].map((chip) => (
                   <span
@@ -423,7 +423,7 @@ export default function Page() {
       {/* -------------------------------------------------------------- offline */}
       <Section
         meta={SECTIONS[5]}
-        lede="The core — routing, topological order, the 70/30 validator, the ledger — runs on this laptop with the network off. The Open Weight brain is exact and partner-hosted: muse-spark-open-1026 on Baseten, live when the wire is up, replayed from the stored run when it is not."
+        lede="The core - routing, topological order, the 70/30 validator, the ledger - runs on this laptop with the network off. The brain is Nebius Token Factory: Nemotron 3 Ultra for the decision, Super for review, Nano for volume, with the live run replayed from its artefact when the wire is down."
       >
         <OfflineProof3D />
       </Section>
@@ -460,10 +460,10 @@ export default function Page() {
           <div>
             <div className="mono text-[9px] tracking-[0.18em] text-muted">MODELS</div>
             <ul className="mt-1.5 space-y-1 mono text-[9.5px] text-muted">
-              <li>SAM 3.1 · eyes</li>
-              <li>muse-voice-transcribe-1.0 · ears</li>
-              <li>muse-wonder-1.0 · allocator</li>
-              <li>muse-spark-open-1026 · partner</li>
+              <li>Nemotron 3 Ultra 550b · allocator (Token Factory)</li>
+              <li>Nemotron 3 Super 120b · review</li>
+              <li>Nemotron 3 Nano 30B · triage</li>
+              <li>Tavily · search / extract / map / crawl</li>
             </ul>
           </div>
           <div>
@@ -482,7 +482,8 @@ export default function Page() {
               advice. A human approves before anything is dispatched.
             </p>
             <p className="mt-2 mono text-[9px] text-muted/70">
-              ledger ${lifeline.credit.spent_usd.toFixed(4)} / ${lifeline.credit.budget_usd}
+              inference ${lifeline.credit.spent_usd.toFixed(4)} / ${lifeline.credit.budget_usd.toFixed(2)}
+              {" · "}tavily ${lifeline.credit.tavily_usd.toFixed(3)}
             </p>
           </div>
         </div>

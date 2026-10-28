@@ -20,7 +20,7 @@ print(json.dumps(brain.describe(), indent=2))
 print(f"evidence rows: {len(evidence)}")
 
 started = time.time()
-proposal, meta = allocator.wonder_allocate(town, evidence)
+proposal, meta = allocator.brain_allocate(town, evidence)
 print("\n-- trace --")
 print(json.dumps(meta, indent=2, ensure_ascii=False))
 print("\n-- proposal --")

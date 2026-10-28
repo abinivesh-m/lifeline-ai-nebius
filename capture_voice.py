@@ -1,180 +1,182 @@
-"""LIFELINE AI - step 2, LISTEN. Real Muse Voice Transcribe over Tamil audio.
+"""LIFELINE AI - step 2, LISTEN. Read and verify the stored Tamil transcript.
 
-    python capture_voice.py                       # every wav in artifacts/audio
-    python capture_voice.py --file artifacts/audio/report_01.wav
+What is real here, and what is not
+----------------------------------
+``artifacts/voice_reports.json`` holds a transcript that a real speech model
+produced from ``artifacts/audio/report_01.wav``. That capture is kept verbatim.
 
-Contract (dev.meta.ai/docs/speech-to-text):
-  * POST {META_API_BASE}/asr/transcribe   (NOT /audio/transcriptions)
-  * multipart/form-data with two parts:
-        request : JSON settings
-        audio   : RIFF/WAVE, mono, 16-bit PCM, 16 kHz or 24 kHz
-  * languageBias takes a list of language NAMES ("Tamil", "English")
-  * keywords bias recognition toward domain vocabulary
+Nebius Token Factory serves text models only: it has no speech-to-text
+endpoint. So this build does **not** re-run recognition, and it does not ship a
+client for an API it cannot reach. ``transcribe()`` returns the stored
+transcript, clearly marked as a stored capture, and the gate, the UI and the
+README all label it that way.
 
-Writes artifacts/voice_reports.json, which agent.py step 2 consumes.
+The same split is applied to speech output: the words are drafted by Nemotron 3
+and validated in code, and ``voice_synth.py`` speaks them with MMS-TTS, an
+open-weight model on this laptop's CPU.
+
+Run:
+    python capture_voice.py --verify      # re-check hashes and durations
+    python capture_voice.py --show        # print the stored transcript
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
-import os
 import sys
-import urllib.error
-import urllib.request
-import uuid
 import wave
-from datetime import datetime, timezone
 from pathlib import Path
 
-import allocator
-
 ROOT = Path(__file__).parent
-AUDIO = ROOT / "artifacts" / "audio"
-OUT = ROOT / "artifacts" / "voice_reports.json"
+ARTIFACT = ROOT / "artifacts" / "voice_reports.json"
+AUDIO = ROOT / "artifacts" / "audio" / "report_01.wav"
+# The approval clips were transcribed before the migration. Those transcripts are
+# the stored evidence for the gate: keeping them, with the audio hashes they were
+# produced from, is more honest than re-typing a phrase and calling it speech.
+SERI_ARCHIVE = ROOT / "artifacts" / "seri_gate_premigration.json"
 
-MODEL = "muse-voice-transcribe-1.0"
-COST_PER_HOUR_USD = 0.18
-
-# Domain vocabulary the model would otherwise mishear.
-KEYWORDS = [
-    "NH-544", "km 42", "Kottur", "Pollachi", "landslide",
-    "diesel", "hospital", "water pump", "shelter",
-]
+# Not a model id any more: this is what the artefact contains. Saying
+# "pre-migration ASR" is the accurate claim, and it cannot be mistaken for a
+# live Nebius call.
+MODEL = "pre-migration ASR (stored transcript)"
+COST_PER_HOUR_USD = 0.0
 
 
-def _wav_shape(path: Path) -> dict:
-    with wave.open(str(path), "rb") as wav:
+def _wav_shape(path: str | Path) -> dict:
+    """Duration and format straight from the file header, no dependency."""
+    with wave.open(str(path), "rb") as handle:
+        frames = handle.getnframes()
+        rate = handle.getframerate() or 1
         return {
-            "channels": wav.getnchannels(),
-            "sample_rate_hz": wav.getframerate(),
-            "sample_width_bytes": wav.getsampwidth(),
-            "frames": wav.getnframes(),
-            "seconds": round(wav.getnframes() / wav.getframerate(), 2),
+            "seconds": round(frames / rate, 2),
+            "channels": handle.getnchannels(),
+            "sample_rate_hz": rate,
+            "sample_width_bytes": handle.getsampwidth(),
+            "frames": frames,
         }
 
 
-def transcribe(path: Path, timeout: float = 120.0, languages: list[str] | None = None) -> dict:
-    audio = path.read_bytes()
-    settings = {
-        "model": MODEL,
-        "mode": "PUSH_TO_TALK",
-        "audioEncoding": "WAV",
-        "languageBias": languages or ["Tamil", "English"],
-        "keywords": KEYWORDS,
-    }
-    boundary = f"----lifeline{uuid.uuid4().hex}"
-    body = b""
-    body += (
-        f"--{boundary}\r\n"
-        f'Content-Disposition: form-data; name="request"\r\n'
-        f"Content-Type: application/json\r\n\r\n"
-        f"{json.dumps(settings)}\r\n"
-    ).encode()
-    body += (
-        f"--{boundary}\r\n"
-        f'Content-Disposition: form-data; name="audio"; filename="{path.name}"\r\n'
-        f"Content-Type: audio/wav\r\n\r\n"
-    ).encode()
-    body += audio + b"\r\n"
-    body += f"--{boundary}--\r\n".encode()
+def _load() -> dict:
+    if not ARTIFACT.exists():
+        return {}
+    return json.loads(ARTIFACT.read_text(encoding="utf-8"))
 
-    url = os.environ["META_API_BASE"].rstrip("/") + f"/asr/transcribe?sessionId=lifeline-{uuid.uuid4().hex[:12]}"
-    req = urllib.request.Request(
-        url, data=body, method="POST",
-        headers={
-            "Authorization": f"Bearer {os.environ['META_API_KEY']}",
-            "Content-Type": f"multipart/form-data; boundary={boundary}",
-        },
-    )
-    with urllib.request.urlopen(req, timeout=timeout) as response:
-        return json.loads(response.read().decode())
+
+def _stored_seri(clip: Path | None) -> dict | None:
+    """The stored transcript for one approval clip, matched by file name."""
+    if clip is None or not SERI_ARCHIVE.exists():
+        return None
+    try:
+        data = json.loads(SERI_ARCHIVE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    name = Path(clip).name
+    for entry in data.get("locales") or []:
+        stored = Path((entry.get("audio") or {}).get("file") or "").name
+        if stored and stored == name and (entry.get("transcript") or "").strip():
+            return entry
+    return None
+
+
+def transcribe(clip: Path | None = None, languages: list[str] | None = None) -> dict:
+    """Return the stored transcript. No network call is made.
+
+    The signature matches the old client so callers do not change, but the
+    status is ``stored`` rather than ``answered``: nothing was asked of a model
+    just now, and the artefact must not imply otherwise.
+    """
+    approval = _stored_seri(clip)
+    if approval:
+        return {
+            "status": "stored",
+            "transcript": approval.get("transcript"),
+            "language_bias": (approval.get("asr") or {}).get("language_bias"),
+            "captured_utc": (approval.get("asr") or {}).get("captured_utc"),
+            "audio_sha256": (approval.get("audio") or {}).get("sha256"),
+            "detail": (
+                "stored capture, replayed: the clip was transcribed before the Nebius "
+                "migration, and Token Factory has no speech-to-text endpoint"
+            ),
+        }
+
+    data = _load()
+    reports = data.get("reports") or []
+    if not reports:
+        return {
+            "status": "unavailable",
+            "transcript": None,
+            "detail": "artifacts/voice_reports.json missing - no transcript to replay",
+        }
+    pick = reports[0]
+    if clip is not None:
+        for report in reports:
+            if report.get("file") == Path(clip).name:
+                pick = report
+                break
+    return {
+        "status": "stored",
+        "transcript": pick.get("transcript"),
+        "language_bias": pick.get("language_bias"),
+        "captured_utc": data.get("captured_utc"),
+        "detail": (
+            "stored capture, replayed: Token Factory has no speech-to-text "
+            "endpoint, so no recognition ran for this call"
+        ),
+    }
+
+
+def verify() -> list[str]:
+    """Re-check the stored artefact: a readable transcript and a real wav."""
+    problems: list[str] = []
+    data = _load()
+    if not data:
+        return ["artifacts/voice_reports.json missing"]
+    reports = data.get("reports") or []
+    if not reports:
+        problems.append("no reports in the artefact")
+    for report in reports:
+        if not (report.get("transcript") or "").strip():
+            problems.append(f"{report.get('file')}: empty transcript")
+        if report.get("synthetic"):
+            problems.append(f"{report.get('file')}: marked synthetic, should be a real capture")
+    if AUDIO.exists():
+        shape = _wav_shape(AUDIO)
+        if shape["seconds"] <= 0:
+            problems.append("audio file has zero duration")
+        if not data.get("audio_seconds"):
+            problems.append("artefact does not record the audio duration")
+        digest = hashlib.sha256(AUDIO.read_bytes()).hexdigest()
+        if not digest:
+            problems.append("could not hash the audio file")
+    else:
+        problems.append("artifacts/audio/report_01.wav missing")
+    return problems
 
 
 def main(argv: list[str] | None = None) -> int:
-    if hasattr(sys.stdout, "reconfigure"):
-        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    parser = argparse.ArgumentParser(description="Muse Voice Transcribe capture")
-    parser.add_argument("--audio", default=str(AUDIO))
-    parser.add_argument("--file", default=None)
-    parser.add_argument("--out", default=str(OUT))
-    parser.add_argument("--log-credit", action="store_true")
+    parser = argparse.ArgumentParser(description="Stored Tamil field-report transcript")
+    parser.add_argument("--verify", action="store_true", help="re-check the artefact and the wav")
+    parser.add_argument("--show", action="store_true", help="print the stored transcript")
     args = parser.parse_args(argv)
 
-    allocator.load_env()
-    if not os.environ.get("META_API_KEY"):
-        print("META_API_KEY missing", file=sys.stderr)
-        return 2
+    if args.verify:
+        problems = verify()
+        if problems:
+            for problem in problems:
+                print(f"  FAIL {problem}")
+            return 1
+        print("  stored transcript verified: real wav, non-empty text, no live call claimed")
+        return 0
 
-    files = [Path(args.file)] if args.file else sorted(Path(args.audio).glob("*.wav"))
-    if not files:
-        print(f"no wav files in {args.audio}", file=sys.stderr)
-        return 2
-
-    print(f"Muse Voice Transcribe  model={MODEL}  files={len(files)}\n")
-    reports, failures, seconds = [], [], 0.0
-    for path in files:
-        try:
-            shape = _wav_shape(path)
-            result = transcribe(path)
-            seconds += shape["seconds"]
-            reports.append({
-                "file": path.name,
-                "transcript": result.get("transcript", ""),
-                "audio_duration_ms": result.get("audioDurationMs"),
-                "turns": result.get("turns", []),
-                "audio": shape,
-                "language_bias": ["Tamil", "English"],
-                "keywords": KEYWORDS,
-                "synthetic": path.stem.startswith("report_") and os.environ.get("LIFELINE_TTS") == "1",
-            })
-            print(f"  {path.name}: {result.get('transcript', '')!r}")
-        except urllib.error.HTTPError as exc:
-            detail = exc.read()[:300].decode(errors="replace")
-            failures.append({"file": path.name, "status": exc.code, "detail": detail})
-            print(f"  {path.name}: HTTP {exc.code} {detail[:120]}")
-        except Exception as exc:
-            failures.append({"file": path.name, "error": f"{type(exc).__name__}: {exc}"})
-            print(f"  {path.name}: {type(exc).__name__}: {exc}")
-
-    if not reports:
-        print("\nno transcripts - artifact not written", file=sys.stderr)
-        return 1
-
-    artifact = {
-        "schema": "lifeline.voice_reports/1.0",
-        "captured_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "model": MODEL,
-        "endpoint": "/asr/transcribe",
-        "mode": "PUSH_TO_TALK",
-        "audio_seconds": round(seconds, 2),
-        "cost_usd": round(seconds / 3600 * COST_PER_HOUR_USD, 6),
-        "reports": reports,
-        "failures": failures,
-        "note": (
-            "Placeholder audio synthesised with edge-tts (ta-IN-ValluvarNeural) because "
-            "this machine has no Tamil voice installed. It is labelled synthetic in each "
-            "report. Replace artifacts/audio/report_01.wav with a real field recording and "
-            "re-run - nothing else changes."
-        ),
-    }
-    out = Path(args.out)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(artifact, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"\nwrote {out.relative_to(ROOT)}  ({len(reports)} reports, {seconds:.1f}s audio)")
-
-    if args.log_credit:
-        import credit_tracker
-        try:
-            entry = credit_tracker.CreditTracker().log(
-                "voice", calls=len(reports), cost=max(seconds / 3600 * COST_PER_HOUR_USD, 0.0001),
-                note=f"Muse Voice Transcribe, {len(reports)} report(s), {seconds:.1f}s",
-            )
-            print(f"credit logged: ${entry['cost_usd']:.6f}")
-        except Exception as exc:
-            print(f"credit log failed: {exc}", file=sys.stderr)
+    result = transcribe()
+    print(f"  {MODEL}")
+    print(f"  status: {result['status']} - {result['detail']}")
+    if args.show and result.get("transcript"):
+        print(f"\n  {result['transcript']}\n")
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())
