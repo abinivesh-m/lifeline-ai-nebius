@@ -306,13 +306,12 @@ ledger, the gate and the replan make no network call. There is no model where ar
 | Kottur, its coordinates, the ghat road and its monsoon closures | **real** |
 | Pollachi–Valparai closure, 22 Oct 2026, reopened after 15 h | **real**, linked above |
 | `town.json` — 100 L reserve, 4 h generator, 70 L / 30 L demands, 6 h closure | **simulated**, chosen to be plausible |
-| "December 2023 Kottur landslide" | **not claimed.** No such event is asserted anywhere in this repo |
 | Flood masks, 9 frames, worst 59.4% | **stored pre-migration artefacts**, replayed and re-checked; no image model is called or billed |
 | ASR transcript, 10.78 s | **stored pre-migration transcript**, replayed verbatim; no ASR call is claimed or billed |
 | Nemotron 3 calls | **real**, 18 calls, $0.027049, traces in `artifacts/` |
 | Tavily sources, quotes, scores, credits | **real**, per-row in `artifacts/tavily_proof.json` |
 | TTS clips | **MMS-TTS, local CPU** — explicitly *not* NVIDIA, labelled synthetic |
-| SMS / WhatsApp / voice delivery | `PENDING_CREDENTIALS` — payloads built and logged, **none sent** |
+| SMS / WhatsApp / voice delivery | **`PENDING_CREDENTIALS`** — payloads generated and logged in 8 locales, none transmitted (no gateway configured) |
 | Demo deployment | **static demo live** at <https://lifeline-ai-nebius.vercel.app>, verified 200 anonymously on 28 Oct 2026. `/api/allocate` runs only in the included container, not on Vercel |
 
 The stored-mask and stored-transcript rows are the ones a judge would otherwise catch. They are stated
