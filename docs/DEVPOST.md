@@ -183,10 +183,11 @@ a-star, topological-sort, ant-colony, offline-first, multilingual, mms-tts, json
 | --- | --- |
 | GitHub | `https://github.com/abinivesh-m/lifeline-ai-nebius` |
 | Demo | `https://lifeline-ai-nebius.vercel.app` |
+| Workflow replay | `https://lifeline-ai-nebius.vercel.app/live/` — the recorded eight-step event stream, playable step by step |
 
 The demo is the full interface with every artefact baked in, served as a static export. `POST /api/allocate`
 is the one route that needs the Python engine, so it answers in the included Nebius container
-(`deploy/serve.py`) and not on the static host. I list only the URL I watched return 200 in a private
+(`deploy/serve.py`) and not on the static host. I list only URLs I watched return 200 in a private
 window; there is no Nebius-hosted URL in this submission because I have not deployed there.
 
 ---
