@@ -35,6 +35,11 @@ Solo entry · **Nebius × NVIDIA Global AI Hackathon 2026** · **Best Apps and A
 > landslide happened on a specific date. [What is real](#what-is-real-and-what-is-simulated) draws that
 > line precisely.
 
+**What makes this different.** Most agents call a model and trust the answer. This one (1) derives the
+allocation from constraints and rejects bad proposals in code, (2) treats every web fact as a quoted,
+five-checked claim with a published rejection log, and (3) runs the whole plan with the network off, then
+seals the human decision in a hash chain. The model is the fast path, not the only path.
+
 ---
 
 ## At a glance
