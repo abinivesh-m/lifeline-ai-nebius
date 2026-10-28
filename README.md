@@ -22,6 +22,8 @@ outside fact retrieved and checked through Tavily.**
 Solo entry · **Nebius × NVIDIA Global AI Hackathon 2026** · **Best Apps and Agents**
 · **Best Use of Tavily** · [@abinivesh-m](https://github.com/abinivesh-m)
 
+**▶ Live demo: <https://lifeline-ai-nebius.vercel.app>** — verified 200 anonymously on 28 Oct 2026.
+
 > **The town is real. The scenario is simulated.** Kottur, Pollachi Taluk, Coimbatore, Tamil Nadu —
 > 11.0168 N, 76.9558 E — sits at the foot of the Western Ghats, where the **Pollachi–Valparai ghat road**
 > closes under boulders every monsoon. The most recent real closure was **22 October 2026: reopened after
@@ -267,7 +269,7 @@ nothing, and is labelled synthetic on screen.
 | Tavily sources, quotes, scores, credits | **real**, per-row in `artifacts/tavily_proof.json` |
 | TTS clips | **MMS-TTS, local CPU** — explicitly *not* NVIDIA, labelled synthetic |
 | SMS / WhatsApp / voice delivery | `PENDING_CREDENTIALS` — payloads built and logged, **none sent** |
-| Demo deployment | code included; **no public URL is claimed until it answers** |
+| Demo deployment | **static demo live** at `https://lifeline-ai-nebius.vercel.app` — verified 200 anonymously, 28 Oct 2026. The live `/api/allocate` route runs only in the Nebius container, not on Vercel |
 
 The stored-mask and stored-transcript rows are the ones a judge would otherwise catch. They are stated
 before they are asked.
@@ -357,17 +359,24 @@ readable offline from the baked artefacts; the API route is the live part.
 
 ## Deploy it
 
-**Vercel (static demo).** The exported `ui/out` folder is a plain static site. Set the Vercel project root
-to `ui`, build command `npm run build`, output directory `out`. The page, media, artefacts and the
-three.js scenes all work; `POST /api/allocate` does not, because Vercel is not running the Python engine.
+**Static demo — live now: <https://lifeline-ai-nebius.vercel.app>**
+
+Verified anonymously on 28 Oct 2026: the page, `/data/lifeline.json` and `/videos/flood.mp4` all return
+**200** with no login. It is the exported `ui/out` folder served as a plain static site, so the page,
+media, artefacts and the three.js scenes all work; `POST /api/allocate` does not, because Vercel is not
+running the Python engine. Judges see every baked artefact and the full interface; the live allocation
+call needs the container below.
+
+To reproduce the static deploy: Vercel project root `ui`, build command `npm run build`, output
+directory `out`.
 
 **Nebius AI Cloud (full demo).** The included `Dockerfile` builds the UI in a Node stage and serves it
 from a Python stage with `deploy/serve.py`. Push the image to a registry, create a Serverless Endpoint,
 set `NEBIUS_API_KEY` as a secret, and point the health check at `/api/health`. The container listens on
 `$PORT` (default 8080). Full steps: [`deploy/README.md`](deploy/README.md).
 
-No public URL is claimed in this README. A deployment is real when it returns 200 in a private window,
-and not before.
+The rule I hold myself to: a URL is listed here only after it returns 200 in a private window. That is
+why the Vercel URL is above and the Nebius URL is not.
 
 ## Repository layout
 

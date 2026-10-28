@@ -2,9 +2,10 @@
 
 **Track:** Best Apps and Agents · **Bonus:** Best Use of Tavily · **Feedback:** yes
 
-> **Before pasting:** every number below is read from a committed artefact. Do not add a demo URL until
-> it returns 200 in a private window. Do not name an event that is not linked. Do not quote a source
-> count the artefact does not contain. No API key or account id belongs in any field.
+> **Before pasting:** every number below is read from a committed artefact. The demo URL below was
+> verified 200 in a private window on 28 Oct 2026 — re-check it the morning you submit. Do not name an
+> event that is not linked. Do not quote a source count the artefact does not contain. No API key or
+> account id belongs in any field.
 
 ## Form fields at a glance
 
@@ -15,7 +16,7 @@
 | Video | public YouTube URL, **≤ 3:00**, and the audio must say *Nebius Token Factory*, *NVIDIA Nemotron 3* and *Tavily* |
 | Thumbnail | `figma/lifegrid.png` |
 | GitHub repo | `https://github.com/abinivesh-m/lifeline-ai-nebius` |
-| Demo URL | paste only after it returns **200 in a private window**; until then leave it blank |
+| Demo URL | `https://lifeline-ai-nebius.vercel.app` — static demo, verified 200 anonymously 28 Oct 2026 |
 | Feedback | paste [`FEEDBACK.md`](../FEEDBACK.md) — eight findings from this build |
 
 ---
@@ -180,7 +181,12 @@ a-star, topological-sort, ant-colony, offline-first, multilingual, mms-tts, json
 | Field | Value |
 | --- | --- |
 | GitHub | `https://github.com/abinivesh-m/lifeline-ai-nebius` |
-| Demo | **paste the managed Nebius URL only after it returns 200 in a private window** |
+| Demo | `https://lifeline-ai-nebius.vercel.app` |
+
+The demo is the full interface with every artefact baked in, served as a static export. `POST /api/allocate`
+is the one route that needs the Python engine, so it answers in the included Nebius container
+(`deploy/serve.py`) and not on the static host. I list only the URL I watched return 200 in a private
+window; there is no Nebius-hosted URL in this submission because I have not deployed there.
 
 ---
 
@@ -291,10 +297,11 @@ both ids and prices, which is what let me price calls from real token counts ins
 typed. Switching Ultra → Super → Nano is one line in `brain.py`, which is the entire reason the app
 can afford a 550B model on the decision and a small one everywhere else.
 
-Serverless AI is where the demo is meant to run: an endpoint with a container command and an
+Serverless AI is where the full demo is meant to run: an endpoint with a container command and an
 environment secret, so the deployed app calls Token Factory from inside Nebius with no key in the
-repository. I am not claiming a deployment I have not verified — the demo URL in this submission is
-the one that answers.
+repository. The URL in this submission is the static demo I watched return 200 in a private window; the
+`/api/allocate` route runs in that container, not on the static host. I do not list a Nebius-hosted URL
+because I have not deployed there.
 
 What I did not need: a GPU instance. The agent side runs on a 6 GB laptop, offline, which is the
 point.

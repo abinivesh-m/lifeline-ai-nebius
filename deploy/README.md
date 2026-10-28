@@ -14,6 +14,9 @@ product.
 
 ## 1. Vercel — the static demo
 
+**Live: <https://lifeline-ai-nebius.vercel.app>** — verified 200 anonymously on 28 Oct 2026 (page,
+`/data/lifeline.json`, `/videos/flood.mp4`).
+
 The UI is exported with `output: "export"` and `trailingSlash: true`, so `npm run build` writes a plain
 folder of files to `ui/out`. There is no Node server at run time.
 
@@ -108,10 +111,8 @@ The second call costs one Ultra completion. `mode:"policy"` is free and proves t
 
 ## 3. What to put in the submission
 
-Only claim a URL after it answers **200 in a private window**. Until then, the honest line is:
-
-> The demo runs locally with `python deploy/serve.py`; deployment steps for Vercel and Nebius AI Cloud are
-> in `deploy/README.md`.
+Only claim a URL after it answers **200 in a private window**. The static URL listed above was checked
+that way; if you redeploy, check it again before you submit.
 
 The static Vercel URL is the one a judge can open without a key. The Nebius endpoint is the one that can
 make a live call.
