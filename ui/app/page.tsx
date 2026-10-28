@@ -6,6 +6,7 @@ import DependencyGraph3D from "@/components/DependencyGraph3D";
 import AStarMap3D from "@/components/AStarMap3D";
 import BloodPanel from "@/components/BloodPanel";
 import AllocatorDashboard from "@/components/AllocatorDashboard";
+import LiveEndpoint from "@/components/LiveEndpoint";
 import OfflineProof3D from "@/components/OfflineProof3D";
 import AgenticTimeline3D from "@/components/AgenticTimeline3D";
 import WorldPanel from "@/components/WorldPanel";
@@ -293,6 +294,7 @@ export default function Page() {
         lede="Segmentation, transcription, reasoning, validation, the credit ledger and the human gate, side by side. Every number below is read from an artefact in the repo, not typed into the page."
       >
         <AllocatorDashboard />
+        <LiveEndpoint />
       </Section>
 
       {/* ---------------------------------------------------------- escalation */}
