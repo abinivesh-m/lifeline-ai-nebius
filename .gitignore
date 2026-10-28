@@ -1,0 +1,53 @@
+# --- secrets ---------------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# --- credit ledger: generated at runtime, never committed ------------------
+credit_usage.json
+credit_usage.tmp
+credit_usage.archive.json
+
+# --- python ----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# --- models and local inference -------------------------------------------
+ollama/
+models/
+*.gguf
+.modal.toml
+
+# --- media and captures ----------------------------------------------------
+*.mp4
+*.mov
+*.wav
+*.mp3
+captures/
+artifacts/live/
+artifacts/shots/
+
+# proof clips and the labelled synthetic voice note are deliverables
+!artifacts/proof/*.mp4
+!artifacts/audio/report_01.wav
+!artifacts/audio/voice/*.wav
+# the 7 spoken approval clips are the evidence the Seri gate describes
+!artifacts/audio/seri_*.wav
+
+# --- node / next.js --------------------------------------------------------
+node_modules/
+ui/node_modules/
+ui/.next/
+ui/out/
+*.tsbuildinfo
+
+# --- os / editor -----------------------------------------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
