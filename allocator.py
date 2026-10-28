@@ -232,9 +232,9 @@ def validate_proposal(allocation: dict[str, Any], town: dict) -> list[str]:
 # --------------------------------------------------------------------------- #
 
 def wonder_configured() -> bool:
-    if os.environ.get("LIFELINE_OFFLINE", "0") == "1":
-        return False
-    return bool(os.environ.get("META_API_KEY") and os.environ.get("META_API_BASE"))
+    import brain
+
+    return brain.configured()
 
 
 def _prompt(town: dict, evidence: list[dict], constraints: dict) -> str:
@@ -256,21 +256,29 @@ def _prompt(town: dict, evidence: list[dict], constraints: dict) -> str:
 
 
 def wonder_allocate(town: dict, evidence: list[dict], timeout: float = 60.0) -> tuple[dict | None, dict]:
-    """Ask Wonder for a proposal. Returns (proposal, trace); proposal is None on failure."""
+    """Ask the active brain for a proposal. Returns (proposal, trace); None on failure."""
+    import brain
+
     meta = {
-        "model": os.environ.get("META_MODEL", "muse-wonder-1.0"),
-        "endpoint": os.environ.get("META_API_BASE", ""),
+        "provider": brain.label(),
+        "model": brain.model("decision"),
+        "endpoint": brain.endpoint(),
         "reasoning_effort": os.environ.get("META_REASONING_EFFORT", ""),
         "status": "skipped",
         "latency_s": None,
         "raw_preview": None,
+        "tier": "decision",
     }
     if not wonder_configured():
         meta["status"] = "unconfigured"
         if os.environ.get("LIFELINE_OFFLINE", "0") == "1":
             meta["detail"] = "LIFELINE_OFFLINE=1 - no network calls, deterministic solver only"
         else:
-            meta["detail"] = "set META_API_BASE and META_API_KEY in .env to enable live calls"
+            meta["detail"] = (
+                "set NEBIUS_BASE_URL and NEBIUS_API_KEY in .env to enable live calls"
+                if brain.provider() == "nebius"
+                else "set META_API_BASE and META_API_KEY in .env to enable live calls"
+            )
         return None, meta
 
     constraints = hard_constraints(town)
@@ -293,7 +301,7 @@ def wonder_allocate(town: dict, evidence: list[dict], timeout: float = 60.0) -> 
         data=json.dumps(payload).encode("utf-8"),
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {os.environ['META_API_KEY']}",
+            "Authorization": f"Bearer {brain.key()}",
         },
         method="POST",
     )
