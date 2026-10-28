@@ -1,120 +1,140 @@
-# Demo video script — 3:00, one take after `scripts/refresh_demo.ps1`
+# Demo video script — 2:55, one take
 
-Judges see the video, the repo and the UI. Nothing else. So every number below is read off the screen,
-and every claim is one the page can prove.
+Judges see the video, the repo and the UI. Nothing else. Every number below is read off the screen or
+out of a committed artefact, and every claim is one the page can prove.
 
-**Before recording**
+**Three phrases must be audible.** Say them once in a test recording and listen back:
+
+1. **Nebius Token Factory**
+2. **NVIDIA Nemotron 3**
+3. **Tavily**
+
+They appear at 0:56 and 1:18. Do not paraphrase them into "Nebius", "Nemotron" or "the search API".
+
+---
+
+## Before recording
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\refresh_demo.ps1
 ```
 
 - The badge reads the reconciled artefacts, not the local ledger: deleting `credit_usage.json` does **not**
-  change it. The page and the CLI both report the same measured total.
+  change it. The page and the CLI report the same measured total.
 - Do **not** run `python scripts/nebius_proof.py` after the badge is on screen: it appends a priced run and
   changes the call count.
 - Do **not** re-run `python seri_gate.py` before filming: it appends fresh approvals and changes the
-  ledger seq shown on screen. Record the take with the sealed artefact that is already in the repo.
+  ledger seq shown on screen.
 - Close Chrome tabs, YouTube and Slack. The offline clip must show a quiet machine.
-- Browser at 1920x1080, 100% zoom, Review pane visible for Task Manager.
+- Browser at 1920x1080, 100% zoom. Two tabs: the site, and `https://lifeline-ai-nebius.vercel.app/live/`.
+- Open `artifacts/tavily_proof.json` in an editor at `modes.scenario.rejected_examples`.
+- Record the audio on the same take. A voice-over added later drifts from the screen.
 
 ---
 
-## 0:00 — the decision (10 s)
+## 0:00 — the decision (8 s)
 
-Open on section 01, scroll slowly.
+Section 01. Scroll slowly.
 
-> "Kottur, Tamil Nadu. The road to the hospital is blocked at km 42. The generator has four hours of
-> diesel left, and there are two hundred people in the shelters. One hundred litres. One decision."
+> "Kottur, Tamil Nadu. The road to the hospital is blocked at kilometre 42. Four hours of diesel left,
+> two hundred people in the shelters, one hundred litres. One decision."
 
-## 0:10 — LIFEGRID (15 s)
+## 0:08 — the body (12 s)
 
-Point at BLOOD → HEART → LUNGS → ORGANS.
+Point at **BLOOD → HEART → LUNGS → ORGANS**.
 
-> "Fuel is blood. If the heart stops, the lungs and the organs follow. That is a dependency graph, not a
-> metaphor — the agent sorts it topologically before it spends a litre."
+> "Fuel is blood. If the heart stops, the lungs follow. That is a dependency graph, not a metaphor —
+> and the agent sorts it before it spends a litre."
 
-## 0:25 — route (15 s)
+## 0:20 — the route (12 s)
+
+Section 02.
 
 > "The direct road is 4.2 kilometres and impassable. A* finds the 7.8 kilometre village road. Against the
-> 13 kilometre bypass a human would actually drive, that is 40% less diesel. Measured, and audited."
+> 13 kilometre bypass a human would actually drive, that is 40% less diesel."
 
-## 0:40 — eyes (15 s)
+## 0:32 — the eight steps (24 s)
 
-Click the flood frame.
+Switch to the **`/live/`** tab. Press **PLAY THE RUN**. Let steps 1–5 land, pause at step 7 `waiting`,
+then click through the approval.
 
-> "The stored segmentation measured 35.3% flood water in this frame. That is one input to the plan, not the product."
+> "This is the real event stream from the runner: eight steps, one human gate. Perceive, listen, order,
+> route, allocate, budget, approve, replan. The model proposes at step five. Nothing moves until a person
+> says yes."
 
-## 0:55 — the brain (25 s)
+Let step 8 finish on screen: the replan after the depot is damaged.
 
-Section 04. Toggle **NEMOTRON 3** ↔ **OFFLINE POLICY**.
+## 0:56 — the brain (22 s)
 
-> "The allocation comes from Nemotron 3 Ultra on Nebius Token Factory - live, 3.37 seconds in the proof run,
-> and re-validated here before anyone sees it. The model proposes; the validator, the hash chain and a human
-> still decide. If the call fails, the page falls back to the deterministic solver and says so."
+Section 06, then the proof artefact.
 
-> "The model proposes. Code disposes: 70 litres to the hospital, 30 to the pump, 100 total, or the
-> validator rejects it and the deterministic solver takes over."
+> "Reasoning runs on **NVIDIA Nemotron 3** on **Nebius Token Factory**, in three tiers. Nano for triage,
+> Super for drafting and review, Ultra for the one decision that matters. We measured the choice: Nano
+> burned six thousand tokens and returned nothing; Super answered the same prompt in 966 tokens and
+> 6.7 seconds. Ultra returned 70 and 30 in 3.37 seconds, and the validator passed it."
 
-## 1:20 — the ladder, out loud (25 s)
+## 1:18 — the evidence (30 s)
 
-Section 05.
+Section 04, then the JSON on screen.
 
-> "A single approve button is a single point of failure. Tier two arms 72 payloads across eight languages
-> and three channels — and claims none of them were sent."
+> "Every outside fact comes from **Tavily**, and none of it is trusted. A claim is accepted only if the
+> quote is a literal slice of the fetched page, the URL was actually extracted, the date is inside the
+> window, Tavily's own relevance clears 0.20, and the source is regional. This row is the real New Indian
+> Express story from 25 October 2026 — URL, quote, score, date, verdict."
 
-Click **தமிழ்**, then **▶ ALERT**.
+Cut to the M25 row.
 
-> "This is the real payload, drafted by Nemotron 3 Super, reviewed by the same model, checked in code, then spoken by an
-> open-weight voice model running on this laptop. A reader who cannot read still hears it."
+> "And this is the failure that created the rule: a BBC story about an M25 footbridge, score 0.014,
+> accepted for a Kottur claim because both sentences said 'closed'. It is in the artefact, rejected, next
+> to the nine that passed. Ten queries, 37 pages, 17 claims checked, 8 rejected, 132 credits."
 
-Click **▶ 70/30 DECISION** in section 04.
+## 1:48 — the gate (22 s)
 
-## 1:45 — Seri gate (25 s)
+Section 05. Click two language chips, then play one clip.
 
-> "The paper QR still needs someone who can read. This needs one word."
+> "The approval is not a button. A stored transcript is replayed, classified by Nemotron 3 Super, then
+> checked in code: token, model, 80% confidence, or it is a no. A misheard no must never dispatch fuel.
+> Seven languages are gated and sealed in a hash chain; Mandarin ships text-only because no voice
+> checkpoint exists."
 
-Click through two chips (**Español**, **Kiswahili**), then **▶ HEAR · தமிழ்**.
+## 2:10 — offline (14 s)
 
-> "The stored transcript says 'சரி'. Nemotron 3 Super classifies it as approve. Code checks both, requires 80%
-> confidence, and only then seals it in the hash chain. A misheard no must never dispatch fuel — so a
-> question, a cough or a maybe is a no. Seven languages are gated and sealed separately; Mandarin has
-> no released voice checkpoint, so it is labelled text-only."
+Section 06, the prepared clip: airplane mode, `nvidia-smi`, `LIFELINE_OFFLINE=1 python agent.py --yes`.
 
-## 2:10 — offline (20 s)
+> "Graph, route, validator, ledger, gate — all of it runs with the network off. The model is the fast
+> path, not the only path."
 
-Section 06, run the prepared clip: airplane mode, `nvidia-smi`, `LIFELINE_OFFLINE=1 python agent.py --yes`.
+## 2:24 — the bill (14 s)
 
-> "Graph, route, validator, ledger, gate: all of it runs with the network off. The model is the fast path,
-> not the only path."
+> "Two point seven cents of inference across eighteen calls, and one dollar six on Tavily across a hundred
+> and thirty-two credits, against a twenty-nine dollar fifty balance. The ledger prints every row."
 
-## 2:30 — the world (15 s)
+## 2:38 — honesty and close (17 s)
 
-Section 07.
+Section 01 again, then the footer.
 
-> "Twenty-six towns, nine regions. Only Kottur has a surveyed fuel scenario. Every other pin returns a
-> labelled generic template — never an invented litre count."
-
-## 2:45 — close (15 s)
-
-> "Seventy-eight tests, one command to reproduce, and a ledger that shows every dollar: two point seven
-> cents on inference and one dollar six on Tavily, against a thirty dollar balance.
-> No gateway is configured, so nothing here claims a message was sent. That is the product: a decision
-> that survives the wire going down, and a town that can still say yes."
+> "The town is real; the scenario is simulated, and the page says which is which. The masks and the
+> transcript are stored artefacts, labelled. No message is claimed as sent. That is the product: a
+> decision that survives the wire going down, and a town that can still say yes."
 
 ---
 
 ## What NOT to say
 
-- Do not say the model runs on the laptop. Nemotron 3 runs on Nebius Token Factory; MMS-TTS is the local model.
+- Do not say the model runs on the laptop. Nemotron 3 runs on Nebius Token Factory; MMS-TTS is the local
+  model.
 - Do not say a message was sent. Every payload is `PENDING_CREDENTIALS`.
 - Do not claim 8 spoken languages. Seven have clips; Mandarin has no released MMS-TTS checkpoint and
   ships text-only, on screen.
 - Do not call the seri clip a field recording. It is labelled synthetic until a real one replaces it.
 - Do not quote "3.5 billion at risk". No such figure exists in this repo.
+- Do not say the endpoint is live. The static demo is live; the Python route is not hosted.
 
 ## After recording
 
-1. Upload unlisted to YouTube, paste the link into the submission form.
-2. `git status` must be clean; push the commit that produced the take.
-3. Attach `artifacts/benchmark.json`, `artifacts/nebius_proof.json`, `artifacts/seri_gate.json`.
+1. Upload **public** to YouTube, title it `Lifeline AI — Nebius x NVIDIA Hackathon`, paste the link into
+   Devpost.
+2. Confirm the duration is **3:00 or less** on the YouTube page, not just in the editor.
+3. Listen once with headphones for the three required phrases.
+4. `git status` must be clean; push the commit that produced the take.
+5. Attach `artifacts/nebius_proof.json`, `artifacts/seri_gate.json`, `artifacts/tavily_proof.json`.

@@ -323,8 +323,9 @@ flowchart LR
 
 Check 4 exists because the first run failed without it. A BBC story about an **M25 footbridge** was
 accepted as support for "landslide closes road", purely because both sentences contained the word
-*closed*. The score was **0.01**. That is now a rejected row in the artefact, kept on purpose: it shows
-the false positive the verifier caught, next to the rows it accepted.
+*closed*. The score was **0.014**. That response is kept in the artefact under
+`modes.scenario.rejected_examples`, outside the 17-claim totals, with its URL, quote, score and the
+cached response it came from: it shows the false positive the verifier now catches.
 
 ### Two modes, never blended
 

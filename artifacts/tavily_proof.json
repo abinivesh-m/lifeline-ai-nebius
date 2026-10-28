@@ -2146,6 +2146,21 @@
           "accepted": false,
           "verdict": "rejected: relevance 0.15575814 below 0.2"
         }
+      ],
+      "rejected_examples": [
+        {
+          "topic": "road_closure",
+          "title": "Section of M25 to close overnight near Wisley as footbridge erected - BBC.com",
+          "claim": "road_closure",
+          "quote": "A stretch of the M25 will be closed overnight this weekend to allow a new footbridge to be erected.",
+          "url": "https://www.bbc.com/news/uk-england-surrey-68082814",
+          "published": "2024-01-27",
+          "relevance": 0.01411928,
+          "accepted": false,
+          "verdict": "rejected",
+          "reason": "relevance 0.0141 is below the 0.20 floor; the regional check also fails",
+          "provenance": "cached first-run search response, artifacts/tavily_cache/a67cd844281652a1f38f.json; not part of the 17-claim totals"
+        }
       ]
     },
     "live": {

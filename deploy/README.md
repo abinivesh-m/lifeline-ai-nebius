@@ -44,9 +44,10 @@ this repository is needed for the static build.
 ### What does not work on Vercel
 
 `POST /api/allocate` is a Python route served by `deploy/serve.py`. A static Vercel deployment has no
-Python process, so the button that calls it will report the offline path. Everything else — the plan,
-the evidence rows, the audio, the proofs — is already in `ui/public/data/lifeline.json` and the media
-folder.
+Python process, so the **live endpoint panel is not rendered at all** on Vercel — there is no dead
+button. Everything else — the plan, the evidence rows, the audio, the proofs — is already in
+`ui/public/data/lifeline.json` and the media folder. The same call runs locally with
+`python allocator.py --mode auto`, or in the container, where the panel appears automatically.
 
 ---
 

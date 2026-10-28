@@ -127,9 +127,10 @@ A claim is accepted only when five checks pass (four gates plus the conditional 
 5. the source is **regional to the town** (configurable: `LIFELINE_REGION_TERMS`).
 
 The first run failed check 4 because it did not exist: a BBC story about an **M25 footbridge** was
-accepted as "landslide closes road" purely on the word *closed*, at score **0.01**. That row is still
-in `artifacts/tavily_proof.json`, rejected, next to the rows that passed. The artefact shows the false
-positive the verifier caught — that is the point of publishing it.
+accepted as "landslide closes road" purely on the word *closed*, at score **0.014**. That response is
+kept in `artifacts/tavily_proof.json` under `modes.scenario.rejected_examples`, outside the 17-claim
+totals, with its URL, quote and the cached response it came from. The artefact shows the false positive
+the verifier now catches — that is the point of publishing it.
 
 Scenario and live are stored and rendered separately, never blended, because blending is how a 2023
 figure gets quoted as current. Every response is cached by request hash, so the artefact rebuilds

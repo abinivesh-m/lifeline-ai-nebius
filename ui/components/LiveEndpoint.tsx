@@ -92,48 +92,37 @@ export default function LiveEndpoint() {
   const health = "health" in state ? state.health : undefined;
   const live = state.kind === "live" || state.kind === "running" || state.kind === "done" || state.kind === "error";
   const result = state.kind === "done" ? state.result : undefined;
-  const staticDetail = state.kind === "static" ? state.detail : "";
+
+  // The static host has no engine. Showing a disabled "live" panel there would
+  // read as a broken feature, so the panel only exists where the route exists.
+  if (!live) return null;
 
   return (
     <div className="mt-3 rounded-xl border border-line bg-[#08141a] p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div className="mono text-[10px] tracking-[0.18em] text-muted">05 · LIVE ENDPOINT</div>
-        <span
-          className={`rounded border px-1.5 py-0.5 mono text-[8.5px] tracking-[0.1em] ${
-            state.kind === "checking"
-              ? "border-line text-muted"
-              : live
-              ? "border-teal/50 bg-teal/10 text-teal"
-              : "border-amber/50 bg-amber/10 text-amber"
-          }`}
-        >
-          {state.kind === "checking"
-            ? "CHECKING"
-            : live
-            ? `LIVE · ${health?.engine?.tiers?.decision?.split("/").pop() ?? "ENGINE"}`
-            : "STATIC BUILD"}
+        <span className="rounded border border-teal/50 bg-teal/10 px-1.5 py-0.5 mono text-[8.5px] tracking-[0.1em] text-teal">
+          LIVE · {health?.engine?.tiers?.decision?.split("/").pop() ?? "ENGINE"}
         </span>
       </div>
 
-      {live ? (
-        <>
-          <p className="mt-2 max-w-[95ch] text-[11.5px] leading-relaxed text-muted">
-            This host runs the Python engine. One click calls Nemotron 3 Ultra on Nebius Token Factory,
-            re-runs the validator in code, and returns a fresh allocation. It spends about half a cent;
-            nothing is dispatched and the human gate still holds.
-          </p>
-          <div className="mt-2.5 flex flex-wrap items-center gap-2">
-            <button
-              onClick={run}
-              disabled={state.kind === "running"}
-              className="rounded-md border border-teal bg-teal/15 px-3 py-1.5 mono text-[10px] font-bold tracking-[0.08em] text-teal transition hover:bg-teal/25 disabled:opacity-50"
-            >
-              {state.kind === "running" ? "CALLING ULTRA…" : "RUN LIVE ALLOCATION →"}
-            </button>
-            <span className="mono text-[9px] text-muted">
-              POST /api/allocate · mode=auto · {health?.engine?.provider ?? "Nebius Token Factory"}
-            </span>
-          </div>
+      <p className="mt-2 max-w-[95ch] text-[11.5px] leading-relaxed text-muted">
+        This host runs the Python engine. One click calls Nemotron 3 Ultra on Nebius Token Factory,
+        re-runs the validator in code, and returns a fresh allocation. It spends about half a cent;
+        nothing is dispatched and the human gate still holds.
+      </p>
+      <div className="mt-2.5 flex flex-wrap items-center gap-2">
+        <button
+          onClick={run}
+          disabled={state.kind === "running"}
+          className="rounded-md border border-teal bg-teal/15 px-3 py-1.5 mono text-[10px] font-bold tracking-[0.08em] text-teal transition hover:bg-teal/25 disabled:opacity-50"
+        >
+          {state.kind === "running" ? "CALLING ULTRA…" : "RUN LIVE ALLOCATION →"}
+        </button>
+        <span className="mono text-[9px] text-muted">
+          POST /api/allocate · mode=auto · {health?.engine?.provider ?? "Nebius Token Factory"}
+        </span>
+      </div>
 
           {state.kind === "error" && (
             <p className="mt-2 rounded border border-blood/40 bg-blood/10 px-2 py-1.5 mono text-[9.5px] text-blood">
@@ -165,21 +154,6 @@ export default function LiveEndpoint() {
               </div>
             </div>
           )}
-        </>
-      ) : (
-        <p className="mt-2 max-w-[100ch] text-[11.5px] leading-relaxed text-muted">
-          {state.kind === "checking"
-            ? "Checking whether this host runs the engine…"
-            : staticDetail}
-          {state.kind === "static" && (
-            <>
-              {" "}The recorded result is above; the same call runs with{" "}
-              <span className="mono text-ink">python allocator.py --mode auto</span> or against the
-              Nebius AI Cloud container.
-            </>
-          )}
-        </p>
-      )}
     </div>
   );
 }
