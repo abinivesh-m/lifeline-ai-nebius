@@ -31,6 +31,8 @@ and **Best Use of Tavily** · [@abinivesh-m](https://github.com/abinivesh-m)
 > closes under boulders every monsoon. The most recent real closure was **22 October 2026: reopened after
 > 15 hours**
 > ([Times of India](https://timesofindia.indiatimes.com/city/chennai/heavy-rains-trigger-landslide-on-valparai-ghat-road/articleshow/135099368.cms)).
+> The headline, the boulder photograph, the verified coordinates and the reported closure window are on one
+> page: **[the Kottur proof board](https://lifeline-ai-nebius.vercel.app/proof/kottur.html)**.
 > The 6-hour closure, the 100 L reserve and the 70/30 split are **town data**, not a claim that a specific
 > landslide happened on a specific date. [What is real](#what-is-real-and-what-is-simulated) draws that
 > line precisely.
