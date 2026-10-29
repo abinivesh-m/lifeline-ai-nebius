@@ -70,7 +70,9 @@ being cited), and **crawl** (map + extract in one hop, to prove a source was exp
 
 **47 calls · 132 credits · 10 queries · 37 pages fetched · 17 claims checked · 9 accepted · 8 rejected.**
 Every row is in [`artifacts/tavily_proof.json`](artifacts/tavily_proof.json) with its quote, URL, score,
-date and verdict.
+date and verdict. The same 17 rows are on one page at
+[`/proof/tavily.html`](https://lifeline-ai-nebius.vercel.app/proof/tavily.html), rebuilt from that file by
+[`scripts/build_tavily_proof.mjs`](scripts/build_tavily_proof.mjs).
 
 A claim is accepted only when **five independent checks** pass:
 

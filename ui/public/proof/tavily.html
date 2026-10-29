@@ -3,105 +3,131 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tavily — 17 claims checked | Lifeline AI</title>
+<title>17 claims, 5 gates | Lifeline AI</title>
 <style>
   :root {
-    --ink: #e8f3f6; --muted: #86a0ab; --panel: #0d1a20; --line: #1f3540;
-    --teal: #2dd4bf; --blood: #f87171; --amber: #f5b942; --bg: #071015;
+    --ink:#e8f3f6; --muted:#7d97a3; --panel:#0c191f; --panel2:#0a151a;
+    --line:#1e3641; --teal:#2dd4bf; --blood:#f87171; --amber:#f5b942; --bg:#050d11;
   }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--bg); color: var(--ink); }
-  body {
-    font-family: "Segoe UI", system-ui, sans-serif;
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink)}
+  body{
+    font-family:"Segoe UI",system-ui,sans-serif;height:100vh;overflow:hidden;
     background-image:
-      radial-gradient(900px 500px at 15% -10%, rgba(45,212,191,.10), transparent 60%),
-      radial-gradient(700px 420px at 95% 5%, rgba(248,113,113,.07), transparent 60%);
-    background-repeat: no-repeat;
+      radial-gradient(1100px 600px at 8% -12%,rgba(45,212,191,.11),transparent 62%),
+      radial-gradient(800px 520px at 100% 0%,rgba(245,185,66,.07),transparent 60%),
+      linear-gradient(rgba(30,54,65,.28) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(30,54,65,.28) 1px,transparent 1px);
+    background-size:auto,auto,64px 64px,64px 64px;
   }
-  .mono { font-family: "Cascadia Mono", Consolas, monospace; }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 44px 40px 90px; }
+  .mono{font-family:"Cascadia Mono",Consolas,monospace}
+  .wrap{max-width:1800px;margin:0 auto;padding:34px 60px 26px;height:100vh;display:flex;flex-direction:column}
 
-  header { display: flex; align-items: baseline; gap: 14px; padding-bottom: 18px;
-           border-bottom: 1px solid var(--line); }
-  .brand { font-weight: 700; letter-spacing: .22em; font-size: 15px; }
-  .brand span { color: var(--muted); font-weight: 400; }
-  .tag { margin-left: auto; font-size: 12px; letter-spacing: .18em; color: var(--teal);
-         border: 1px solid rgba(45,212,191,.35); border-radius: 999px; padding: 5px 12px; }
+  header{display:flex;align-items:center;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .brand{font-weight:700;letter-spacing:.22em;font-size:14px}
+  .brand span{color:var(--muted);font-weight:400}
+  .tag{font-size:10.5px;letter-spacing:.2em;color:var(--amber);border:1px solid rgba(245,185,66,.3);
+       border-radius:999px;padding:5px 12px}
+  .tally{margin-left:auto;display:flex;gap:26px;align-items:baseline}
+  .tally div{font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+  .tally b{display:block;font-family:"Cascadia Mono",Consolas,monospace;font-size:19px;
+           letter-spacing:-.01em;color:var(--ink);font-weight:600;margin-top:2px}
+  .tally b.t{color:var(--teal)} .tally b.r{color:var(--blood)}
 
-  h1 { font-size: 44px; line-height: 1.1; margin: 34px 0 14px; letter-spacing: -.02em; }
-  h1 em { font-style: normal; color: var(--teal); }
-  .lede { max-width: 900px; font-size: 18px; line-height: 1.65; color: var(--muted); margin: 0 0 30px; }
-  .lede b { color: var(--ink); font-weight: 600; }
+  .head{display:flex;align-items:flex-end;gap:28px;margin:22px 0 18px}
+  h1{font-size:40px;line-height:1.06;letter-spacing:-.025em;margin:0;font-weight:700}
+  h1 em{font-style:normal;color:var(--teal)}
+  .sub{font-size:15px;line-height:1.5;color:var(--muted);max-width:620px;margin:0 0 4px}
+  .sub b{color:var(--ink);font-weight:600}
+  .run{margin-left:auto;display:flex;align-items:center;gap:12px}
+  .run button{
+    font-family:"Cascadia Mono",Consolas,monospace;font-size:12px;letter-spacing:.14em;
+    color:#04211d;background:var(--teal);border:0;border-radius:7px;padding:12px 20px;
+    cursor:pointer;transition:transform .15s,box-shadow .15s,opacity .15s;font-weight:700}
+  .run button:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(45,212,191,.28)}
+  .run button:disabled{opacity:.45;cursor:default;transform:none;box-shadow:none}
+  .hint{font-size:11px;color:var(--muted);letter-spacing:.08em}
 
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
-           background: var(--line); border: 1px solid var(--line); border-radius: 12px;
-           overflow: hidden; }
-  .stat { background: var(--panel); padding: 18px 20px; }
-  .stat .v { font-family: "Cascadia Mono", Consolas, monospace; font-size: 27px;
-             font-weight: 600; letter-spacing: -.02em; }
-  .stat .l { font-size: 11px; letter-spacing: .16em; color: var(--muted);
-             text-transform: uppercase; margin-top: 5px; }
-  .stat.teal .v { color: var(--teal); }
-  .stat.blood .v { color: var(--blood); }
+  .gates{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+  .gate{border:1px solid var(--line);border-radius:9px;background:var(--panel);
+        padding:11px 14px;position:relative;overflow:hidden;transition:border-color .2s}
+  .gate.on{border-color:rgba(45,212,191,.45)}
+  .gate .n{font-family:"Cascadia Mono",Consolas,monospace;font-size:10px;color:var(--amber);
+           letter-spacing:.14em}
+  .gate .k{font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;margin-top:3px}
+  .gate .c{position:absolute;right:13px;top:11px;font-family:"Cascadia Mono",Consolas,monospace;
+           font-size:11px;color:var(--muted)}
+  .gate .c b{color:var(--ink);font-weight:600}
 
-  h2 { font-size: 13px; letter-spacing: .24em; color: var(--muted); font-weight: 600;
-       margin: 52px 0 16px; text-transform: uppercase; }
-  h2 b { color: var(--ink); }
+  .main{display:grid;grid-template-columns:1fr 470px;gap:26px;flex:1;min-height:0}
 
-  .rules { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-  .rule { border: 1px solid var(--line); border-radius: 10px; background: var(--panel);
-          padding: 14px 16px; }
-  .rule .k { font-family: "Cascadia Mono", Consolas, monospace; font-size: 12px;
-             color: var(--teal); margin-bottom: 6px; }
-  .rule .d { font-size: 13px; line-height: 1.5; color: var(--muted); }
+  .grid{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:1fr;gap:11px;min-height:0}
+  .tile{
+    position:relative;border:1px solid var(--line);border-radius:9px;background:var(--panel2);
+    padding:14px 15px;cursor:pointer;text-align:left;color:inherit;font:inherit;
+    display:flex;flex-direction:column;overflow:hidden;
+    transition:transform .16s,border-color .16s,background .16s;
+    opacity:0;transform:translateY(10px);animation:rise .5s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes rise{to{opacity:1;transform:none}}
+  body.static .tile{animation:none;opacity:1;transform:none}
+  .tile:hover{transform:translateY(-2px);border-color:rgba(232,243,246,.35);background:#0e1e25}
+  .tile.sel{border-color:var(--teal);background:#0f2429;box-shadow:0 0 0 1px rgba(45,212,191,.4) inset}
+  .tile.no.sel{border-color:var(--blood);background:#20141a;box-shadow:0 0 0 1px rgba(248,113,113,.4) inset}
+  .tile .s{font-family:"Cascadia Mono",Consolas,monospace;font-size:25px;font-weight:600;
+           letter-spacing:-.03em;line-height:1}
+  .tile.ok .s{color:var(--teal)} .tile.no .s{color:var(--blood)}
+  .tile .k{font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:12px}
+  .tile .h{font-family:"Cascadia Mono",Consolas,monospace;font-size:9.5px;color:#5d7681;
+           margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tile .dots{display:flex;gap:3px;margin-top:auto;padding-top:12px}
+  .tile .dots i{width:100%;height:3px;border-radius:2px;background:rgba(45,212,191,.75)}
+  .tile .dots i.f{background:rgba(248,113,113,.9)}
+  .tile .m{position:absolute;right:11px;top:11px;font-size:13px;line-height:1}
+  .tile.ok .m{color:var(--teal)} .tile.no .m{color:var(--blood)}
+  .tile .bar{position:absolute;left:0;bottom:0;height:2px;background:currentColor;opacity:.55;
+             width:var(--w);transition:width .5s ease}
+  .tile.ok .bar{color:var(--teal)} .tile.no .bar{color:var(--blood)}
+  .tile.flash{animation:flash .42s ease}
+  @keyframes flash{0%{background:#17323a}100%{background:var(--panel2)}}
+  .tile.ok.flash{background:#123028}
+  .tile.no.flash{background:#2a161c}
 
-  table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  thead th { text-align: left; font-size: 10px; letter-spacing: .18em; color: var(--muted);
-             text-transform: uppercase; font-weight: 600; padding: 0 12px 10px;
-             border-bottom: 1px solid var(--line); }
-  tbody tr { border-bottom: 1px solid rgba(31,53,64,.55); }
-  tbody tr.no { background: rgba(248,113,113,.05); }
-  td { padding: 11px 12px; vertical-align: middle; }
-  td.i { font-family: "Cascadia Mono", Consolas, monospace; color: var(--muted); width: 42px; }
-  td.m { font-family: "Cascadia Mono", Consolas, monospace; font-size: 11px;
-         color: var(--muted); width: 86px; }
-  td.t { line-height: 1.35; }
-  td.t .h { display: block; font-family: "Cascadia Mono", Consolas, monospace;
-            font-size: 10.5px; color: var(--muted); margin-top: 3px; }
-  td.d, td.s { font-family: "Cascadia Mono", Consolas, monospace; font-size: 12.5px;
-               color: var(--muted); white-space: nowrap; width: 104px; }
-  td.s { color: var(--ink); }
-  tr.no td.s { color: var(--blood); }
-  td.v { width: 300px; }
-  .pill { display: inline-block; font-family: "Cascadia Mono", Consolas, monospace;
-          font-size: 11px; padding: 4px 9px; border-radius: 5px; }
-  .pill.ok { color: var(--teal); background: rgba(45,212,191,.10);
-             border: 1px solid rgba(45,212,191,.30); }
-  .pill.no { color: var(--blood); background: rgba(248,113,113,.09);
-             border: 1px solid rgba(248,113,113,.28); }
+  .detail{border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0d1b22,#08141a);
+          padding:24px 26px;display:flex;flex-direction:column;min-height:0;position:relative;overflow:hidden}
+  .detail:before{content:"";position:absolute;left:0;top:0;height:2px;width:100%;
+                 background:linear-gradient(90deg,var(--teal),transparent)}
+  .detail.no:before{background:linear-gradient(90deg,var(--blood),transparent)}
+  .dhead{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .dhead .idx{font-family:"Cascadia Mono",Consolas,monospace;font-size:11px;color:var(--muted);
+              letter-spacing:.14em}
+  .dhead .mode{margin-left:auto;font-family:"Cascadia Mono",Consolas,monospace;font-size:10px;
+               color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:3px 7px}
+  .dtitle{font-size:19px;line-height:1.35;font-weight:600;margin:0 0 6px}
+  .dsrc{font-family:"Cascadia Mono",Consolas,monospace;font-size:11px;color:var(--muted);margin-bottom:14px}
+  .dq{font-size:13px;line-height:1.62;color:#a8c0ca;font-style:italic;border-left:2px solid var(--line);
+      padding-left:12px;margin:0 0 16px;max-height:132px;overflow:hidden}
+  .checks{display:flex;flex-direction:column;gap:1px;margin-bottom:16px}
+  .chk{display:flex;align-items:center;gap:10px;font-family:"Cascadia Mono",Consolas,monospace;
+       font-size:12px;padding:7px 0;border-bottom:1px solid rgba(30,54,65,.5)}
+  .chk .i{width:14px;text-align:center;font-size:11px}
+  .chk .n{color:var(--muted);width:118px}
+  .chk .v{margin-left:auto;color:var(--ink);font-size:11.5px}
+  .chk.pass .i{color:var(--teal)} .chk.fail .i{color:var(--blood)}
+  .chk.fail .n{color:var(--blood)} .chk.fail .v{color:var(--blood)}
+  .verdict{margin-top:auto;display:flex;align-items:center;gap:12px}
+  .verdict .pill{font-family:"Cascadia Mono",Consolas,monospace;font-size:12px;letter-spacing:.06em;
+                 padding:8px 13px;border-radius:6px;font-weight:600}
+  .verdict .pill.ok{color:var(--teal);background:rgba(45,212,191,.1);border:1px solid rgba(45,212,191,.35)}
+  .verdict .pill.no{color:var(--blood);background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.35)}
+  .verdict .note{font-size:11.5px;color:var(--muted);line-height:1.45}
 
-  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .card { border: 1px solid rgba(248,113,113,.28); border-radius: 12px;
-          background: rgba(248,113,113,.045); padding: 22px 24px; }
-  .card .top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-  .card .top .x { color: var(--blood); font-size: 17px; }
-  .card .top .who { font-size: 11px; letter-spacing: .16em; color: var(--muted);
-                    text-transform: uppercase; }
-  .card h3 { font-size: 18px; line-height: 1.35; margin: 0 0 6px; font-weight: 600; }
-  .card .src { font-family: "Cascadia Mono", Consolas, monospace; font-size: 11px;
-               color: var(--muted); margin-bottom: 14px; }
-  .card blockquote { margin: 0 0 14px; padding-left: 13px; border-left: 2px solid rgba(248,113,113,.45);
-                     font-size: 13.5px; line-height: 1.6; color: var(--muted); font-style: italic; }
-  .card dl { display: grid; grid-template-columns: auto 1fr; gap: 5px 14px; margin: 0;
-             font-family: "Cascadia Mono", Consolas, monospace; font-size: 12px; }
-  .card dt { color: var(--muted); }
-  .card dd { margin: 0; }
-  .card .why { margin-top: 14px; font-size: 13.5px; line-height: 1.6; color: var(--ink); }
-
-  footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line);
-           font-family: "Cascadia Mono", Consolas, monospace; font-size: 11.5px;
-           line-height: 1.9; color: var(--muted); }
-  footer a { color: var(--teal); text-decoration: none; }
+  footer{display:flex;align-items:center;gap:12px;margin-top:16px;padding-top:12px;
+         border-top:1px solid var(--line);font-family:"Cascadia Mono",Consolas,monospace;
+         font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+  footer .x{color:var(--blood)}
+  footer .sep{color:#314a55}
+  footer .r{margin-left:auto}
 </style>
 </head>
 <body>
@@ -110,220 +136,186 @@
   <header>
     <div class="brand">LIFELINE AI <span>/ PROOF</span></div>
     <div class="tag">TAVILY · EVIDENCE LAYER</div>
+    <div class="tally">
+      <div>checked<b class="mono" id="t-checked">0</b></div>
+      <div>accepted<b class="mono t" id="t-accepted">0</b></div>
+      <div>rejected<b class="mono r" id="t-rejected">0</b></div>
+      <div>credits<b class="mono">132</b></div>
+      <div>spend<b class="mono">$1.056</b></div>
+    </div>
   </header>
 
-  <h1>17 claims checked.<br><em>9 survived.</em></h1>
-  <p class="lede">
-    Every outside fact in Lifeline AI arrives through <b>Tavily</b>. None of it is trusted.
-    A claim is only accepted if it is a <b>literal quote</b> from a page we actually fetched,
-    published <b>inside the window</b>, scoring above the <b>0.20 relevance floor</b>,
-    from the <b>right region</b>. Code decides that — not the model, and not us.
-  </p>
-
-  <div class="stats">
-    <div class="stat"><div class="v">10</div><div class="l">queries</div></div>
-    <div class="stat"><div class="v">37</div><div class="l">pages fetched</div></div>
-    <div class="stat"><div class="v">3</div><div class="l">fetch failures</div></div>
-    <div class="stat"><div class="v">17</div><div class="l">claims checked</div></div>
-    <div class="stat"><div class="v"><span style="color:var(--teal)">9</span></div><div class="l">accepted</div></div>
-    <div class="stat"><div class="v">132</div><div class="l">credits</div></div>
-    <div class="stat"><div class="v">47</div><div class="l">calls</div></div>
-    <div class="stat"><div class="v">$1.056</div><div class="l">tavily spend</div></div>
-  </div>
-
-  <h2>The <b>five</b> checks, in code</h2>
-  <div class="rules">
-    <div class="rule"><div class="k">quote_literal</div><div class="d">The quote is a byte-for-byte slice of the fetched page.</div></div>
-    <div class="rule"><div class="k">url_fetched</div><div class="d">The URL was retrieved by us. No URL, no claim.</div></div>
-    <div class="rule"><div class="k">date_check</div><div class="d">Published inside the search window, or dropped.</div></div>
-    <div class="rule"><div class="k">relevance ≥ 0.20</div><div class="d">Below the floor is noise, whatever it says.</div></div>
-    <div class="rule"><div class="k">region_ok</div><div class="d">The right state, the right country — not just the right words.</div></div>
-  </div>
-
-  <h2>The <b>17</b> rows, as scored</h2>
-  <table>
-    <thead>
-      <tr><th>#</th><th>claim</th><th>story</th><th>published</th><th>score</th><th>verdict</th></tr>
-    </thead>
-    <tbody>
-<tr class="ok">
-      <td class="i">01</td>
-      <td class="m">rescue</td>
-      <td class="t">Heavy rains trigger landslide on Valparai ghat road<span class="h">live · timesofindia.indiatimes.com</span></td>
-      <td class="d">2026-10-21</td>
-      <td class="s">0.932</td>
-      <td class="v"><span class="pill ok">accepted</span></td>
-    </tr>
-<tr class="ok">
-      <td class="i">02</td>
-      <td class="m">disaster_scale</td>
-      <td class="t">Chennai: Heavy rains from Cyclone Michaung leave trail of destruction in city<span class="h">scenario · bbc.com</span></td>
-      <td class="d">2023-12-07</td>
-      <td class="s">0.789</td>
-      <td class="v"><span class="pill ok">accepted</span></td>
-    </tr>
-<tr class="ok">
-      <td class="i">03</td>
-      <td class="m">rescue</td>
-      <td class="t">India workers trapped for weeks in Himalayan tunnel on verge of rescue<span class="h">scenario · aljazeera.com</span></td>
-      <td class="d">2023-11-28</td>
-      <td class="s">0.707</td>
-      <td class="v"><span class="pill ok">accepted</span></td>
-    </tr>
-<tr class="ok">
-      <td class="i">04</td>
-      <td class="m">rescue</td>
-      <td class="t">Rain batters Nilgiris; landslide buries government bus, driver loses life<span class="h">live · newindianexpress.com</span></td>
-      <td class="d">2026-10-25</td>
-      <td class="s">0.585</td>
-      <td class="v"><span class="pill ok">accepted</span></td>
-    </tr>
-<tr class="ok">
-      <td class="i">05</td>
-      <td class="m">road_cut</td>
-      <td class="t">Rain batters Nilgiris; landslide buries government bus, driver loses life<span class="h">live · newindianexpress.com</span></td>
-      <td class="d">2026-10-25</td>
-      <td class="s">0.585</td>
-      <td class="v"><span class="pill ok">accepted</span></td>
-    </tr>
-<tr class="ok">
-      <td class="i">06</td>
-      <td class="m">rescue</td>
-      <td class="t">Driver dies as TNSTC bus buried under landslide on Mettupalayam-Coonoor Ghat…<span class="h">live · timesofindia.indiatimes.com</span></td>
-      <td class="d">2026-10-24</td>
-      <td class="s">0.472</td>
-      <td class="v"><span class="pill ok">accepted</span></td>
-    </tr>
-<tr class="ok">
-      <td class="i">07</td>
-      <td class="m">rescue</td>
-      <td class="t">Uttarakhand tunnel collapse: Rescuers explore new ways to reach trapped Indi…<span class="h">scenario · bbc.com</span></td>
-      <td class="d">2023-11-27</td>
-      <td class="s">0.225</td>
-      <td class="v"><span class="pill ok">accepted</span></td>
-    </tr>
-<tr class="ok">
-      <td class="i">08</td>
-      <td class="m">rescue</td>
-      <td class="t">Nilgiris Landslides: 1 Dead, Students Rescued As Heavy ...<span class="h">live · special.ndtv.com</span></td>
-      <td class="d">2026-10-24</td>
-      <td class="s">0.225</td>
-      <td class="v"><span class="pill ok">accepted</span></td>
-    </tr>
-<tr class="ok">
-      <td class="i">09</td>
-      <td class="m">rescue</td>
-      <td class="t">Uttarakhand tunnel collapse: Rescuers metres away from trapped workers - BBC…<span class="h">scenario · bbc.com</span></td>
-      <td class="d">2023-11-22</td>
-      <td class="s">0.224</td>
-      <td class="v"><span class="pill ok">accepted</span></td>
-    </tr>
-<tr class="no">
-      <td class="i">10</td>
-      <td class="m">road_cut</td>
-      <td class="t">IIT Delhi team inspects landslide-hit Kalinga Ghat<span class="h">live · newindianexpress.com</span></td>
-      <td class="d">2026-10-26</td>
-      <td class="s">0.872</td>
-      <td class="v"><span class="pill no">rejected: no regional anchor</span></td>
-    </tr>
-<tr class="no">
-      <td class="i">11</td>
-      <td class="m">fuel_logistics</td>
-      <td class="t">WHO Al Qatrun Health Response<span class="h">live · emro.who.int</span></td>
-      <td class="d">2026-09-30</td>
-      <td class="s">0.735</td>
-      <td class="v"><span class="pill no">rejected: no regional anchor</span></td>
-    </tr>
-<tr class="no">
-      <td class="i">12</td>
-      <td class="m">power_loss</td>
-      <td class="t">WHO Al Qatrun Health Response<span class="h">live · emro.who.int</span></td>
-      <td class="d">2026-09-30</td>
-      <td class="s">0.735</td>
-      <td class="v"><span class="pill no">rejected: no regional anchor</span></td>
-    </tr>
-<tr class="no">
-      <td class="i">13</td>
-      <td class="m">power_loss</td>
-      <td class="t">DR Congo: Afia Don Bosco Hospital receives donor ...<span class="h">scenario · reliefweb.int</span></td>
-      <td class="d">2023-12-18</td>
-      <td class="s">0.484</td>
-      <td class="v"><span class="pill no">rejected: no regional anchor</span></td>
-    </tr>
-<tr class="no">
-      <td class="i">14</td>
-      <td class="m">fuel_logistics</td>
-      <td class="t">Solar power brings renewable energy to hospitals in Yemen [EN/AR] - Yemen<span class="h">scenario · reliefweb.int</span></td>
-      <td class="d">2024-01-11</td>
-      <td class="s">0.285</td>
-      <td class="v"><span class="pill no">rejected: no regional anchor</span></td>
-    </tr>
-<tr class="no">
-      <td class="i">15</td>
-      <td class="m">rescue</td>
-      <td class="t">All 41 miners rescued from collapsed tunnel in India’s Uttarakhand<span class="h">scenario · aljazeera.com</span></td>
-      <td class="d">2023-11-28</td>
-      <td class="s">0.163</td>
-      <td class="v"><span class="pill no">rejected: 0.1630 &lt; 0.20</span></td>
-    </tr>
-<tr class="no">
-      <td class="i">16</td>
-      <td class="m">rescue</td>
-      <td class="t">Uttarakhand tunnel collapse: Fears for India workers stuck for 72 hours<span class="h">scenario · bbc.com</span></td>
-      <td class="d">2023-11-15</td>
-      <td class="s">0.156</td>
-      <td class="v"><span class="pill no">rejected: 0.1558 &lt; 0.20</span></td>
-    </tr>
-<tr class="no">
-      <td class="i">17</td>
-      <td class="m">disaster_scale</td>
-      <td class="t">Cairo-Alexandria Trade Logistics Development Project<span class="h">live · documents1.worldbank.org</span></td>
-      <td class="d">2026-10-06</td>
-      <td class="s">0.047</td>
-      <td class="v"><span class="pill no">rejected: 0.0467 &lt; 0.20</span></td>
-    </tr>
-    </tbody>
-  </table>
-
-  <h2>Two rejections <b>kept on purpose</b></h2>
-  <div class="cards">
-    <div class="card">
-      <div class="top"><span class="x">✕</span><span class="who">high score, wrong state</span></div>
-      <h3>IIT Delhi team inspects landslide-hit Kalinga Ghat</h3>
-      <div class="src">newindianexpress.com · 2026-10-26</div>
-      <blockquote>PHULABANI: A month-long closure of Kalinga Ghat on National Highway-157 has disrupted life along the Kandhamal-Ganjam border, pushing up the cost of essential commodities, crippling roadside businesses and forcing commuters and goods carrie…</blockquote>
-      <dl>
-        <dt>relevance</dt><dd>0.8722</dd>
-        <dt>quote_literal</dt><dd>true</dd>
-        <dt>url_fetched</dt><dd>true</dd>
-        <dt>region_ok</dt><dd style="color:var(--blood)">false</dd>
-        <dt>accepted</dt><dd style="color:var(--blood)">false</dd>
-      </dl>
-      <p class="why">Same newspaper as two accepted Tamil Nadu stories. Zero point eight seven —
-      and still rejected, because it is Odisha. A score is not permission.</p>
+  <div class="head">
+    <div>
+      <h1>Every fact has to pass <em>five checks</em>.</h1>
+      <p class="sub">Tavily returns candidates. <b>Code</b> decides which ones become facts —
+      a literal quote from a fetched page, inside the window, above the floor, from the right region.</p>
     </div>
+    <div class="run">
+      <span class="hint">click a claim · or</span>
+      <button id="run">RUN THE GATE</button>
+    </div>
+  </div>
 
-    <div class="card">
-      <div class="top"><span class="x">✕</span><span class="who">below the floor · cached first run</span></div>
-      <h3>Section of M25 to close overnight near Wisley as footbridge erected - BBC.com</h3>
-      <div class="src">bbc.com · 2024-01-27</div>
-      <blockquote>A stretch of the M25 will be closed overnight this weekend to allow a new footbridge to be erected.</blockquote>
-      <dl>
-        <dt>relevance</dt><dd>0.0141</dd>
-        <dt>floor</dt><dd>0.2000</dd>
-        <dt>accepted</dt><dd style="color:var(--blood)">false</dd>
-      </dl>
-      <p class="why">relevance 0.0141 is below the 0.20 floor; the regional check also fails. Cached first-run response, kept as an example — not part of the 17-claim totals.</p>
+  <div class="gates">
+    <div class="gate" data-gate="0"><div class="n">01</div><div class="k">quote_literal</div>
+      <div class="c"><b>17</b>/17</div></div>
+    <div class="gate" data-gate="1"><div class="n">02</div><div class="k">url_fetched</div>
+      <div class="c"><b>17</b>/17</div></div>
+    <div class="gate" data-gate="2"><div class="n">03</div><div class="k">date_check</div>
+      <div class="c"><b>17</b>/17</div></div>
+    <div class="gate" data-gate="3"><div class="n">04</div><div class="k">relevance &ge; 0.20</div>
+      <div class="c"><b>14</b>/17</div></div>
+    <div class="gate" data-gate="4"><div class="n">05</div><div class="k">region_ok</div>
+      <div class="c"><b>11</b>/17</div></div>
+  </div>
+
+  <div class="main">
+    <div class="grid" id="grid"></div>
+    <div class="detail" id="detail">
+      <div class="dhead"><span class="idx" id="d-idx">CLAIM 01 / 17</span>
+        <span class="mode" id="d-mode"></span></div>
+      <h2 class="dtitle" id="d-title"></h2>
+      <div class="dsrc" id="d-src"></div>
+      <p class="dq" id="d-quote"></p>
+      <div class="checks" id="d-checks"></div>
+      <div class="verdict">
+        <span class="pill ok" id="d-pill">accepted</span>
+        <span class="note" id="d-note"></span>
+      </div>
     </div>
   </div>
 
   <footer>
-    Read from <b>artifacts/tavily_proof.json</b> and <b>ui/public/data/lifeline.json</b> at build time.<br>
-    Live mode: 5 queries · 20 pages · 9 checked · 5 accepted · 59.81s.<br>
-    Scenario mode: 5 queries · 17 pages · 8 checked · 4 accepted · 119.63s.<br>
-    Generated 2026-10-29 · <a href="/">back to the town</a>
+    <span class="x">✕</span>
+    <span>kept outside the totals — cached first run: Section of M25 to close overnight near Wisley as footbridge erected,
+      relevance 0.0141 &lt; 0.20, regional check also fails</span>
+    <span class="sep">|</span>
+    <span>10 queries · 37 pages · 3 failures · 47 calls</span>
+    <span class="r">artifacts/tavily_proof.json</span>
   </footer>
 
 </div>
+
+<script>
+const DATA = [{"topic":"rescue","mode":"live","title":"Heavy rains trigger landslide on Valparai ghat road | Chennai News - The Times of India","url":"https://timesofindia.indiatimes.com/city/chennai/heavy-rains-trigger-landslide-on-valparai-ghat-road/articleshow/135099368.cms","host":"timesofindia.indiatimes.com","published":"2026-10-21","score":0.93206495,"quote":"The road, the key link between Pollachi and Valparai, was cleared only around 5pm on Wednesday. No vehicle was passing by when the landslide occurred, averting an accident.A district administration official said personnel from the highways department, police and fire and rescue services worked through the night to clear the boulders. Initial attempts to remove them using earthmovers failed, forcin","ql":true,"uf":true,"dc":"fresh","ro":true,"accepted":true,"verdict":"accepted"},{"topic":"road_cut","mode":"live","title":"IIT Delhi team inspects landslide-hit Kalinga Ghat","url":"https://www.newindianexpress.com/states/odisha/2026/Oct/26/iit-delhi-team-inspects-landslide-hit-kalinga-ghat","host":"newindianexpress.com","published":"2026-10-26","score":0.87218446,"quote":"[...] Express News Service Updated on: 2 min read Copied PHULABANI: A month-long closure of Kalinga Ghat on National Highway-157 has disrupted life along the Kandhamal-Ganjam border, pushing up the cost of essential commodities, crippling roadside businesses and forcing commuters and goods carriers to take a detour of around 50 km. Amid growing public resentment over the delay in restoring traffic","ql":true,"uf":true,"dc":"fresh","ro":false,"accepted":false,"verdict":"rejected: no regional anchor"},{"topic":"disaster_scale","mode":"scenario","title":"Chennai: Heavy rains from Cyclone Michaung leave trail of destruction in city","url":"https://www.bbc.com/news/world-asia-india-67645286","host":"bbc.com","published":"2023-12-07","score":0.78866494,"quote":"J Radhakrishnan, the commissioner of Greater Chennai Corporation, told BBC Tamil that authorities had pumped out \"as much water as possible after 36 hours of continuous rain\". He added that as of Wednesday night, floodwaters had receded in three-quarters of the city. Thousands of people were evacuated to relief camps over the past three days - many were rescued from their flooded homes in rubber a","ql":true,"uf":true,"dc":"in-window","ro":true,"accepted":true,"verdict":"accepted"},{"topic":"fuel_logistics","mode":"live","title":"WHO Al Qatrun Health Response","url":"https://www.emro.who.int/images/stories/libya/AlQatrun_Health_Response-19-July-30-Sep-2026.pdf","host":"emro.who.int","published":"2026-09-30","score":0.73505294,"quote":"Communicable disease • Respiratory infections, tonsillitis, bronchitis and pneumonia were the leading condition every week, mostly in children, linked to overcrowded migrant housing. • Acute watery diarrhea fell from 77 cases in the first week to 36–50 a week, and bloody diarrhea from 6 to [...] numbers fell in early September. 6.2 Fuel, power and communications • Generator diesel ran out on 20 Ju","ql":true,"uf":true,"dc":"fresh","ro":false,"accepted":false,"verdict":"rejected: no regional anchor"},{"topic":"power_loss","mode":"live","title":"WHO Al Qatrun Health Response","url":"https://www.emro.who.int/images/stories/libya/AlQatrun_Health_Response-19-July-30-Sep-2026.pdf","host":"emro.who.int","published":"2026-09-30","score":0.73505294,"quote":"Communicable disease • Respiratory infections, tonsillitis, bronchitis and pneumonia were the leading condition every week, mostly in children, linked to overcrowded migrant housing. • Acute watery diarrhea fell from 77 cases in the first week to 36–50 a week, and bloody diarrhea from 6 to [...] numbers fell in early September. 6.2 Fuel, power and communications • Generator diesel ran out on 20 Ju","ql":true,"uf":true,"dc":"fresh","ro":false,"accepted":false,"verdict":"rejected: no regional anchor"},{"topic":"rescue","mode":"scenario","title":"India workers trapped for weeks in Himalayan tunnel on verge of rescue | In Pictures News | Al Jazeera","url":"https://www.aljazeera.com/gallery/2023/11/28/photos-india-workers-trapped-for-weeks-in-himalayan-tunnel-on-verge-of-rescue","host":"aljazeera.com","published":"2023-11-28","score":0.70702106,"quote":"[...] The tunnel they were building was designed as part of the Char Dhaam all-weather road, which will connect various Hindu pilgrimage sites. Some experts say the project, a flagship initiative of the federal government, will exacerbate fragile conditions in the upper Himalayas, where several towns are built atop landslide debris. A general view of the site Rescue and relief operations continue ","ql":true,"uf":true,"dc":"in-window","ro":true,"accepted":true,"verdict":"accepted"},{"topic":"rescue","mode":"live","title":"Rain batters Nilgiris; landslide buries government bus, driver loses life","url":"https://www.newindianexpress.com/states/tamil-nadu/2026/Oct/25/rain-batters-nilgiris-landslide-buries-government-bus-driver-loses-life","host":"newindianexpress.com","published":"2026-10-25","score":0.5849357,"quote":"The bus was severely damaged, with debris entering the vehicle and trapping the two occupants. Rescue teams could not reach the spot immediately as fallen trees and landslide debris blocked the road. They began the operation around 5 am after clearing the obstructions.","ql":true,"uf":true,"dc":"fresh","ro":true,"accepted":true,"verdict":"accepted"},{"topic":"road_cut","mode":"live","title":"Rain batters Nilgiris; landslide buries government bus, driver loses life","url":"https://www.newindianexpress.com/states/tamil-nadu/2026/Oct/25/rain-batters-nilgiris-landslide-buries-government-bus-driver-loses-life","host":"newindianexpress.com","published":"2026-10-25","score":0.5849357,"quote":"He is suspected to have died from a head injury. The bus was severely damaged, with debris entering the vehicle and trapping the two occupants. Rescue teams could not reach the spot immediately as fallen trees and landslide debris blocked the road.","ql":true,"uf":true,"dc":"fresh","ro":true,"accepted":true,"verdict":"accepted"},{"topic":"power_loss","mode":"scenario","title":"DR Congo: Afia Don Bosco Hospital receives donor ...","url":"https://reliefweb.int/report/democratic-republic-congo/dr-congo-afia-don-bosco-hospital-receives-donor-funding-new-generator","host":"reliefweb.int","published":"2023-12-18","score":0.48425868,"quote":"Christian Mbuya, the medical director at the hospital, said, “We send out heartfelt thanks to benefactors, who are supporting Afia Don Bosco Hospital. This donation is important for the health and well-being of each patient. Thanks to this electrical supply, it will reduce the risk linked to the lack of power in this health and hospital environment.” Salesian missionaries have been working in the ","ql":true,"uf":true,"dc":"in-window","ro":false,"accepted":false,"verdict":"rejected: no regional anchor"},{"topic":"rescue","mode":"live","title":"Driver dies as TNSTC bus buried under landslide on Mettupalayam-Coonoor Ghat Road during heavy rain | Coimbatore News - The Times of India","url":"https://timesofindia.indiatimes.com/city/coimbatore/driver-dies-as-tnstc-bus-buried-under-landslide-on-mettupalayam-coonoor-ghat-road-during-heavy-rain/articleshow/135173508.cms","host":"timesofindia.indiatimes.com","published":"2026-10-24","score":0.47227025,"quote":"than 300 people, including students from Kerala who were on a trip to the Nilgiris, were stranded due to the landslides. They were rescued by rescue teams on Saturday morning.Burliar recorded the highest rainfall in the Nilgiris at 250 mm, followed by Kil Kotagiri Estate (200 mm).","ql":true,"uf":true,"dc":"fresh","ro":true,"accepted":true,"verdict":"accepted"},{"topic":"fuel_logistics","mode":"scenario","title":"Solar power brings renewable energy to hospitals in Yemen [EN/AR] - Yemen | ReliefWeb","url":"https://reliefweb.int/report/yemen/solar-power-brings-renewable-energy-hospitals-yemen-enar","host":"reliefweb.int","published":"2024-01-11","score":0.28491458,"quote":"[...] Sustainable and cost-effective services \"The solar energy system is a vital and cost-effective project for the hospital, as it significantly reduces the financial expenses incurred for purchasing diesel for electric generators,\" explains Ali Hizam Haroun, an electrical technician at Al-Jumhori Hospital in Hajjah.","ql":true,"uf":true,"dc":"in-window","ro":false,"accepted":false,"verdict":"rejected: no regional anchor"},{"topic":"rescue","mode":"scenario","title":"Uttarakhand tunnel collapse: Rescuers explore new ways to reach trapped Indians","url":"https://www.bbc.com/news/world-asia-india-67540250","host":"bbc.com","published":"2023-11-27","score":0.22535734,"quote":"[...] # Uttarakhand tunnel collapse: Rescuers explore new ways to reach trapped Indians Getty Images The tunnel where efforts are on to rescue 41 workers Authorities are working on new ways to reach the 41 Indian workers trapped inside a tunnel in Uttarakhand state after the main rescue plan suffered a major delay. Until now, rescuers were drilling a hole horizontally through the rocks to allow th","ql":true,"uf":true,"dc":"in-window","ro":true,"accepted":true,"verdict":"accepted"},{"topic":"rescue","mode":"live","title":"Nilgiris Landslides: 1 Dead, Students Rescued As Heavy ...","url":"https://special.ndtv.com/India-for-All-64/news-detail/nilgiris-landslides-1-dead-students-rescued-as-heavy-rain-disrupts-ooty-travel-12230732/1","host":"special.ndtv.com","published":"2026-10-24","score":0.2245401,"quote":"Wikimedia A government bus driver was killed after his vehicle was hit by a landslide at Burliar on the Ooty-Mettupalayam road in Tamil Nadu on Saturday, Deccan Herald reported. The bus involved in the accident was not carrying passengers when the landslide struck. Soon after the incident, rescue and relief operations were set in motion.","ql":true,"uf":true,"dc":"fresh","ro":true,"accepted":true,"verdict":"accepted"},{"topic":"rescue","mode":"scenario","title":"Uttarakhand tunnel collapse: Rescuers metres away from trapped workers - BBC News","url":"https://www.bbc.com/news/live/world-asia-67498210","host":"bbc.com","published":"2023-11-22","score":0.22436157,"quote":"Mr Karwal says that rescuers are figuring ways to reduce the time it will take to pull the workers out. [...] ## To play this video you need to enable JavaScript in your browser. This video can not be played Watch: The machines at work in the tunnel rescue operation Ambulances, doctors and stretchers on sitepublished at 05:44 GMT 23 November 2023 05:44 GMT 23 November 2023 Ambulances at the Uttara","ql":true,"uf":true,"dc":"in-window","ro":true,"accepted":true,"verdict":"accepted"},{"topic":"rescue","mode":"scenario","title":"All 41 miners rescued from collapsed tunnel in India’s Uttarakhand | News | Al Jazeera","url":"https://www.aljazeera.com/news/2023/11/28/first-of-41-indian-workers-rescued-from-collapsed-tunnel","host":"aljazeera.com","published":"2023-11-28","score":0.16297895,"quote":"Save Share Ambulances wait to carry workers from the site of an under-construction road tunnel that collapsed in Silkyara in the northern Indian state of Uttarakhand, India, Tuesday, Nov. 28, 2023. Officials in India said Tuesday they were on the verge of rescuing the 41 construction workers trapped in a collapsed mountain tunnel for over two weeks in the country's north, after rescuers drilled th","ql":true,"uf":true,"dc":"in-window","ro":true,"accepted":false,"verdict":"rejected: relevance 0.16297895 below 0.2"},{"topic":"rescue","mode":"scenario","title":"Uttarakhand tunnel collapse: Fears for India workers stuck for 72 hours","url":"https://www.bbc.com/news/world-asia-india-67423302","host":"bbc.com","published":"2023-11-15","score":0.15575814,"quote":"State and federal rescue teams have been using a massive drill to push through the debris to reach the men. Officials have been able to establish contact with the workers. Authorities have also brought fresh and more sophisticated drilling equipment from Delhi to speed up the rescue operations, they told BBC Hindi.","ql":true,"uf":true,"dc":"in-window","ro":true,"accepted":false,"verdict":"rejected: relevance 0.15575814 below 0.2"},{"topic":"disaster_scale","mode":"live","title":"Cairo-Alexandria Trade Logistics Development Project","url":"https://documents1.worldbank.org/curated/en/099500008292238868/pdf/P177932062006d0ac0bac207288d6e022a4.pdf","host":"documents1.worldbank.org","published":"2026-10-06","score":0.046677228,"quote":"This must be done in accordance with relevant human rights principles in order to avoid or minimize any harmful effects or risks that may occur affecting the affected communities. Project activities involving infrastructural physical interventions, transportation of wastes along roads. The operation of the project will involve management of hazardous wastes, road safety, pedestrian crossing the ra","ql":true,"uf":true,"dc":"fresh","ro":false,"accepted":false,"verdict":"rejected: relevance 0.046677228 below 0.2"}];
+const rows = DATA;
+const qs = new URLSearchParams(location.search);
+const STATIC = qs.get("static") === "1";
+if (STATIC) document.body.classList.add("static");
+const grid = document.getElementById("grid");
+const detail = document.getElementById("detail");
+let selected = 0;
+
+const CHECK_NAMES = ["quote_literal","url_fetched","date_check","relevance ≥ 0.20","region_ok"];
+
+function checksFor(r) {
+  return [
+    { pass: r.ql === true, value: r.ql === true ? "slice of page" : "not literal" },
+    { pass: r.uf === true, value: r.uf === true ? r.host : "not fetched" },
+    { pass: r.dc === "fresh" || r.dc === "in-window", value: r.dc },
+    { pass: r.score >= 0.2, value: r.score.toFixed(3) + (r.score >= 0.2 ? " ≥ 0.20" : " < 0.20") },
+    { pass: r.ro === true, value: r.ro === true ? "in region" : "not in region" },
+  ];
+}
+
+function tile(r, i) {
+  const b = document.createElement("button");
+  b.className = "tile " + (r.accepted ? "ok" : "no");
+  b.dataset.i = i;
+  b.style.animationDelay = (i * 34) + "ms";
+  b.style.setProperty("--w", Math.max(4, Math.round(r.score * 100)) + "%");
+  const dots = checksFor(r).map((c) =>
+    '<i class="' + (c.pass ? "p" : "f") + '"></i>').join("");
+  b.innerHTML =
+    '<span class="m">' + (r.accepted ? "✓" : "✕") + '</span>' +
+    '<span class="s">' + r.score.toFixed(3) + '</span>' +
+    '<span class="k">' + r.topic.replace(/_/g, " ") + '</span>' +
+    '<span class="h">' + r.host + '</span>' +
+    '<span class="dots">' + dots + '</span>' +
+    '<span class="bar"></span>';
+  b.addEventListener("click", () => select(i));
+  b.addEventListener("mouseenter", () => select(i, true));
+  return b;
+}
+
+function select(i, preview) {
+  selected = i;
+  const r = rows[i];
+  document.querySelectorAll(".tile").forEach((el) =>
+    el.classList.toggle("sel", Number(el.dataset.i) === i));
+
+  detail.className = "detail " + (r.accepted ? "" : "no");
+  document.getElementById("d-idx").textContent =
+    "CLAIM " + String(i + 1).padStart(2, "0") + " / " + rows.length;
+  document.getElementById("d-mode").textContent = r.mode;
+  document.getElementById("d-title").textContent = r.title.replace(/\s*\|\s*.*$/, "");
+  document.getElementById("d-src").textContent = r.host + " · " + r.published;
+
+  let q = r.quote.replace(/^\[\.\.\.\]\s*/, "");
+  const chrome = q.match(/^.*?\bCopied\s+/);
+  if (chrome) q = q.slice(chrome[0].length);
+  document.getElementById("d-quote").textContent = q.length > 300 ? q.slice(0, 300) + "…" : q;
+
+  const checks = checksFor(r);
+  document.getElementById("d-checks").innerHTML = checks.map((c, k) =>
+    '<div class="chk ' + (c.pass ? "pass" : "fail") + '">' +
+      '<span class="i">' + (c.pass ? "✓" : "✕") + '</span>' +
+      '<span class="n">' + CHECK_NAMES[k] + '</span>' +
+      '<span class="v">' + c.value + '</span>' +
+    '</div>').join("");
+
+  const pill = document.getElementById("d-pill");
+  pill.className = "pill " + (r.accepted ? "ok" : "no");
+  pill.textContent = r.accepted ? "ACCEPTED" : "REJECTED";
+  document.getElementById("d-note").textContent =
+    r.accepted ? "all five gates passed" : r.verdict.replace(/^rejected:\s*/, "");
+}
+
+rows.forEach((r, i) => grid.appendChild(tile(r, i)));
+
+// Counters.
+function count(el, to, ms) {
+  const t0 = performance.now();
+  (function step(t) {
+    const p = Math.min(1, (t - t0) / ms);
+    el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3)));
+    if (p < 1) requestAnimationFrame(step);
+  })(t0);
+}
+if (STATIC) {
+  document.getElementById("t-checked").textContent = rows.length;
+  document.getElementById("t-accepted").textContent = rows.filter((r) => r.accepted).length;
+  document.getElementById("t-rejected").textContent = rows.filter((r) => !r.accepted).length;
+} else {
+  count(document.getElementById("t-checked"), rows.length, 700);
+  count(document.getElementById("t-accepted"), rows.filter((r) => r.accepted).length, 900);
+  count(document.getElementById("t-rejected"), rows.filter((r) => !r.accepted).length, 1100);
+}
+
+// RUN THE GATE — sweeps the tiles left to right, one verdict at a time.
+const runBtn = document.getElementById("run");
+runBtn.addEventListener("click", () => {
+  runBtn.disabled = true;
+  const tiles = [...document.querySelectorAll(".tile")];
+  tiles.forEach((el, i) => setTimeout(() => {
+    el.classList.add("flash");
+    setTimeout(() => el.classList.remove("flash"), 460);
+    if (i === tiles.length - 1) {
+      setTimeout(() => { runBtn.disabled = false; }, 700);
+    }
+  }, i * 105));
+});
+
+// Arrow keys walk the grid; Enter is not needed because hover already previews.
+window.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown") select(Math.min(rows.length - 1, selected + 1));
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") select(Math.max(0, selected - 1));
+});
+
+// Deep links for testing: ?claim=3 selects a row, ?run=1 fires the sweep.
+select(Math.min(rows.length - 1, Number(qs.get("claim") || 0)));
+if (qs.get("run") === "1") setTimeout(() => runBtn.click(), 400);
+</script>
 </body>
 </html>
