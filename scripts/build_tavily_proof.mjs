@@ -48,6 +48,13 @@ const rows = lifeline.tavily.claims
       title: c.title,
       url: c.url,
       host: host(c.url),
+      path: (() => {
+        try {
+          return new URL(c.url).pathname;
+        } catch {
+          return "";
+        }
+      })(),
       published: c.published,
       score: c.score,
       quote: e.quote,
@@ -193,7 +200,8 @@ const html = `<!DOCTYPE html>
   .dhead .mode{margin-left:auto;font-family:"Cascadia Mono",Consolas,monospace;font-size:10px;
                color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:3px 7px}
   .dtitle{font-size:19px;line-height:1.35;font-weight:600;margin:0 0 6px}
-  .dsrc{font-family:"Cascadia Mono",Consolas,monospace;font-size:11px;color:var(--muted);margin-bottom:14px}
+  .dsrc{font-family:"Cascadia Mono",Consolas,monospace;font-size:10.5px;color:var(--muted);
+        margin-bottom:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .dq{font-size:13px;line-height:1.62;color:#a8c0ca;font-style:italic;border-left:2px solid var(--line);
       padding-left:12px;margin:0 0 16px;max-height:132px;overflow:hidden}
   .checks{display:flex;flex-direction:column;gap:1px;margin-bottom:16px}
@@ -339,7 +347,7 @@ function select(i, preview) {
     "CLAIM " + String(i + 1).padStart(2, "0") + " / " + rows.length;
   document.getElementById("d-mode").textContent = r.mode;
   document.getElementById("d-title").textContent = r.title.replace(/\\s*\\|\\s*.*$/, "");
-  document.getElementById("d-src").textContent = r.host + " · " + r.published;
+  document.getElementById("d-src").textContent = r.host + r.path + " · " + r.published;
 
   let q = r.quote.replace(/^\\[\\.\\.\\.\\]\\s*/, "");
   const chrome = q.match(/^.*?\\bCopied\\s+/);
