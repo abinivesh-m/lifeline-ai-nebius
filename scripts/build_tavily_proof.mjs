@@ -221,10 +221,12 @@ const html = `<!DOCTYPE html>
 
   footer{display:flex;align-items:center;gap:12px;margin-top:16px;padding-top:12px;
          border-top:1px solid var(--line);font-family:"Cascadia Mono",Consolas,monospace;
-         font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+         font-size:10.5px;color:var(--muted);letter-spacing:.04em;
+         white-space:nowrap;overflow:hidden}
   footer .x{color:var(--blood)}
   footer .sep{color:#314a55}
-  footer .r{margin-left:auto}
+  footer .trunc{min-width:0;overflow:hidden;text-overflow:ellipsis}
+  footer .r{margin-left:auto;flex:none;padding-left:18px}
 </style>
 </head>
 <body>
@@ -285,7 +287,7 @@ const html = `<!DOCTYPE html>
 
   <footer>
     <span class="x">✕</span>
-    <span>kept outside the totals — cached first run: ${m25.title.replace(/\s*-\s*BBC\.com$/, "")},
+    <span class="trunc">kept outside the totals — cached first run: ${m25.title.replace(/\s*-\s*BBC\.com$/, "")},
       relevance ${m25.relevance.toFixed(4)} &lt; 0.20, regional check also fails</span>
     <span class="sep">|</span>
     <span>${stats.queries} queries · ${stats.fetched} pages · ${stats.failed} failures · ${stats.calls} calls</span>
