@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tavily — 17 claims checked | Lifeline AI</title>
+<style>
+  :root {
+    --ink: #e8f3f6; --muted: #86a0ab; --panel: #0d1a20; --line: #1f3540;
+    --teal: #2dd4bf; --blood: #f87171; --amber: #f5b942; --bg: #071015;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background-image:
+      radial-gradient(900px 500px at 15% -10%, rgba(45,212,191,.10), transparent 60%),
+      radial-gradient(700px 420px at 95% 5%, rgba(248,113,113,.07), transparent 60%);
+    background-repeat: no-repeat;
+  }
+  .mono { font-family: "Cascadia Mono", Consolas, monospace; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 44px 40px 90px; }
+
+  header { display: flex; align-items: baseline; gap: 14px; padding-bottom: 18px;
+           border-bottom: 1px solid var(--line); }
+  .brand { font-weight: 700; letter-spacing: .22em; font-size: 15px; }
+  .brand span { color: var(--muted); font-weight: 400; }
+  .tag { margin-left: auto; font-size: 12px; letter-spacing: .18em; color: var(--teal);
+         border: 1px solid rgba(45,212,191,.35); border-radius: 999px; padding: 5px 12px; }
+
+  h1 { font-size: 44px; line-height: 1.1; margin: 34px 0 14px; letter-spacing: -.02em; }
+  h1 em { font-style: normal; color: var(--teal); }
+  .lede { max-width: 900px; font-size: 18px; line-height: 1.65; color: var(--muted); margin: 0 0 30px; }
+  .lede b { color: var(--ink); font-weight: 600; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+           background: var(--line); border: 1px solid var(--line); border-radius: 12px;
+           overflow: hidden; }
+  .stat { background: var(--panel); padding: 18px 20px; }
+  .stat .v { font-family: "Cascadia Mono", Consolas, monospace; font-size: 27px;
+             font-weight: 600; letter-spacing: -.02em; }
+  .stat .l { font-size: 11px; letter-spacing: .16em; color: var(--muted);
+             text-transform: uppercase; margin-top: 5px; }
+  .stat.teal .v { color: var(--teal); }
+  .stat.blood .v { color: var(--blood); }
+
+  h2 { font-size: 13px; letter-spacing: .24em; color: var(--muted); font-weight: 600;
+       margin: 52px 0 16px; text-transform: uppercase; }
+  h2 b { color: var(--ink); }
+
+  .rules { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .rule { border: 1px solid var(--line); border-radius: 10px; background: var(--panel);
+          padding: 14px 16px; }
+  .rule .k { font-family: "Cascadia Mono", Consolas, monospace; font-size: 12px;
+             color: var(--teal); margin-bottom: 6px; }
+  .rule .d { font-size: 13px; line-height: 1.5; color: var(--muted); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead th { text-align: left; font-size: 10px; letter-spacing: .18em; color: var(--muted);
+             text-transform: uppercase; font-weight: 600; padding: 0 12px 10px;
+             border-bottom: 1px solid var(--line); }
+  tbody tr { border-bottom: 1px solid rgba(31,53,64,.55); }
+  tbody tr.no { background: rgba(248,113,113,.05); }
+  td { padding: 11px 12px; vertical-align: middle; }
+  td.i { font-family: "Cascadia Mono", Consolas, monospace; color: var(--muted); width: 42px; }
+  td.m { font-family: "Cascadia Mono", Consolas, monospace; font-size: 11px;
+         color: var(--muted); width: 86px; }
+  td.t { line-height: 1.35; }
+  td.t .h { display: block; font-family: "Cascadia Mono", Consolas, monospace;
+            font-size: 10.5px; color: var(--muted); margin-top: 3px; }
+  td.d, td.s { font-family: "Cascadia Mono", Consolas, monospace; font-size: 12.5px;
+               color: var(--muted); white-space: nowrap; width: 104px; }
+  td.s { color: var(--ink); }
+  tr.no td.s { color: var(--blood); }
+  td.v { width: 300px; }
+  .pill { display: inline-block; font-family: "Cascadia Mono", Consolas, monospace;
+          font-size: 11px; padding: 4px 9px; border-radius: 5px; }
+  .pill.ok { color: var(--teal); background: rgba(45,212,191,.10);
+             border: 1px solid rgba(45,212,191,.30); }
+  .pill.no { color: var(--blood); background: rgba(248,113,113,.09);
+             border: 1px solid rgba(248,113,113,.28); }
+
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card { border: 1px solid rgba(248,113,113,.28); border-radius: 12px;
+          background: rgba(248,113,113,.045); padding: 22px 24px; }
+  .card .top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .card .top .x { color: var(--blood); font-size: 17px; }
+  .card .top .who { font-size: 11px; letter-spacing: .16em; color: var(--muted);
+                    text-transform: uppercase; }
+  .card h3 { font-size: 18px; line-height: 1.35; margin: 0 0 6px; font-weight: 600; }
+  .card .src { font-family: "Cascadia Mono", Consolas, monospace; font-size: 11px;
+               color: var(--muted); margin-bottom: 14px; }
+  .card blockquote { margin: 0 0 14px; padding-left: 13px; border-left: 2px solid rgba(248,113,113,.45);
+                     font-size: 13.5px; line-height: 1.6; color: var(--muted); font-style: italic; }
+  .card dl { display: grid; grid-template-columns: auto 1fr; gap: 5px 14px; margin: 0;
+             font-family: "Cascadia Mono", Consolas, monospace; font-size: 12px; }
+  .card dt { color: var(--muted); }
+  .card dd { margin: 0; }
+  .card .why { margin-top: 14px; font-size: 13.5px; line-height: 1.6; color: var(--ink); }
+
+  footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line);
+           font-family: "Cascadia Mono", Consolas, monospace; font-size: 11.5px;
+           line-height: 1.9; color: var(--muted); }
+  footer a { color: var(--teal); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">LIFELINE AI <span>/ PROOF</span></div>
+    <div class="tag">TAVILY · EVIDENCE LAYER</div>
+  </header>
+
+  <h1>17 claims checked.<br><em>9 survived.</em></h1>
+  <p class="lede">
+    Every outside fact in Lifeline AI arrives through <b>Tavily</b>. None of it is trusted.
+    A claim is only accepted if it is a <b>literal quote</b> from a page we actually fetched,
+    published <b>inside the window</b>, scoring above the <b>0.20 relevance floor</b>,
+    from the <b>right region</b>. Code decides that — not the model, and not us.
+  </p>
+
+  <div class="stats">
+    <div class="stat"><div class="v">10</div><div class="l">queries</div></div>
+    <div class="stat"><div class="v">37</div><div class="l">pages fetched</div></div>
+    <div class="stat"><div class="v">3</div><div class="l">fetch failures</div></div>
+    <div class="stat"><div class="v">17</div><div class="l">claims checked</div></div>
+    <div class="stat"><div class="v"><span style="color:var(--teal)">9</span></div><div class="l">accepted</div></div>
+    <div class="stat"><div class="v">132</div><div class="l">credits</div></div>
+    <div class="stat"><div class="v">47</div><div class="l">calls</div></div>
+    <div class="stat"><div class="v">$1.056</div><div class="l">tavily spend</div></div>
+  </div>
+
+  <h2>The <b>five</b> checks, in code</h2>
+  <div class="rules">
+    <div class="rule"><div class="k">quote_literal</div><div class="d">The quote is a byte-for-byte slice of the fetched page.</div></div>
+    <div class="rule"><div class="k">url_fetched</div><div class="d">The URL was retrieved by us. No URL, no claim.</div></div>
+    <div class="rule"><div class="k">date_check</div><div class="d">Published inside the search window, or dropped.</div></div>
+    <div class="rule"><div class="k">relevance ≥ 0.20</div><div class="d">Below the floor is noise, whatever it says.</div></div>
+    <div class="rule"><div class="k">region_ok</div><div class="d">The right state, the right country — not just the right words.</div></div>
+  </div>
+
+  <h2>The <b>17</b> rows, as scored</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>claim</th><th>story</th><th>published</th><th>score</th><th>verdict</th></tr>
+    </thead>
+    <tbody>
+<tr class="ok">
+      <td class="i">01</td>
+      <td class="m">rescue</td>
+      <td class="t">Heavy rains trigger landslide on Valparai ghat road<span class="h">live · timesofindia.indiatimes.com</span></td>
+      <td class="d">2026-10-21</td>
+      <td class="s">0.932</td>
+      <td class="v"><span class="pill ok">accepted</span></td>
+    </tr>
+<tr class="ok">
+      <td class="i">02</td>
+      <td class="m">disaster_scale</td>
+      <td class="t">Chennai: Heavy rains from Cyclone Michaung leave trail of destruction in city<span class="h">scenario · bbc.com</span></td>
+      <td class="d">2023-12-07</td>
+      <td class="s">0.789</td>
+      <td class="v"><span class="pill ok">accepted</span></td>
+    </tr>
+<tr class="ok">
+      <td class="i">03</td>
+      <td class="m">rescue</td>
+      <td class="t">India workers trapped for weeks in Himalayan tunnel on verge of rescue<span class="h">scenario · aljazeera.com</span></td>
+      <td class="d">2023-11-28</td>
+      <td class="s">0.707</td>
+      <td class="v"><span class="pill ok">accepted</span></td>
+    </tr>
+<tr class="ok">
+      <td class="i">04</td>
+      <td class="m">rescue</td>
+      <td class="t">Rain batters Nilgiris; landslide buries government bus, driver loses life<span class="h">live · newindianexpress.com</span></td>
+      <td class="d">2026-10-25</td>
+      <td class="s">0.585</td>
+      <td class="v"><span class="pill ok">accepted</span></td>
+    </tr>
+<tr class="ok">
+      <td class="i">05</td>
+      <td class="m">road_cut</td>
+      <td class="t">Rain batters Nilgiris; landslide buries government bus, driver loses life<span class="h">live · newindianexpress.com</span></td>
+      <td class="d">2026-10-25</td>
+      <td class="s">0.585</td>
+      <td class="v"><span class="pill ok">accepted</span></td>
+    </tr>
+<tr class="ok">
+      <td class="i">06</td>
+      <td class="m">rescue</td>
+      <td class="t">Driver dies as TNSTC bus buried under landslide on Mettupalayam-Coonoor Ghat…<span class="h">live · timesofindia.indiatimes.com</span></td>
+      <td class="d">2026-10-24</td>
+      <td class="s">0.472</td>
+      <td class="v"><span class="pill ok">accepted</span></td>
+    </tr>
+<tr class="ok">
+      <td class="i">07</td>
+      <td class="m">rescue</td>
+      <td class="t">Uttarakhand tunnel collapse: Rescuers explore new ways to reach trapped Indi…<span class="h">scenario · bbc.com</span></td>
+      <td class="d">2023-11-27</td>
+      <td class="s">0.225</td>
+      <td class="v"><span class="pill ok">accepted</span></td>
+    </tr>
+<tr class="ok">
+      <td class="i">08</td>
+      <td class="m">rescue</td>
+      <td class="t">Nilgiris Landslides: 1 Dead, Students Rescued As Heavy ...<span class="h">live · special.ndtv.com</span></td>
+      <td class="d">2026-10-24</td>
+      <td class="s">0.225</td>
+      <td class="v"><span class="pill ok">accepted</span></td>
+    </tr>
+<tr class="ok">
+      <td class="i">09</td>
+      <td class="m">rescue</td>
+      <td class="t">Uttarakhand tunnel collapse: Rescuers metres away from trapped workers - BBC…<span class="h">scenario · bbc.com</span></td>
+      <td class="d">2023-11-22</td>
+      <td class="s">0.224</td>
+      <td class="v"><span class="pill ok">accepted</span></td>
+    </tr>
+<tr class="no">
+      <td class="i">10</td>
+      <td class="m">road_cut</td>
+      <td class="t">IIT Delhi team inspects landslide-hit Kalinga Ghat<span class="h">live · newindianexpress.com</span></td>
+      <td class="d">2026-10-26</td>
+      <td class="s">0.872</td>
+      <td class="v"><span class="pill no">rejected: no regional anchor</span></td>
+    </tr>
+<tr class="no">
+      <td class="i">11</td>
+      <td class="m">fuel_logistics</td>
+      <td class="t">WHO Al Qatrun Health Response<span class="h">live · emro.who.int</span></td>
+      <td class="d">2026-09-30</td>
+      <td class="s">0.735</td>
+      <td class="v"><span class="pill no">rejected: no regional anchor</span></td>
+    </tr>
+<tr class="no">
+      <td class="i">12</td>
+      <td class="m">power_loss</td>
+      <td class="t">WHO Al Qatrun Health Response<span class="h">live · emro.who.int</span></td>
+      <td class="d">2026-09-30</td>
+      <td class="s">0.735</td>
+      <td class="v"><span class="pill no">rejected: no regional anchor</span></td>
+    </tr>
+<tr class="no">
+      <td class="i">13</td>
+      <td class="m">power_loss</td>
+      <td class="t">DR Congo: Afia Don Bosco Hospital receives donor ...<span class="h">scenario · reliefweb.int</span></td>
+      <td class="d">2023-12-18</td>
+      <td class="s">0.484</td>
+      <td class="v"><span class="pill no">rejected: no regional anchor</span></td>
+    </tr>
+<tr class="no">
+      <td class="i">14</td>
+      <td class="m">fuel_logistics</td>
+      <td class="t">Solar power brings renewable energy to hospitals in Yemen [EN/AR] - Yemen<span class="h">scenario · reliefweb.int</span></td>
+      <td class="d">2024-01-11</td>
+      <td class="s">0.285</td>
+      <td class="v"><span class="pill no">rejected: no regional anchor</span></td>
+    </tr>
+<tr class="no">
+      <td class="i">15</td>
+      <td class="m">rescue</td>
+      <td class="t">All 41 miners rescued from collapsed tunnel in India’s Uttarakhand<span class="h">scenario · aljazeera.com</span></td>
+      <td class="d">2023-11-28</td>
+      <td class="s">0.163</td>
+      <td class="v"><span class="pill no">rejected: 0.1630 &lt; 0.20</span></td>
+    </tr>
+<tr class="no">
+      <td class="i">16</td>
+      <td class="m">rescue</td>
+      <td class="t">Uttarakhand tunnel collapse: Fears for India workers stuck for 72 hours<span class="h">scenario · bbc.com</span></td>
+      <td class="d">2023-11-15</td>
+      <td class="s">0.156</td>
+      <td class="v"><span class="pill no">rejected: 0.1558 &lt; 0.20</span></td>
+    </tr>
+<tr class="no">
+      <td class="i">17</td>
+      <td class="m">disaster_scale</td>
+      <td class="t">Cairo-Alexandria Trade Logistics Development Project<span class="h">live · documents1.worldbank.org</span></td>
+      <td class="d">2026-10-06</td>
+      <td class="s">0.047</td>
+      <td class="v"><span class="pill no">rejected: 0.0467 &lt; 0.20</span></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>Two rejections <b>kept on purpose</b></h2>
+  <div class="cards">
+    <div class="card">
+      <div class="top"><span class="x">✕</span><span class="who">high score, wrong state</span></div>
+      <h3>IIT Delhi team inspects landslide-hit Kalinga Ghat</h3>
+      <div class="src">newindianexpress.com · 2026-10-26</div>
+      <blockquote>PHULABANI: A month-long closure of Kalinga Ghat on National Highway-157 has disrupted life along the Kandhamal-Ganjam border, pushing up the cost of essential commodities, crippling roadside businesses and forcing commuters and goods carrie…</blockquote>
+      <dl>
+        <dt>relevance</dt><dd>0.8722</dd>
+        <dt>quote_literal</dt><dd>true</dd>
+        <dt>url_fetched</dt><dd>true</dd>
+        <dt>region_ok</dt><dd style="color:var(--blood)">false</dd>
+        <dt>accepted</dt><dd style="color:var(--blood)">false</dd>
+      </dl>
+      <p class="why">Same newspaper as two accepted Tamil Nadu stories. Zero point eight seven —
+      and still rejected, because it is Odisha. A score is not permission.</p>
+    </div>
+
+    <div class="card">
+      <div class="top"><span class="x">✕</span><span class="who">below the floor · cached first run</span></div>
+      <h3>Section of M25 to close overnight near Wisley as footbridge erected - BBC.com</h3>
+      <div class="src">bbc.com · 2024-01-27</div>
+      <blockquote>A stretch of the M25 will be closed overnight this weekend to allow a new footbridge to be erected.</blockquote>
+      <dl>
+        <dt>relevance</dt><dd>0.0141</dd>
+        <dt>floor</dt><dd>0.2000</dd>
+        <dt>accepted</dt><dd style="color:var(--blood)">false</dd>
+      </dl>
+      <p class="why">relevance 0.0141 is below the 0.20 floor; the regional check also fails. Cached first-run response, kept as an example — not part of the 17-claim totals.</p>
+    </div>
+  </div>
+
+  <footer>
+    Read from <b>artifacts/tavily_proof.json</b> and <b>ui/public/data/lifeline.json</b> at build time.<br>
+    Live mode: 5 queries · 20 pages · 9 checked · 5 accepted · 59.81s.<br>
+    Scenario mode: 5 queries · 17 pages · 8 checked · 4 accepted · 119.63s.<br>
+    Generated 2026-10-29 · <a href="/">back to the town</a>
+  </footer>
+
+</div>
+</body>
+</html>
